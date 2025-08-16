@@ -28,9 +28,6 @@ export default function Home() {
         <div className="font-sans text-2xl font-semibold flex items-center text-purple-800">
           foyyer
         </div>
-        <div className="font-sans text-base font-thin flex items-center">
-          binnenkort meer...
-        </div>
 
         {/* <div className="flex gap-4 items-center flex-col sm:flex-row">
           <a
