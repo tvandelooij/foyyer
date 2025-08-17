@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Authenticated, Unauthenticated } from "convex/react";
-import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+import { SignInButton, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 
 export function Header() {
