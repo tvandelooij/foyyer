@@ -7,13 +7,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "format": "prettier --write src/",
-    "format:check": "prettier --check src/"
+    "format": "prettier --write src/ convex/",
+    "format:check": "prettier --check src/ convex/"
   },
   "dependencies": {
     "@clerk/localizations": "^3.21.2",
     "@clerk/nextjs": "^6.31.1",
     "@clerk/themes": "^2.4.10",
+    "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-slot": "^1.2.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

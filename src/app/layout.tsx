@@ -19,7 +19,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Foyyer",
+  title: "foyyer",
   description: "Ontdek en plan theater voorstellingen in Nederland.",
 };
 
@@ -41,8 +41,10 @@ export default function RootLayout({
               enableSystem
               disableTransitionOnChange
             >
-              <Header />
-              {children}
+              <div className="mx-auto w-full max-w-4xl md:px-4 md:w-2/3">
+                <Header />
+                {children}
+              </div>
             </ThemeProvider>
           </ConvexClientProvider>
         </body>
