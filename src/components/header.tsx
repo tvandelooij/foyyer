@@ -7,15 +7,51 @@ import Link from "next/link";
 import { Search, UserIcon } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 
+import { Input } from "@/components/ui/input";
+import SearchResults from "./search/search-results";
+import { useSearch } from "@/lib/search";
+
 export function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
+  const [searchResults, setSearchResults] = useState<any[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
+  const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
+
+  const { search } = useSearch();
 
   useEffect(() => {
     if (searchOpen && inputRef.current) {
       inputRef.current.focus();
     }
   }, [searchOpen]);
+
+  // Debounced search handler
+  useEffect(() => {
+    if (!searchOpen) {
+      setSearchResults([]);
+      setSearchValue("");
+      return;
+    }
+    if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
+    if (searchValue.trim() === "") {
+      setSearchResults([]);
+      return;
+    }
+    debounceTimeout.current = setTimeout(() => {
+      handleSearch(searchValue);
+    }, 500);
+    return () => {
+      if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchValue, searchOpen]);
+
+  async function handleSearch(query: string) {
+    const result = await search(query);
+
+    setSearchResults(result);
+  }
 
   return (
     <header className="flex h-16 items-center justify-between gap-4 border-b px-4 relative">
@@ -25,31 +61,59 @@ export function Header() {
             onClick={() => setSearchOpen((v) => !v)}
             aria-label="Zoek vrienden"
           >
-            <Search className="h-7 w-7 text-gray-500" />
+            <Search className="h-5 w-5 text-gray-500 items-center" />
           </button>
         </div>
       </Authenticated>
-      {/* Overlay search bar when open */}
+      {/* Overlay search bar and results when open */}
       <div
-        className={`absolute left-0 right-0 mx-auto flex items-center justify-center h-full z-20 px-4 transition-all duration-300 ${searchOpen ? "bg-white/95 opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+        className="absolute left-0 right-0 mx-auto flex flex-col items-center z-20 px-4 transition-all duration-300"
         style={{
+          pointerEvents: searchOpen ? "auto" : "none",
+          opacity: searchOpen ? 1 : 0,
+          background: searchOpen ? "rgba(255,255,255,0.95)" : undefined,
           transform: searchOpen ? "scale(1)" : "scale(0.98)",
         }}
       >
-        <input
-          ref={inputRef}
-          type="text"
-          placeholder="Zoeken..."
-          className="w-4/5 max-w-full border rounded px-3 py-2 focus:outline-none focus:ring transition-all duration-300"
-          onBlur={() => setSearchOpen(false)}
-          onKeyDown={(e) => {
-            if (e.key === "Escape") setSearchOpen(false);
+        <div
+          tabIndex={-1}
+          className="pt-20 w-full md:w-4/5 flex flex-col items-center relative"
+          onBlur={(e) => {
+            if (!e.currentTarget.contains(e.relatedTarget)) {
+              setSearchOpen(false);
+            }
           }}
-          style={{
-            opacity: searchOpen ? 1 : 0,
-            transition: "opacity 0.3s",
-          }}
-        />
+        >
+          <Input
+            ref={inputRef}
+            type="text"
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            placeholder="Zoeken..."
+            className="w-full border rounded px-3 py-2 focus:outline-none focus:ring transition-all duration-300"
+            onKeyDown={(e) => {
+              if (e.key === "Escape") setSearchOpen(false);
+            }}
+            style={{
+              opacity: searchOpen ? 1 : 0,
+              transition: "opacity 0.3s",
+            }}
+            onBlur={() => {}}
+          />
+          {searchOpen && (
+            <div
+              onMouseDown={(e) => {
+                e.preventDefault();
+              }}
+              className="w-full"
+            >
+              <SearchResults
+                searchResults={searchResults}
+                setSearchOpen={setSearchOpen}
+              />
+            </div>
+          )}
+        </div>
       </div>
       {!searchOpen && (
         <>
