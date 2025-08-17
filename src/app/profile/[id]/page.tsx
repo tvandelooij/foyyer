@@ -3,12 +3,13 @@
 import { useParams } from "next/navigation";
 import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
+import type { Id } from "../../../../convex/_generated/dataModel";
 import Image from "next/image";
 
 export default function ProfilePage() {
   const params = useParams();
-  const id = params.id as string;
-  const user = useQuery(api.users.getUserById, { id: id });
+  const id = params.id as Id<"users">;
+  const user = useQuery(api.users.getUserById, { id });
 
   if (!user) return <div>Loading...</div>;
 
