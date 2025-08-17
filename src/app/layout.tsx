@@ -7,6 +7,7 @@ import "./globals.css";
 import { nlNL } from "@clerk/localizations";
 import { neobrutalism } from "@clerk/themes";
 import { ConvexClientProvider } from "./ConvexClientProvider";
+import Navbar from "@/components/navbar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,7 +33,7 @@ export default function RootLayout({
     <ClerkProvider localization={nlNL} appearance={{ theme: neobrutalism }}>
       <html lang="en" className="h-full" suppressHydrationWarning>
         <body
-          className={`${geistSans.variable} ${geistMono.variable} flex min-h-full flex-col antialiased`}
+          className={`${geistSans.variable} ${geistMono.variable} flex min-h-screen h-screen flex-col antialiased bg-background`}
         >
           <ConvexClientProvider>
             <ThemeProvider
@@ -41,9 +42,12 @@ export default function RootLayout({
               enableSystem
               disableTransitionOnChange
             >
-              <div className="mx-auto w-full max-w-4xl md:px-4 md:w-2/3">
+              <div className="flex flex-col h-screen mx-auto w-full max-w-4xl md:px-4 md:w-2/3">
                 <Header />
-                {children}
+                <main className="flex-1 min-h-0 overflow-y-auto">
+                  {children}
+                </main>
+                <Navbar />
               </div>
             </ThemeProvider>
           </ConvexClientProvider>
