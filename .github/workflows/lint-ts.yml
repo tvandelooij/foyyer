@@ -1,0 +1,22 @@
+name: Lint TypeScript
+
+on:
+  push:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    name: Lint TypeScript
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - run: npm install
+
+      - run: npm run lint
+
+      - run: npm run format:check
