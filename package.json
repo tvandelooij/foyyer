@@ -11,6 +11,7 @@
     "format:check": "prettier --check src/"
   },
   "dependencies": {
+    "@clerk/localizations": "^3.21.2",
     "@clerk/nextjs": "^6.31.1",
     "@clerk/themes": "^2.4.10",
     "@radix-ui/react-slot": "^1.2.3",
