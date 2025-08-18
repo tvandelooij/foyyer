@@ -39,7 +39,7 @@ const Navbar = () => {
         </div>
         <div className="flex-1 flex justify-center">
           <Link
-            href="/groepen"
+            href="/groups"
             className="text-gray-700 dark:text-gray-200 hover:text-blue-500 transition-colors flex flex-col items-center gap-1"
           >
             <Users className="h-4 w-4" />

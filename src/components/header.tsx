@@ -56,7 +56,7 @@ export function Header() {
   }
 
   return (
-    <header className="flex h-16 items-center justify-between gap-4 border-b px-4 relative">
+    <header className="flex h-16 items-center justify-between gap-4 px-4 relative">
       <Authenticated>
         <div className="flex items-center min-w-[64px]">
           <button

@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 interface SearchResult {
-  _id: string | number;
+  userId: string | number;
   nickname: string;
   pictureUrl?: string;
 }
@@ -28,12 +28,12 @@ function SearchResults(props: SearchResultsProps) {
       <ul>
         {props.searchResults.map((result: SearchResult) => (
           <li
-            key={result._id}
+            key={result.userId}
             className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
             onClick={() => props.setSearchOpen?.(false)}
           >
             <Link
-              href={`/profile/${result._id}`}
+              href={`/profile/${result.userId}`}
               className="flex flex-row items-center gap-4"
             >
               <Avatar>
