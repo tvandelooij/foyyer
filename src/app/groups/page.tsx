@@ -11,6 +11,7 @@ import {
 import { CirclePlus, Dot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { Id } from "../../../convex/_generated/dataModel";
 
 export default function Page() {
   const router = useRouter();
@@ -53,7 +54,13 @@ function GroupList() {
   );
 }
 
-function GroupCard({ group }) {
+type Group = {
+  _id: Id<"groups">;
+  name: string;
+  // Add other fields if needed
+};
+
+function GroupCard({ group }: { group: Group }) {
   const memberCount = useQuery(api.group_members.getMemberCountForGroupId, {
     groupId: group._id,
   });
