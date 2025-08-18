@@ -1,20 +1,16 @@
+import { Id } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
 export const createFriendship = mutation({
-  args: { userId: v.id("users") },
+  args: { userId: v.string() },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
     if (identity === null) {
       throw new Error("Not authenticated");
     }
 
-    const currentUser = await ctx.db
-      .query("users")
-      .filter((q) => q.eq(q.field("nickname"), identity.nickname))
-      .first();
-
-    const userId1 = currentUser?._id;
+    const userId1 = identity.subject;
     const userId2 = args.userId;
 
     if (!userId1) {
@@ -48,7 +44,7 @@ export const createFriendship = mutation({
     const friendship = {
       userId1,
       userId2,
-      status: "pending",
+      status: "pending" as "pending",
       createdAt: Date.now(),
       updatedAt: Date.now(),
     };
@@ -58,19 +54,14 @@ export const createFriendship = mutation({
 });
 
 export const getFriendship = query({
-  args: { userId: v.id("users") },
+  args: { userId: v.string() },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
     if (identity === null) {
       throw new Error("Not authenticated");
     }
 
-    const currentUser = await ctx.db
-      .query("users")
-      .filter((q) => q.eq(q.field("nickname"), identity.nickname))
-      .first();
-
-    const userId1 = currentUser?._id;
+    const userId1 = identity.subject;
     const userId2 = args.userId;
 
     if (!userId1) {
@@ -99,18 +90,13 @@ export const getFriendship = query({
 
 export const getTotalFriends = query({
   args: {},
-  handler: async (ctx, args) => {
+  handler: async (ctx) => {
     const identity = await ctx.auth.getUserIdentity();
     if (identity === null) {
       throw new Error("Not authenticated");
     }
 
-    const currentUser = await ctx.db
-      .query("users")
-      .filter((q) => q.eq(q.field("nickname"), identity.nickname))
-      .first();
-
-    const userId = currentUser?._id;
+    const userId = identity.subject as Id<"users">;
 
     if (!userId) {
       throw new Error("Current user not found");
@@ -132,7 +118,7 @@ export const getTotalFriends = query({
 });
 
 export const updateFriendshipStatus = mutation({
-  args: { senderId: v.id("users"), status: v.string() },
+  args: { senderId: v.string(), status: v.string() },
   handler: async (ctx, args) => {
     const { senderId, status } = args;
     const identity = await ctx.auth.getUserIdentity();
@@ -140,12 +126,7 @@ export const updateFriendshipStatus = mutation({
       throw new Error("Not authenticated");
     }
 
-    const currentUser = await ctx.db
-      .query("users")
-      .filter((q) => q.eq(q.field("nickname"), identity.nickname))
-      .first();
-
-    const userId1 = currentUser?._id;
+    const userId1 = identity.subject;
     const userId2 = senderId;
 
     if (!userId1) {
@@ -172,6 +153,8 @@ export const updateFriendshipStatus = mutation({
       throw new Error("Friendship not found");
     }
 
-    await ctx.db.patch(friendship._id, { status: status });
+    await ctx.db.patch(friendship._id, {
+      status: status as "pending" | "accepted" | "declined",
+    });
   },
 });

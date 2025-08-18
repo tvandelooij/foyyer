@@ -14,6 +14,8 @@ import type {
   FunctionReference,
 } from "convex/server";
 import type * as friendships from "../friendships.js";
+import type * as group_members from "../group_members.js";
+import type * as groups from "../groups.js";
 import type * as notifications from "../notifications.js";
 import type * as users from "../users.js";
 
@@ -27,6 +29,8 @@ import type * as users from "../users.js";
  */
 declare const fullApi: ApiFromModules<{
   friendships: typeof friendships;
+  group_members: typeof group_members;
+  groups: typeof groups;
   notifications: typeof notifications;
   users: typeof users;
 }>;
