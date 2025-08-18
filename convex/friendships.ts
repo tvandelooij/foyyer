@@ -130,3 +130,48 @@ export const getTotalFriends = query({
     return totalFriends.length;
   },
 });
+
+export const updateFriendshipStatus = mutation({
+  args: { senderId: v.id("users"), status: v.string() },
+  handler: async (ctx, args) => {
+    const { senderId, status } = args;
+    const identity = await ctx.auth.getUserIdentity();
+    if (identity === null) {
+      throw new Error("Not authenticated");
+    }
+
+    const currentUser = await ctx.db
+      .query("users")
+      .filter((q) => q.eq(q.field("nickname"), identity.nickname))
+      .first();
+
+    const userId1 = currentUser?._id;
+    const userId2 = senderId;
+
+    if (!userId1) {
+      throw new Error("Current user not found");
+    }
+
+    const friendship = await ctx.db
+      .query("friendships")
+      .filter((q) =>
+        q.or(
+          q.and(
+            q.eq(q.field("userId1"), userId1),
+            q.eq(q.field("userId2"), userId2),
+          ),
+          q.and(
+            q.eq(q.field("userId1"), userId2),
+            q.eq(q.field("userId2"), userId1),
+          ),
+        ),
+      )
+      .first();
+
+    if (!friendship) {
+      throw new Error("Friendship not found");
+    }
+
+    await ctx.db.patch(friendship._id, { status: status });
+  },
+});
