@@ -20,6 +20,7 @@ export default function ProfilePage() {
   const user = useQuery(api.users.getUserById, { id });
 
   const addFriend = useMutation(api.friendships.createFriendship);
+  const createNotification = useMutation(api.notifications.createNotification);
   const friendship = useQuery(api.friendships.getFriendship, { userId: id });
   const totalFriends = useQuery(api.friendships.getTotalFriends);
 
@@ -27,6 +28,11 @@ export default function ProfilePage() {
 
   const handleAddFriend = async () => {
     await addFriend({ userId: id });
+    await createNotification({
+      userId: id,
+      type: "friend_request",
+      data: { senderId: user._id },
+    });
   };
 
   return (
@@ -56,7 +62,7 @@ export default function ProfilePage() {
               </div>
             </Button>
           )}
-          {friendship?.status === "pending" && (
+          {friendship?.status === "pending" && friendship?.userId1 !== id && (
             <div className="flex items-center text-white text-xs p-2 h-6 rounded-md font-semibold bg-gray-300">
               <div>Verzoek verzonden</div>
             </div>

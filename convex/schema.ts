@@ -17,4 +17,11 @@ export default defineSchema({
     createdAt: v.number(),
     updatedAt: v.number(),
   }),
+  notifications: defineTable({
+    userId: v.id("users"),
+    type: v.string(), // e.g. "friend_request", "like_review"
+    data: v.optional(v.any()), // additional data, e.g. reviewId, senderId
+    read: v.boolean(),
+    createdAt: v.number(),
+  }).index("by_user", ["userId"]),
 });

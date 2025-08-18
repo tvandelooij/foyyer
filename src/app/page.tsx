@@ -26,7 +26,7 @@ export default function Home() {
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
         <Unauthenticated>
           <SignInButton>
-            <Button variant="ghost">Inloggen</Button>
+            <Button>Log in</Button>
           </SignInButton>
         </Unauthenticated>
         <Authenticated>hello {user?.username}</Authenticated>

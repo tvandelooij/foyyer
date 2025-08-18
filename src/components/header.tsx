@@ -1,15 +1,17 @@
 "use client";
 
-import { Authenticated } from "convex/react";
+import { Authenticated, useQuery } from "convex/react";
 import { UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 
-import { Search, UserIcon } from "lucide-react";
+import { Search, UserIcon, Bell } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 
 import { Input } from "@/components/ui/input";
 import SearchResults from "./search/search-results";
 import { useSearch } from "@/lib/search";
+import { useRouter } from "next/navigation";
+import { api } from "../../convex/_generated/api";
 
 export function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
@@ -56,7 +58,7 @@ export function Header() {
   return (
     <header className="flex h-16 items-center justify-between gap-4 border-b px-4 relative">
       <Authenticated>
-        <div className="flex items-center min-w-[28px]">
+        <div className="flex items-center min-w-[64px]">
           <button
             onClick={() => setSearchOpen((v) => !v)}
             aria-label="Zoek vrienden"
@@ -123,7 +125,8 @@ export function Header() {
             </span>
           </Link>
           <Authenticated>
-            <div className="flex items-center gap-x-4 min-w-[28px]">
+            <div className="flex items-center gap-x-4 min-w-[64px] relative">
+              <NotificationBell />
               <UserButton>
                 <UserButton.MenuItems>
                   <UserButton.Link
@@ -140,5 +143,25 @@ export function Header() {
         </>
       )}
     </header>
+  );
+}
+
+function NotificationBell() {
+  const router = useRouter();
+  const hasUnreadNotifications = useQuery(
+    api.notifications.hasUnreadNotifications,
+  );
+
+  function handleNotificationClick(): void {
+    router.push("/notifications");
+  }
+
+  return (
+    <div className="relative" onClick={() => handleNotificationClick()}>
+      <Bell className="h-5 w-5 text-gray-500" />
+      {hasUnreadNotifications && (
+        <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white" />
+      )}
+    </div>
   );
 }
