@@ -30,6 +30,7 @@ export default function Page() {
   const params = useParams();
   const user = useUser();
   const router = useRouter();
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const group = useQuery(api.groups.getGroupById, {
     id: params.id as Id<"groups">,
@@ -45,28 +46,27 @@ export default function Page() {
   const deleteGroup = useMutation(api.groups.deleteGroup);
 
   const handleDeleteGroup = async (groupId: Id<"groups">) => {
-    // Call the delete group mutation
+    setIsDeleting(true);
+    // Redirect first to avoid timing issues
+    router.push("/groups");
+    // Then perform deletions
     await deleteMembers({
       groupId: groupId as Id<"groups">,
     });
-
     await deleteInvitations({
       groupId: groupId as Id<"groups">,
     });
-
-    deleteGroup({
+    await deleteGroup({
       id: groupId as Id<"groups">,
-    }).then(
-      () => {
-        router.push("/groups");
-      }
-    );
+    });
   };
 
   return (
     <Authenticated>
       <div className="mx-6 my-4">
-        {group ? (
+        {isDeleting ? (
+          <p>Groep wordt verwijderd...</p>
+        ) : group ? (
           <div className="flex flex-col gap-8">
             <div className="flex flex-col">
               {group.createdBy === user?.user?.id && (
