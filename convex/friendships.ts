@@ -158,3 +158,30 @@ export const updateFriendshipStatus = mutation({
     });
   },
 });
+
+export const listFriendsForUserId = query({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (identity === null) {
+      throw new Error("Not authenticated");
+    }
+
+    const userId = identity.subject as Id<"users">;
+
+    if (!userId) {
+      throw new Error("Current user not found");
+    }
+
+    return ctx.db
+      .query("friendships")
+      .filter((q) =>
+        q.or(
+          q.eq(q.field("userId1"), userId),
+          q.eq(q.field("userId2"), userId),
+        ),
+      )
+      .filter((q) => q.eq(q.field("status"), "accepted"))
+      .collect();
+  },
+});

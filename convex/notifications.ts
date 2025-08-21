@@ -15,8 +15,8 @@ export const createNotification = mutation({
 
     return await ctx.db.insert("notifications", {
       userId: args.userId,
-      type: args.type as "friend_request" | "like_review",
-      data: { senderId: senderId },
+      type: args.type as "friend_request" | "like_review" | "group_invitation",
+      data: { senderId: senderId, groupId: args.data.groupId },
       read: false,
       createdAt: Date.now(),
     });

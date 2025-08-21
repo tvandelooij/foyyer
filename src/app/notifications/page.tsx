@@ -1,6 +1,7 @@
 "use client";
 
-import { Authenticated, useMutation, useQuery } from "convex/react";
+import { Authenticated, useMutation } from "convex/react";
+import { useQuery } from "convex-helpers/react/cache/hooks";
 import { api } from "../../../convex/_generated/api";
 import Image from "next/image";
 import { Ban, CircleCheck } from "lucide-react";
@@ -8,9 +9,9 @@ import { useRouter } from "next/navigation";
 
 export default function Page() {
   return (
-    <main className="flex flex-col justify-center mx-4 my-2 ">
+    <main className="flex flex-col justify-center mx-6 my-4">
       <Authenticated>
-        <div className="text-2xl font-bold">Meldingen</div>
+        <div className="text-3xl font-bold">Meldingen</div>
         <Notifications />
       </Authenticated>
     </main>
@@ -30,11 +31,25 @@ function Notifications() {
         </div>
       )}
       <div>
-        {notifications?.map((notification) =>
-          notification.type === "friend_request" ? (
-            <FriendRequest key={notification._id} notification={notification} />
-          ) : null,
-        )}
+        {notifications?.map((notification) => {
+          if (notification.type === "friend_request") {
+            return (
+              <FriendRequest
+                key={notification._id}
+                notification={notification}
+              />
+            );
+          } else if (notification.type === "group_invitation") {
+            return (
+              <GroupInvitation
+                key={notification._id}
+                notification={notification}
+              />
+            );
+          } else {
+            return null;
+          }
+        })}
       </div>
     </>
   );
@@ -89,6 +104,73 @@ function FriendRequest({ notification }: { notification: any }) {
         <Ban
           className="text-red-400"
           onClick={() => setFriendshipStatus("declined")}
+        />
+      </div>
+    </div>
+  );
+}
+
+function GroupInvitation({ notification }: { notification: any }) {
+  const router = useRouter();
+  const id = notification.data.senderId;
+
+  const sender = useQuery(api.users.getUserById, { id });
+  const groupName = useQuery(api.groups.getGroupNameById, {
+    id: notification.data.groupId,
+  });
+
+  const processGroupInvitation = useMutation(
+    api.group_invitations.updateInvitation,
+  );
+  const markNotificationAsRead = useMutation(
+    api.notifications.markNotificationAsRead,
+  );
+
+  const handleProfileClick = () => {
+    router.push(`/profile/${sender?.userId}`);
+  };
+
+  const handleGroupInvite = async (status: string) => {
+    await processGroupInvitation({
+      groupId: notification.data.groupId,
+      status: status,
+    });
+
+    await markNotificationAsRead({ notificationId: notification._id });
+  };
+
+  return (
+    <div className="flex flex-col p-4 border-b">
+      <div className="flex flex-row items-center gap-4">
+        <Image
+          src={sender?.pictureUrl || "/default-avatar.png"}
+          alt={sender?.nickname || "Vriend"}
+          width={40}
+          height={40}
+          className="rounded-full"
+          onClick={() => handleProfileClick()}
+        />
+        <div className="flex flex-col gap-1">
+          <p className="text-xs text-gray-500 text-nowrap">
+            <span className="font-semibold">{sender?.nickname}</span> heeft je
+            uitgenodigd voor
+          </p>
+          <span
+            className="text-sm font-semibold text-gray-800"
+            onClick={() => router.push(`/groups/${notification.data.groupId}`)}
+          >
+            {groupName}
+          </span>
+        </div>
+      </div>
+      <div className="flex flex-row justify-end gap-4">
+        <CircleCheck
+          className="text-green-400"
+          onClick={() => handleGroupInvite("accepted")}
+        />
+        <Ban
+          className="text-red-400"
+          onClick={() => handleGroupInvite("declined")}
         />
       </div>
     </div>

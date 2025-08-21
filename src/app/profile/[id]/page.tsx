@@ -1,7 +1,8 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useQuery, useMutation } from "convex/react";
+import { useMutation } from "convex/react";
+import { useQuery } from "convex-helpers/react/cache/hooks";
 import { api } from "../../../../convex/_generated/api";
 import type { Id } from "../../../../convex/_generated/dataModel";
 import Image from "next/image";
@@ -83,7 +84,7 @@ export default function ProfilePage() {
           </div>
         </div>
         <div className="flex justify-end">
-          {!friendship && (
+          {!friendship && id != user.userId && (
             <Button
               className="text-xs p-2 h-6 rounded-md font-semibold bg-blue-600"
               onClick={handleAddFriend}
