@@ -39,11 +39,14 @@ export default defineSchema({
     description: v.optional(v.string()),
     visibility: v.union(v.literal("public"), v.literal("private")),
     pictureUrl: v.optional(v.string()),
+    createdBy: v.string(), // userId of the creator
     createdAt: v.number(),
     updatedAt: v.number(),
-  }).searchIndex("search_name", {
-    searchField: "name",
-  }),
+  })
+    .searchIndex("search_name", {
+      searchField: "name",
+    })
+    .index("by_user", ["createdBy"]),
   groupMembers: defineTable({
     groupId: v.id("groups"),
     userId: v.string(),

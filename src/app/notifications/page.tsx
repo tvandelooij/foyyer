@@ -1,6 +1,7 @@
 "use client";
 
-import { Authenticated, useMutation, useQuery } from "convex/react";
+import { Authenticated, useMutation } from "convex/react";
+import { useQuery } from "convex-helpers/react/cache/hooks";
 import { api } from "../../../convex/_generated/api";
 import Image from "next/image";
 import { Ban, CircleCheck } from "lucide-react";
@@ -8,7 +9,7 @@ import { useRouter } from "next/navigation";
 
 export default function Page() {
   return (
-    <main className="flex flex-col justify-center mx-4 my-2 ">
+    <main className="flex flex-col justify-center mx-6 my-4">
       <Authenticated>
         <div className="text-2xl font-bold">Meldingen</div>
         <Notifications />

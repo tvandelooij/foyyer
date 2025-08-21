@@ -34,3 +34,14 @@ export const getMemberCountForGroupId = query({
     return memberCount.length;
   },
 });
+
+export const addGroupMember = mutation({
+  args: { groupId: v.id("groups"), userId: v.string() },
+  handler: async (ctx, args) => {
+    await ctx.db.insert("groupMembers", {
+      groupId: args.groupId,
+      userId: args.userId,
+      joinedAt: Date.now(),
+    });
+  },
+});
