@@ -1,7 +1,7 @@
 "use client";
 
 import { Authenticated, useQuery } from "convex/react";
-import { UserButton } from "@clerk/nextjs";
+import { UserButton, useUser } from "@clerk/nextjs";
 import Link from "next/link";
 
 import { Search, UserIcon, Bell } from "lucide-react";
@@ -19,6 +19,8 @@ export function Header() {
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
+
+  const user = useUser();
 
   const { search } = useSearch();
 
@@ -134,7 +136,7 @@ export function Header() {
                     labelIcon={
                       <UserIcon className="h-4 w-4 flex items-center" />
                     }
-                    href="/profile"
+                    href={`/profile/${user?.user?.id}`}
                   />
                 </UserButton.MenuItems>
               </UserButton>

@@ -44,3 +44,83 @@ export const createGroup = mutation({
     });
   },
 });
+
+export const getGroupById = query({
+  args: { id: v.id("groups") },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (identity === null) {
+      throw new Error("Not authenticated");
+    }
+
+    const group = await ctx.db.get(args.id);
+
+    if (group === null) {
+      throw new Error("Group not found");
+    }
+
+    const isInvited = await ctx.db
+      .query("groupInvitations")
+      .filter((q) => q.eq(q.field("groupId"), group._id))
+      .filter((q) => q.eq(q.field("userId"), identity.subject))
+      .first();
+
+    if (isInvited) {
+      return group;
+    }
+
+    if (group.createdBy !== identity.subject) {
+      throw new Error("Not authorized");
+    }
+
+    const groupMembers = await ctx.db
+      .query("groupMembers")
+      .filter((q) => q.eq(q.field("groupId"), group._id))
+      .collect();
+
+    const isMember = groupMembers
+      .map((gm) => gm.userId)
+      .includes(identity.subject);
+
+    if (!isMember && group.visibility === "private") {
+      throw new Error("Not authorized");
+    }
+
+    return group;
+  },
+});
+
+export const getGroupNameById = query({
+  args: { id: v.id("groups") },
+  handler: async (ctx, args) => {
+    const group = await ctx.db.get(args.id);
+    if (group === null) {
+      throw new Error("Group not found");
+    }
+    return group.name;
+  },
+});
+
+export const deleteGroup = mutation({
+  args: { id: v.id("groups") },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (identity === null) {
+      throw new Error("Not authenticated");
+    }
+
+    const group = await ctx.db.get(args.id);
+
+    if (group === null) {
+      throw new Error("Group not found");
+    }
+
+    if (group.createdBy !== identity.subject) {
+      throw new Error("Not authorized");
+    }
+
+    await ctx.db.delete(group._id);
+  },
+});

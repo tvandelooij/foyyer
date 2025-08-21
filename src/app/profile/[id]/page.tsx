@@ -84,7 +84,7 @@ export default function ProfilePage() {
           </div>
         </div>
         <div className="flex justify-end">
-          {!friendship && (
+          {!friendship && id != user.userId && (
             <Button
               className="text-xs p-2 h-6 rounded-md font-semibold bg-blue-600"
               onClick={handleAddFriend}

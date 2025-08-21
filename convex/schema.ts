@@ -24,11 +24,16 @@ export default defineSchema({
   }).index("by_users", ["userId1", "userId2"]),
   notifications: defineTable({
     userId: v.string(),
-    type: v.union(v.literal("friend_request"), v.literal("like_review")), // e.g. "friend_request", "like_review"
+    type: v.union(
+      v.literal("friend_request"),
+      v.literal("like_review"),
+      v.literal("group_invitation"),
+    ), // e.g. "friend_request", "like_review"
     data: v.optional(
       v.object({
         senderId: v.optional(v.string()),
         reviewId: v.optional(v.string()),
+        groupId: v.optional(v.string()),
       }),
     ), // additional data, e.g. reviewId, senderId
     read: v.boolean(),
@@ -55,4 +60,15 @@ export default defineSchema({
   })
     .index("by_group", ["groupId"])
     .index("by_user", ["userId"]),
+  groupInvitations: defineTable({
+    groupId: v.id("groups"),
+    userId: v.string(),
+    invitedAt: v.number(),
+    invitedBy: v.string(),
+    status: v.union(
+      v.literal("pending"),
+      v.literal("accepted"),
+      v.literal("declined"),
+    ),
+  }),
 });

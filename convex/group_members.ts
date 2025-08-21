@@ -35,6 +35,16 @@ export const getMemberCountForGroupId = query({
   },
 });
 
+export const listGroupMembers = query({
+  args: { groupId: v.id("groups") },
+  handler: (ctx, args) => {
+    return ctx.db
+      .query("groupMembers")
+      .filter((q) => q.eq(q.field("groupId"), args.groupId))
+      .collect();
+  },
+});
+
 export const addGroupMember = mutation({
   args: { groupId: v.id("groups"), userId: v.string() },
   handler: async (ctx, args) => {
@@ -43,5 +53,20 @@ export const addGroupMember = mutation({
       userId: args.userId,
       joinedAt: Date.now(),
     });
+  },
+});
+
+export const deleteGroupMembers = mutation({
+  args: { groupId: v.id("groups") },
+  handler: async (ctx, args) => {
+    // get member id for group id
+    const members = await ctx.db
+      .query("groupMembers")
+      .filter((q) => q.eq(q.field("groupId"), args.groupId))
+      .collect();
+
+    for (const member of members) {
+      await ctx.db.delete(member._id);
+    }
   },
 });

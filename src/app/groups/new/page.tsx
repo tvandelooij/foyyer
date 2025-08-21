@@ -20,6 +20,7 @@ import { Label } from "@/components/ui/label";
 import { api } from "../../../../convex/_generated/api";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
+import { useState } from "react";
 
 export default function Page() {
   return (
@@ -35,6 +36,8 @@ export default function Page() {
 }
 
 function GroupForm() {
+  const [isLoading, setIsLoading] = useState(false);
+
   const createGroup = useMutation(api.groups.createGroup);
   const addGroupMember = useMutation(api.group_members.addGroupMember);
   const user = useUser();
@@ -62,16 +65,19 @@ function GroupForm() {
   });
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
+    setIsLoading(true);
     const groupId = await createGroup(data);
     const userId = user?.user?.id;
 
     if (!userId) {
+      setIsLoading(false);
       throw new Error("User ID is undefined");
     }
 
     await addGroupMember({ groupId, userId });
+    setIsLoading(false);
 
-    router.push("/groups");
+    router.push(`/groups/${groupId}`);
   }
 
   return (
@@ -139,7 +145,11 @@ function GroupForm() {
               )}
             />
             <div className="flex justify-center pt-6">
-              <Button type="submit" className="bg-blue-500 px-3 w-full">
+              <Button
+                type="submit"
+                className="bg-blue-500 px-3 w-full"
+                disabled={isLoading}
+              >
                 Groep aanmaken
               </Button>
             </div>

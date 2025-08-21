@@ -20,7 +20,7 @@ export default function Page() {
       <div className="mx-6 my-4">
         <div className="flex flex-col gap-12">
           <div className="flex flex-row justify-between">
-            <div className="text-2xl font-bold">Groepen</div>
+            <div className="text-3xl font-bold">Groepen</div>
             <NewGroup />
           </div>
           <div>
@@ -60,7 +60,7 @@ function GroupList() {
   const allGroups = Array.from(allGroupsMap.values());
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 pb-20">
       {allGroups?.length === 0 && (
         <div className="flex items-center justify-center text-center text-gray-500 text-sm h-32">
           Je bent nog niet lid van een groep.
@@ -84,8 +84,14 @@ function GroupCard({ group }: { group: Group }) {
     groupId: group._id,
   });
 
+  const router = useRouter();
+
+  const handleGroupClick = (groupId: Id<"groups">) => {
+    router.push(`/groups/${groupId}`);
+  };
+
   return (
-    <Card>
+    <Card onClick={() => handleGroupClick(group._id)}>
       <CardHeader>
         <div className="flex flex-row items-center justify-between">
           <CardTitle className="text-xl">{group.name}</CardTitle>
