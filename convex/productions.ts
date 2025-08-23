@@ -8,8 +8,10 @@ export const getUpcomingPremieres = query({
       .query("productions")
       .withIndex("by_start_date")
       .order("asc")
-      .filter((q) => q.gt(q.field("start_date"), new Date().toISOString()))
-      .take(5);
+      .filter((q) =>
+        q.gt(q.field("start_date"), new Date("2025-10-01").toISOString()),
+      )
+      .take(15);
     return productions;
   },
 });

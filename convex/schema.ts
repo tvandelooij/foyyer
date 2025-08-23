@@ -96,4 +96,10 @@ export default defineSchema({
     .searchIndex("search_producer", {
       searchField: "producer",
     }),
+  production_likes: defineTable({
+    production_id: v.id("productions"),
+    user_id: v.string(),
+  })
+    .index("by_user", ["user_id"])
+    .index("by_production", ["production_id"]),
 });
