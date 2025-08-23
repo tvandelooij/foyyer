@@ -68,7 +68,7 @@ function ProductionCard({ production }: { production: Production }) {
 
   return (
     <Card
-      className="gap-2 py-4 min-w-40 border-yellow-300 border-1"
+      className="gap-2 py-4 min-w-40 bg-stone-50 border-red-950 border-2 shadow-none rounded-none"
       onClick={() => handleProductionClick(production._id)}
     >
       <CardHeader className="flex flex-col">
@@ -77,7 +77,7 @@ function ProductionCard({ production }: { production: Production }) {
             ? production.title.slice(0, 17) + "..."
             : production.title}
         </CardTitle>
-        <div className="text-xs text-gray-800 text-medium">
+        <div className="text-xs text-gray-800 text-medium pt-1">
           {new Date(production.start_date).toISOString().slice(0, 10)}
         </div>
       </CardHeader>
