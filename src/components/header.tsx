@@ -58,14 +58,14 @@ export function Header() {
   }
 
   return (
-    <header className="flex h-16 items-center justify-between gap-4 px-4 relative">
+    <header className="flex h-16 items-center justify-between gap-4 px-4 relative border-b-2 border-red-950">
       <Authenticated>
         <div className="flex items-center min-w-[64px]">
           <button
             onClick={() => setSearchOpen((v) => !v)}
             aria-label="Zoek vrienden"
           >
-            <Search className="h-5 w-5 text-gray-500 items-center" />
+            <Search className="h-5 w-5 text-red-950 items-center" />
           </button>
         </div>
       </Authenticated>
@@ -121,8 +121,8 @@ export function Header() {
       </div>
       {!searchOpen && (
         <>
-          <Link href="/" className="flex items-center gap-x-4">
-            <span className="font-sans text-2xl font-bold text-yellow-300">
+          <Link href="/" className="flex items-center gap-x-5">
+            <span className="font-sans text-2xl font-bold px-2 pb-1 text-red-950 border-r-3 border-b-3 border-red-950 bg-yellow-200">
               foyyer
             </span>
           </Link>
@@ -160,9 +160,9 @@ function NotificationBell() {
 
   return (
     <div className="relative" onClick={() => handleNotificationClick()}>
-      <Bell className="h-5 w-5 text-gray-500" />
+      <Bell className="h-5 w-5 text-red-950" />
       {hasUnreadNotifications && (
-        <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white" />
+        <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-600 ring-2 ring-white" />
       )}
     </div>
   );
