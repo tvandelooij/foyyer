@@ -18,6 +18,7 @@ import type * as group_invitations from "../group_invitations.js";
 import type * as group_members from "../group_members.js";
 import type * as groups from "../groups.js";
 import type * as notifications from "../notifications.js";
+import type * as productions from "../productions.js";
 import type * as users from "../users.js";
 
 /**
@@ -34,6 +35,7 @@ declare const fullApi: ApiFromModules<{
   group_members: typeof group_members;
   groups: typeof groups;
   notifications: typeof notifications;
+  productions: typeof productions;
   users: typeof users;
 }>;
 export declare const api: FilterApi<
