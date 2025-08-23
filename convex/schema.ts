@@ -71,4 +71,29 @@ export default defineSchema({
       v.literal("declined"),
     ),
   }),
+  venues: defineTable({
+    et_pageid: v.number(),
+    name: v.string(),
+    city: v.string(),
+    location_type: v.string(),
+    website: v.optional(v.string()),
+  }).searchIndex("search_name", {
+    searchField: "name",
+  }),
+  productions: defineTable({
+    priref_id: v.string(),
+    title: v.string(),
+    discipline: v.string(),
+    start_date: v.string(),
+    producer: v.array(v.string()),
+    venue: v.string(),
+    notes: v.optional(v.string()),
+  })
+    .index("by_start_date", ["start_date"])
+    .searchIndex("search_title", {
+      searchField: "title",
+    })
+    .searchIndex("search_producer", {
+      searchField: "producer",
+    }),
 });
