@@ -171,9 +171,7 @@ function AddToAgendaDialog({ production }: { production: Production }) {
     defaultValues: {
       type: "personal",
       groupId: "",
-      date: "",
       start_time: "20:00",
-      venue: "",
     },
   });
 
@@ -388,7 +386,7 @@ function AddToAgendaDialog({ production }: { production: Production }) {
                             placeholder="Zoek een locatie..."
                             className="h-9"
                           />
-                          <CommandList className="flex flex-row overflow-x-auto gap-2 pb-2 max-h-32">
+                          <CommandList className="flex flex-col gap-2 pb-2 max-h-32 overflow-y-scroll overscroll-contain touch-auto">
                             <CommandEmpty>Locatie niet gevonden</CommandEmpty>
                             <CommandGroup className="flex flex-row gap-2">
                               {venues?.map((venue) => (

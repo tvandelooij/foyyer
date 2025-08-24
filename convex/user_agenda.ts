@@ -37,6 +37,32 @@ export const createAgendaItem = mutation({
   },
 });
 
+export const updateAgendaItemStatus = mutation({
+  args: {
+    status: v.union(
+      v.literal("planned"),
+      v.literal("confirmed"),
+      v.literal("canceled"),
+    ),
+    id: v.id("userAgenda"),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (!identity) {
+      throw new Error("userId is required to update agenda item status.");
+    }
+
+    const item = await ctx.db.get(args.id);
+
+    if (item?.userId !== identity.subject) {
+      throw new Error("You do not have permission to update this agenda item.");
+    }
+
+    await ctx.db.patch(args.id, { status: args.status });
+  },
+});
+
 export const getAgendaItem = query({
   args: { id: v.id("userAgenda") },
   handler: async (ctx, args) => {
