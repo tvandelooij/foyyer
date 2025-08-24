@@ -17,8 +17,8 @@ export default function Page() {
   return (
     <div className="flex flex-col mx-6 my-4 pb-20 gap-4">
       <div className="flex flex-col gap-4">
-        <div className="text-3xl font-bold">Agenda</div>
-        <div className="flex flex-col gap-2">
+        <div className="text-xl font-bold pl-1 text-red-950">Agenda</div>
+        <div className="flex flex-col gap-1">
           {agendaItems?.map((item) => (
             <AgendaItem key={item._id} item={item} />
           ))}
@@ -51,7 +51,7 @@ function AgendaItem({ item }: { item: AgendaItemType }) {
 
   return (
     <Card
-      className="border-none"
+      className="bg-stone-50 rounded-sm"
       onClick={() => handleAgendaItemClick(item._id)}
     >
       <CardHeader className="px-4 flex flex-row justify-between">
@@ -61,7 +61,7 @@ function AgendaItem({ item }: { item: AgendaItemType }) {
             {venue?.name}, {item.start_time.slice(0, 5)}
           </CardDescription>
         </div>
-        <div className="text-nowrap text-sm font-semibold text-blue-500">
+        <div className="text-nowrap text-xs font-semibold text-white bg-orange-500 rounded-sm border-2 border-b-4 border-red-950 p-2">
           {new Date(item.date).toLocaleDateString("nl-NL", {
             day: "2-digit",
             month: "short",

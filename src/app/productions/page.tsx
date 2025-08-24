@@ -80,7 +80,7 @@ function ProductionCard({ production }: { production: Production }) {
 
   return (
     <Card
-      className="gap-2 py-4 min-w-40 bg-stone-50 border-red-950 border-2 shadow-none rounded-none"
+      className="gap-2 py-4 min-w-40 bg-stone-200 border-b-4 border-r-4 rounded-sm place-content-center"
       onClick={() => handleProductionClick(production._id)}
     >
       <CardHeader className="flex flex-col">
@@ -89,11 +89,11 @@ function ProductionCard({ production }: { production: Production }) {
             ? production.title.slice(0, 17) + "..."
             : production.title}
         </CardTitle>
-        <div className="text-xs text-gray-800 text-medium pt-1">
+        <div className="text-xs text-stone-800 text-medium py-1">
           {new Date(production.start_date).toISOString().slice(0, 10)}
         </div>
       </CardHeader>
-      <CardContent className="text-xs text-gray-500">
+      <CardContent className="text-xs text-stone-500">
         {production.producer
           .slice(0, 2)
           .map((name) => {
@@ -115,13 +115,13 @@ function LikedProduction({ production }: { production: Production }) {
 
   return (
     <Card
-      className="gap-2 py-4"
+      className="gap-2 py-4 border-b-4 border-r-4 rounded-sm bg-lime-200"
       onClick={() => handleProductionClick(production._id)}
     >
       <CardHeader className="flex flex-col">
         <CardTitle className="text-xs text-wrap">{production.title}</CardTitle>
       </CardHeader>
-      <CardContent className="text-xs text-gray-500">
+      <CardContent className="text-xs text-stone-600">
         {production.producer
           .slice(0, 2)
           .map((name) => {

@@ -2,7 +2,7 @@
 
 import React from "react";
 
-import { Calendar, HomeIcon, Users, Drama } from "lucide-react";
+import { Calendar, HouseIcon, Users, Drama } from "lucide-react";
 import Link from "next/link";
 import { Authenticated } from "convex/react";
 
@@ -15,7 +15,7 @@ const Navbar = () => {
             href="/"
             className="text-red-950 dark:text-gray-200 hover:text-blue-500 transition-colors flex flex-col items-center gap-1"
           >
-            <HomeIcon className="h-4 w-4" />
+            <HouseIcon className="h-4 w-4" />
             <div className="text-xs">Home</div>
           </Link>
         </div>
