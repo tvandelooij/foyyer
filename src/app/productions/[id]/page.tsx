@@ -3,7 +3,7 @@
 import { Authenticated, useMutation } from "convex/react";
 import { useQuery } from "convex-helpers/react/cache/hooks";
 import { api } from "../../../../convex/_generated/api";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Id } from "../../../../convex/_generated/dataModel";
 
 import { format } from "date-fns";
@@ -147,13 +147,18 @@ type Production = {
 
 function AddToAgendaDialog({ production }: { production: Production }) {
   const user = useUser();
+  const router = useRouter();
   const groups = useQuery(api.group_members.getGroupsForUserId, {
     userId: user.user?.id,
   });
   const venues = useQuery(api.venues.getVenues);
+  const maybeItem = useQuery(api.user_agenda.getAgendaItemForProduction, {
+    id: production._id as Id<"productions">,
+  });
 
   const addToUserAgenda = useMutation(api.user_agenda.createAgendaItem);
   const addToGroupAgenda = useMutation(api.group_agenda.addGroupAgendaItem);
+  const updateUserAgenda = useMutation(api.user_agenda.updateAgendaItem);
 
   // State to control venue popover
   const [venuePopoverOpen, setVenuePopoverOpen] = React.useState(false);
@@ -166,13 +171,35 @@ function AddToAgendaDialog({ production }: { production: Production }) {
     venue: z.string(),
   });
 
+  const defaultValues = React.useMemo(() => {
+    const values: {
+      type: "personal" | "group";
+      start_time: string;
+      date: string | undefined;
+      venue: string | undefined;
+      groupId?: string | undefined;
+    } = {
+      type: "personal",
+      start_time: "20:00",
+      date: undefined,
+      venue: undefined,
+    };
+
+    if (maybeItem) {
+      values.type = maybeItem.groupId ? "group" : "personal";
+      if (maybeItem.groupId) {
+        values.groupId = maybeItem.groupId;
+      }
+      values.date = maybeItem.date;
+      values.start_time = maybeItem.start_time;
+      values.venue = maybeItem.venueId as Id<"venues">;
+    }
+    return values;
+  }, [maybeItem]);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      type: "personal",
-      groupId: "",
-      start_time: "20:00",
-    },
+    defaultValues,
   });
 
   const [open, setOpen] = React.useState(false);
@@ -182,13 +209,25 @@ function AddToAgendaDialog({ production }: { production: Production }) {
     setIsLoading(true);
 
     if (data.type === "personal") {
-      await addToUserAgenda({
-        productionId: production._id,
-        venueId: data.venue as Id<"venues">,
-        date: data.date,
-        start_time: data.start_time,
-        status: "confirmed",
-      });
+      if (maybeItem) {
+        await updateUserAgenda({
+          _id: maybeItem._id as Id<"userAgenda">,
+          userId: user.user?.id,
+          productionId: production._id,
+          date: data.date,
+          start_time: data.start_time,
+          venueId: data.venue as Id<"venues">,
+          status: "confirmed",
+        });
+      } else {
+        await addToUserAgenda({
+          productionId: production._id,
+          venueId: data.venue as Id<"venues">,
+          date: data.date,
+          start_time: data.start_time,
+          status: "confirmed",
+        });
+      }
     } else if (data.type === "group") {
       await addToGroupAgenda({
         groupId: data.groupId as Id<"groups">,
@@ -201,16 +240,17 @@ function AddToAgendaDialog({ production }: { production: Production }) {
 
     setOpen(false);
     setIsLoading(false);
-    return;
+    form.reset();
+    router.push("/agenda");
   }
 
-  // Reset form when dialog closes
+  // Reset form when dialog closes or when defaultValues change
   React.useEffect(() => {
     if (!open) {
       setIsLoading(false);
-      form.reset();
+      form.reset(defaultValues);
     }
-  }, [open, form]);
+  }, [open, form, defaultValues]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

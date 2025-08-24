@@ -13,13 +13,31 @@ export const addGroupAgendaItem = mutation({
     const identity = await ctx.auth.getUserIdentity();
     let { groupId, productionId, venueId, date, start_time } = args;
 
-    await ctx.db.insert("groupAgenda", {
-      groupId,
-      productionId,
-      venueId,
-      date,
-      start_time,
-    });
+    const maybeGroupItem = await ctx.db
+      .query("groupAgenda")
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("groupId"), groupId),
+          q.eq(q.field("productionId"), productionId),
+        ),
+      )
+      .first();
+
+    if (maybeGroupItem) {
+      await ctx.db.patch(maybeGroupItem._id, {
+        venueId,
+        date,
+        start_time,
+      });
+    } else {
+      await ctx.db.insert("groupAgenda", {
+        groupId,
+        productionId,
+        venueId,
+        date,
+        start_time,
+      });
+    }
 
     const groupMembers = await ctx.db
       .query("groupMembers")
@@ -27,28 +45,46 @@ export const addGroupAgendaItem = mutation({
       .collect();
 
     for (const member of groupMembers) {
-      await ctx.db.insert("userAgenda", {
-        userId: member.userId,
-        productionId,
-        venueId,
-        date,
-        start_time,
-        status: "planned",
-        groupId: groupId,
-      });
+      const maybeItem = await ctx.db
+        .query("userAgenda")
+        .filter((q) =>
+          q.and(
+            q.eq(q.field("userId"), member.userId),
+            q.eq(q.field("productionId"), productionId),
+          ),
+        )
+        .first();
 
-      if (member.userId !== identity?.subject) {
-        await ctx.db.insert("notifications", {
-          userId: member.userId,
-          type: "event_proposal",
-          data: {
-            senderId: identity?.subject,
-            groupId: groupId,
-            productionId: productionId,
-          },
-          read: false,
-          createdAt: Date.now(),
+      if (maybeItem) {
+        await ctx.db.patch(maybeItem._id, {
+          venueId,
+          date,
+          start_time,
         });
+      } else {
+        await ctx.db.insert("userAgenda", {
+          userId: member.userId,
+          productionId,
+          venueId,
+          date,
+          start_time,
+          status: "planned",
+          groupId: groupId,
+        });
+
+        if (member.userId !== identity?.subject && !maybeItem) {
+          await ctx.db.insert("notifications", {
+            userId: member.userId,
+            type: "event_proposal",
+            data: {
+              senderId: identity?.subject,
+              groupId: groupId,
+              productionId: productionId,
+            },
+            read: false,
+            createdAt: Date.now(),
+          });
+        }
       }
     }
   },
