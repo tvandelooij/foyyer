@@ -10,6 +10,7 @@ export const addGroupAgendaItem = mutation({
     start_time: v.string(),
   },
   handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
     let { groupId, productionId, venueId, date, start_time } = args;
 
     await ctx.db.insert("groupAgenda", {
@@ -35,6 +36,20 @@ export const addGroupAgendaItem = mutation({
         status: "planned",
         groupId: groupId,
       });
+
+      if (member.userId !== identity?.subject) {
+        await ctx.db.insert("notifications", {
+          userId: member.userId,
+          type: "event_proposal",
+          data: {
+            senderId: identity?.subject,
+            groupId: groupId,
+            productionId: productionId,
+          },
+          read: false,
+          createdAt: Date.now(),
+        });
+      }
     }
   },
 });

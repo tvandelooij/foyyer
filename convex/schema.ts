@@ -43,12 +43,14 @@ export default defineSchema({
       v.literal("friend_request"),
       v.literal("like_review"),
       v.literal("group_invitation"),
+      v.literal("event_proposal"),
     ), // e.g. "friend_request", "like_review"
     data: v.optional(
       v.object({
         senderId: v.optional(v.string()),
         reviewId: v.optional(v.string()),
-        groupId: v.optional(v.string()),
+        groupId: v.optional(v.id("groups")),
+        productionId: v.optional(v.id("productions")),
       }),
     ), // additional data, e.g. reviewId, senderId
     read: v.boolean(),

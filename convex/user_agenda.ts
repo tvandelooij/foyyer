@@ -82,6 +82,27 @@ export const getAgendaItem = query({
   },
 });
 
+export const getEventProposal = query({
+  args: { groupId: v.id("groups"), productionId: v.id("productions") },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("userId is required to get agenda items.");
+    }
+
+    return ctx.db
+      .query("userAgenda")
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("userId"), identity.subject),
+          q.eq(q.field("groupId"), args.groupId),
+          q.eq(q.field("productionId"), args.productionId),
+        ),
+      )
+      .first();
+  }
+})
+
 export const getAgendaItemsForGroup = query({
   args: { groupId: v.id("groups"), productionId: v.id("productions") },
   handler: async (ctx, args) => {
