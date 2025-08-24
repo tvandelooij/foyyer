@@ -11,6 +11,21 @@ export default defineSchema({
   }).searchIndex("search_nickname", {
     searchField: "nickname",
   }),
+  userAgenda: defineTable({
+    userId: v.string(),
+    productionId: v.id("productions"),
+    venueId: v.id("venues"),
+    date: v.string(),
+    start_time: v.string(),
+    status: v.union(
+      v.literal("planned"),
+      v.literal("confirmed"),
+      v.literal("canceled"),
+    ),
+    groupId: v.optional(v.id("groups")),
+  })
+    .index("by_date", ["date"])
+    .index("by_user", ["userId"]),
   friendships: defineTable({
     userId1: v.string(),
     userId2: v.string(),
@@ -71,6 +86,13 @@ export default defineSchema({
       v.literal("declined"),
     ),
   }),
+  groupAgenda: defineTable({
+    groupId: v.id("groups"),
+    productionId: v.id("productions"),
+    venueId: v.id("venues"),
+    date: v.string(),
+    start_time: v.string(),
+  }).index("by_date", ["date"]),
   venues: defineTable({
     et_pageid: v.number(),
     name: v.string(),
@@ -96,4 +118,10 @@ export default defineSchema({
     .searchIndex("search_producer", {
       searchField: "producer",
     }),
+  production_likes: defineTable({
+    production_id: v.id("productions"),
+    user_id: v.string(),
+  })
+    .index("by_user", ["user_id"])
+    .index("by_production", ["production_id"]),
 });

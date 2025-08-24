@@ -8,7 +8,9 @@ export const getUpcomingPremieres = query({
       .query("productions")
       .withIndex("by_start_date")
       .order("asc")
-      .filter((q) => q.gt(q.field("start_date"), new Date().toISOString()))
+      .filter((q) =>
+        q.gt(q.field("start_date"), new Date(Date.now()).toISOString()),
+      )
       .take(5);
     return productions;
   },

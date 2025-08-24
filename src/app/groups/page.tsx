@@ -13,6 +13,7 @@ import { Dot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { Id } from "../../../convex/_generated/dataModel";
+import { useUser } from "@clerk/nextjs";
 
 export default function Page() {
   return (
@@ -40,14 +41,17 @@ function NewGroup() {
   };
 
   return (
-    <Button className="bg-green-500 px-3" onClick={() => handleAddGroup()}>
+    <Button className="bg-indigo-300 px-3" onClick={() => handleAddGroup()}>
       <div className="text-xs font-bold">Nieuwe groep</div>
     </Button>
   );
 }
 
 function GroupList() {
-  const groups = useQuery(api.group_members.getGroupsForUserId);
+  const user = useUser();
+  const groups = useQuery(api.group_members.getGroupsForUserId, {
+    userId: user.user?.id,
+  });
   const groupsOwner = useQuery(api.groups.listGroupsCreatedByUser);
 
   if (!groups || !groupsOwner) {
@@ -83,6 +87,9 @@ function GroupCard({ group }: { group: Group }) {
   const memberCount = useQuery(api.group_members.getMemberCountForGroupId, {
     groupId: group._id,
   });
+  const visitCount = useQuery(api.group_agenda.getGroupVisitCount, {
+    groupId: group._id,
+  });
 
   const router = useRouter();
 
@@ -101,7 +108,9 @@ function GroupCard({ group }: { group: Group }) {
             {memberCount} {memberCount === 1 ? "lid" : "leden"}
           </div>
           <Dot />
-          <div>14 voorstellingen bezocht</div>
+          <div>
+            {visitCount} voorstelling{visitCount === 1 ? "" : "en"} bezocht
+          </div>
         </CardDescription>
       </CardHeader>
     </Card>

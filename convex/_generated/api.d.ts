@@ -14,12 +14,16 @@ import type {
   FunctionReference,
 } from "convex/server";
 import type * as friendships from "../friendships.js";
+import type * as group_agenda from "../group_agenda.js";
 import type * as group_invitations from "../group_invitations.js";
 import type * as group_members from "../group_members.js";
 import type * as groups from "../groups.js";
 import type * as notifications from "../notifications.js";
+import type * as production_likes from "../production_likes.js";
 import type * as productions from "../productions.js";
+import type * as user_agenda from "../user_agenda.js";
 import type * as users from "../users.js";
+import type * as venues from "../venues.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -31,12 +35,16 @@ import type * as users from "../users.js";
  */
 declare const fullApi: ApiFromModules<{
   friendships: typeof friendships;
+  group_agenda: typeof group_agenda;
   group_invitations: typeof group_invitations;
   group_members: typeof group_members;
   groups: typeof groups;
   notifications: typeof notifications;
+  production_likes: typeof production_likes;
   productions: typeof productions;
+  user_agenda: typeof user_agenda;
   users: typeof users;
+  venues: typeof venues;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

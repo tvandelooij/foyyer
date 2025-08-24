@@ -2,17 +2,11 @@ import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
 export const getGroupsForUserId = query({
-  args: {},
-  handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (identity === null) {
-      throw new Error("Not authenticated");
-    }
-
+  args: { userId: v.optional(v.string()) },
+  handler: async (ctx, args) => {
     const groupIds = await ctx.db
       .query("groupMembers")
-      .filter((q) => q.eq(q.field("userId"), identity.subject))
+      .filter((q) => q.eq(q.field("userId"), args.userId))
       .collect();
 
     const groupIdSet = new Set(groupIds.map((gm) => gm.groupId));
@@ -68,5 +62,17 @@ export const deleteGroupMembers = mutation({
     for (const member of members) {
       await ctx.db.delete(member._id);
     }
+  },
+});
+
+export const getMembersForGroupId = query({
+  args: { groupId: v.id("groups") },
+  handler: async (ctx, args) => {
+    const members = await ctx.db
+      .query("groupMembers")
+      .filter((q) => q.eq(q.field("groupId"), args.groupId))
+      .collect();
+
+    return members;
   },
 });

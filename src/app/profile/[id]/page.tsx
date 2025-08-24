@@ -24,6 +24,12 @@ export default function ProfilePage() {
   const createNotification = useMutation(api.notifications.createNotification);
   const friendship = useQuery(api.friendships.getFriendship, { userId: id });
   const totalFriends = useQuery(api.friendships.getTotalFriends);
+  const visitCount = useQuery(api.users.getTotalVisitCountForUser, {
+    userId: id,
+  });
+  const groupCount = useQuery(api.group_members.getGroupsForUserId, {
+    userId: id,
+  });
 
   const updateFriendshipStatus = useMutation(
     api.friendships.updateFriendshipStatus,
@@ -125,14 +131,14 @@ export default function ProfilePage() {
         <Card className="@container/card">
           <CardHeader>
             <CardDescription>Voorstellingen bezocht</CardDescription>
-            <CardTitle className="text-xl">12</CardTitle>
+            <CardTitle className="text-xl">{visitCount}</CardTitle>
           </CardHeader>
         </Card>
 
         <Card className="@container/card">
           <CardHeader>
             <CardDescription>Groepen</CardDescription>
-            <CardTitle className="text-xl">1</CardTitle>
+            <CardTitle className="text-xl">{groupCount?.length}</CardTitle>
           </CardHeader>
         </Card>
       </div>
