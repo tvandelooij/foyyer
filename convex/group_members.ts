@@ -70,3 +70,15 @@ export const deleteGroupMembers = mutation({
     }
   },
 });
+
+export const getMembersForGroupId = query({
+  args: { groupId: v.id("groups") },
+  handler: async (ctx, args) => {
+    const members = await ctx.db
+      .query("groupMembers")
+      .filter((q) => q.eq(q.field("groupId"), args.groupId))
+      .collect();
+
+    return members;
+  },
+});

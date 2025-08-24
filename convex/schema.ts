@@ -11,6 +11,20 @@ export default defineSchema({
   }).searchIndex("search_nickname", {
     searchField: "nickname",
   }),
+  userAgenda: defineTable({
+    userId: v.string(),
+    productionId: v.id("productions"),
+    venueId: v.id("venues"),
+    date: v.string(),
+    start_time: v.string(),
+    status: v.union(
+      v.literal("planned"),
+      v.literal("confirmed"),
+      v.literal("canceled"),
+    ),
+  })
+    .index("by_date", ["date"])
+    .index("by_user", ["userId"]),
   friendships: defineTable({
     userId1: v.string(),
     userId2: v.string(),
@@ -70,6 +84,13 @@ export default defineSchema({
       v.literal("accepted"),
       v.literal("declined"),
     ),
+  }),
+  groupAgenda: defineTable({
+    groupId: v.id("groups"),
+    productionId: v.id("productions"),
+    venueId: v.id("venues"),
+    date: v.string(),
+    start_time: v.string(),
   }),
   venues: defineTable({
     et_pageid: v.number(),

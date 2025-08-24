@@ -40,7 +40,7 @@ function NewGroup() {
   };
 
   return (
-    <Button className="bg-green-500 px-3" onClick={() => handleAddGroup()}>
+    <Button className="bg-indigo-300 px-3" onClick={() => handleAddGroup()}>
       <div className="text-xs font-bold">Nieuwe groep</div>
     </Button>
   );
