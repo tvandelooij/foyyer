@@ -4,7 +4,7 @@ import { Authenticated, useMutation } from "convex/react";
 import { useQuery } from "convex-helpers/react/cache/hooks";
 import { api } from "../../../convex/_generated/api";
 import Image from "next/image";
-import { Ban, CircleCheck } from "lucide-react";
+import { Ban, CircleArrowRight, CircleCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function Page() {
@@ -42,6 +42,13 @@ function Notifications() {
           } else if (notification.type === "group_invitation") {
             return (
               <GroupInvitation
+                key={notification._id}
+                notification={notification}
+              />
+            );
+          } else if (notification.type === "event_proposal") {
+            return (
+              <EventProposal
                 key={notification._id}
                 notification={notification}
               />
@@ -172,6 +179,54 @@ function GroupInvitation({ notification }: { notification: any }) {
           className="text-red-400"
           onClick={() => handleGroupInvite("declined")}
         />
+      </div>
+    </div>
+  );
+}
+
+function EventProposal({ notification }: { notification: any }) {
+  const router = useRouter();
+  const id = notification.data.senderId;
+
+  const sender = useQuery(api.users.getUserById, { id });
+  const groupName = useQuery(api.groups.getGroupNameById, {
+    id: notification.data.groupId,
+  });
+
+  const production = useQuery(api.productions.getProductionById, {
+    id: notification.data.productionId,
+  });
+  const agendaItem = useQuery(api.user_agenda.getEventProposal, {
+    groupId: notification.data.groupId,
+    productionId: notification.data.productionId,
+  });
+
+  const markNotificationAsRead = useMutation(
+    api.notifications.markNotificationAsRead,
+  );
+
+  const handleAgendaItemClick = async () => {
+    await markNotificationAsRead({ notificationId: notification?._id });
+    router.push(`/agenda/${agendaItem?._id}`);
+  };
+
+  return (
+    <div className="flex flex-col p-4 border-b">
+      <div className="flex flex-row items-center gap-4">
+        <div className="flex flex-col gap-2">
+          <p className="text-xs text-gray-400">
+            <span className="font-semibold">{sender?.nickname}</span> heeft een
+            voorstelling op de agenda gezet voor{" "}
+            <span className="font-semibold">{groupName}</span>
+          </p>
+          <div className="text-sm font-bold">{production?.title}</div>
+          <div
+            className="flex flex-row justify-end"
+            onClick={() => handleAgendaItemClick()}
+          >
+            <CircleArrowRight className="text-red-950" />
+          </div>
+        </div>
       </div>
     </div>
   );
