@@ -162,7 +162,7 @@ type ProductionVisit = {
   // Add other properties if needed
 };
 
-export function ProductionVisitCard({ visit }: { visit: ProductionVisit }) {
+function ProductionVisitCard({ visit }: { visit: ProductionVisit }) {
   const production = useQuery(api.productions.getProductionById, {
     id: visit.productionId as Id<"productions">,
   });
