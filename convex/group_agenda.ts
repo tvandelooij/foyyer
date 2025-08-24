@@ -33,6 +33,7 @@ export const addGroupAgendaItem = mutation({
         date,
         start_time,
         status: "planned",
+        groupId: groupId,
       });
     }
   },
@@ -46,11 +47,31 @@ export const getGroupVisitCount = query({
       .filter((q) =>
         q.and(
           q.eq(q.field("groupId"), args.groupId),
-          q.lt(q.field("date"), new Date(Date.now()).toISOString()),
+          q.lt(q.field("date"), new Date().toISOString().slice(0, 10)),
         ),
       )
       .collect();
 
     return visits.length;
+  },
+});
+
+export const getPastGroupVisits = query({
+  args: { groupId: v.id("groups") },
+  handler: async (ctx, args) => {
+    return ctx.db
+      .query("groupAgenda")
+      .withIndex("by_date")
+      .order("desc")
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("groupId"), args.groupId),
+          q.lt(
+            q.field("date"),
+            new Date(Date.now()).toISOString().slice(0, 10),
+          ),
+        ),
+      )
+      .take(10);
   },
 });

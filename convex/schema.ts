@@ -22,6 +22,7 @@ export default defineSchema({
       v.literal("confirmed"),
       v.literal("canceled"),
     ),
+    groupId: v.optional(v.id("groups")),
   })
     .index("by_date", ["date"])
     .index("by_user", ["userId"]),
@@ -91,7 +92,7 @@ export default defineSchema({
     venueId: v.id("venues"),
     date: v.string(),
     start_time: v.string(),
-  }),
+  }).index("by_date", ["date"]),
   venues: defineTable({
     et_pageid: v.number(),
     name: v.string(),

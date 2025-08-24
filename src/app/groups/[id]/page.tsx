@@ -5,7 +5,7 @@ import { Authenticated, useMutation } from "convex/react";
 import { useParams, useRouter } from "next/navigation";
 import { api } from "../../../../convex/_generated/api";
 import { Id } from "../../../../convex/_generated/dataModel";
-import { Card, CardHeader } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
 import {
@@ -38,6 +38,9 @@ export default function Page() {
   const groupMembers = useQuery(api.group_members.listGroupMembers, {
     groupId: params.id as Id<"groups">,
   });
+  const pastVisits = useQuery(api.group_agenda.getPastGroupVisits, {
+    groupId: params.id as Id<"groups">,
+  });
 
   const deleteMembers = useMutation(api.group_members.deleteGroupMembers);
   const deleteInvitations = useMutation(
@@ -67,7 +70,7 @@ export default function Page() {
         {isDeleting ? (
           <p>Groep wordt verwijderd...</p>
         ) : group ? (
-          <div className="flex flex-col gap-8">
+          <div className="flex flex-col gap-6">
             <div className="flex flex-col">
               {group.createdBy === user?.user?.id && (
                 <div className="flex justify-end">
@@ -101,8 +104,25 @@ export default function Page() {
               </div>
             </div>
 
-            <div>
+            <div className="flex flex-col gap-2">
               <div className="text-xl font-semibold">Recent bezocht</div>
+              <div
+                className="flex flex-row gap-4"
+                style={{
+                  overflowX: "auto",
+                  overflowY: "hidden",
+                  WebkitOverflowScrolling: "touch",
+                  scrollbarWidth: "thin",
+                }}
+              >
+                {pastVisits &&
+                  pastVisits.map((visit) => (
+                    <ProductionVisitCard
+                      key={visit.productionId}
+                      visit={visit}
+                    />
+                  ))}
+              </div>
             </div>
 
             <div className="flex flex-col gap-4">
@@ -136,6 +156,52 @@ export default function Page() {
   );
 }
 
+type ProductionVisit = {
+  productionId: string;
+  date: string;
+  // Add other properties if needed
+};
+
+export function ProductionVisitCard({ visit }: { visit: ProductionVisit }) {
+  const production = useQuery(api.productions.getProductionById, {
+    id: visit.productionId as Id<"productions">,
+  });
+
+  const router = useRouter();
+
+  const handleProductionClick = (id: Id<"productions">) => {
+    router.push(`/productions/${id}`);
+  };
+
+  return (
+    <Card
+      className="gap-2 py-4 min-w-40 bg-stone-50 border-red-950 border-2 shadow-none rounded-none"
+      onClick={() =>
+        handleProductionClick(production?._id as Id<"productions">)
+      }
+    >
+      <CardHeader className="flex flex-col gap-2">
+        <CardTitle className="text-sm min-h-8 max-h-8 text-wrap">
+          {production?.title?.length
+            ? production.title.length > 20
+              ? production.title.slice(0, 17) + "..."
+              : production.title
+            : "Onbekend"}
+        </CardTitle>
+        <div className="text-xs text-gray-800 text-medium pt-1">
+          Gezien op{" "}
+          {production?.start_date
+            ? new Date(visit.date).toLocaleDateString("nl-NL", {
+                day: "2-digit",
+                month: "short",
+              })
+            : ""}
+        </div>
+      </CardHeader>
+    </Card>
+  );
+}
+
 function GroupMember({
   userId,
   isAdmin,
@@ -151,7 +217,7 @@ function GroupMember({
   };
 
   return (
-    <Card className="py-3 rounded-md" onClick={handleUserClick(userId)}>
+    <Card className="py-3" onClick={handleUserClick(userId)}>
       <CardHeader className="gap-0">
         <div className="flex flex-row items-center gap-4">
           <Avatar>

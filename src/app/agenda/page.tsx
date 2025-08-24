@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Id } from "../../../convex/_generated/dataModel";
+import { useRouter } from "next/navigation";
 
 export default function Page() {
   const agendaItems = useQuery(api.user_agenda.listAgendaItemsForUser);
@@ -38,13 +39,21 @@ type AgendaItemType = {
 };
 
 function AgendaItem({ item }: { item: AgendaItemType }) {
+  const router = useRouter();
   const production = useQuery(api.productions.getProductionById, {
     id: item.productionId,
   });
   const venue = useQuery(api.venues.getVenueById, { venueId: item.venueId });
 
+  const handleAgendaItemClick = (id: Id<"userAgenda">) => {
+    router.push(`/agenda/${id}`);
+  };
+
   return (
-    <Card className="border-none">
+    <Card
+      className="border-none"
+      onClick={() => handleAgendaItemClick(item._id)}
+    >
       <CardHeader className="px-4 flex flex-row justify-between">
         <div>
           <CardTitle className="text-sm">{production?.title}</CardTitle>

@@ -37,6 +37,40 @@ export const createAgendaItem = mutation({
   },
 });
 
+export const getAgendaItem = query({
+  args: { id: v.id("userAgenda") },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (!identity) {
+      throw new Error("userId is required to get agenda item.");
+    }
+
+    const item = await ctx.db.get(args.id);
+
+    if (item?.userId !== identity.subject) {
+      throw new Error("You do not have permission to access this agenda item.");
+    }
+
+    return item;
+  },
+});
+
+export const getAgendaItemsForGroup = query({
+  args: { groupId: v.id("groups"), productionId: v.id("productions") },
+  handler: async (ctx, args) => {
+    return ctx.db
+      .query("userAgenda")
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("groupId"), args.groupId),
+          q.eq(q.field("productionId"), args.productionId),
+        ),
+      )
+      .collect();
+  },
+});
+
 export const getAgendaForUser = query({
   handler: async (ctx) => {
     const identity = await ctx.auth.getUserIdentity();
