@@ -81,7 +81,7 @@ function GroupForm() {
   }
 
   return (
-    <Card>
+    <Card className="border-none">
       <CardContent className="px-4 my-0 py-0">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -94,7 +94,7 @@ function GroupForm() {
                   <FormControl>
                     <Input
                       placeholder='bijv. "coole groep 😎"'
-                      className="text-sm"
+                      className="text-sm rounded-none"
                       {...field}
                     />
                   </FormControl>
@@ -111,7 +111,7 @@ function GroupForm() {
                   <FormControl>
                     <Input
                       placeholder='bijv. "Een groep voor coole mensen..."'
-                      className="text-sm"
+                      className="text-sm rounded-none"
                       {...field}
                     />
                   </FormControl>

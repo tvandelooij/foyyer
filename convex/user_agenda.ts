@@ -153,3 +153,22 @@ export const listAgendaItemsForUser = query({
       .collect();
   },
 });
+
+export const deleteAgendaItem = mutation({
+  args: { id: v.id("userAgenda") },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (!identity) {
+      throw new Error("userId is required to delete agenda item.");
+    }
+
+    const item = await ctx.db.get(args.id);
+
+    if (item?.userId !== identity.subject) {
+      throw new Error("You do not have permission to delete this agenda item.");
+    }
+
+    await ctx.db.delete(args.id);
+  },
+});
