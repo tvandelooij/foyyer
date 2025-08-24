@@ -1,9 +1,64 @@
+"use client";
+
+import { useQuery } from "convex-helpers/react/cache/hooks";
+import { api } from "../../../convex/_generated/api";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Id } from "../../../convex/_generated/dataModel";
+
 export default function Page() {
+  const agendaItems = useQuery(api.user_agenda.listAgendaItemsForUser);
+
   return (
     <div className="flex flex-col mx-6 my-4 pb-20 gap-4">
       <div className="flex flex-col gap-4">
         <div className="text-3xl font-bold">Agenda</div>
+        <div className="flex flex-col gap-2">
+          {agendaItems?.map((item) => (
+            <AgendaItem key={item._id} item={item} />
+          ))}
+        </div>
       </div>
     </div>
+  );
+}
+
+type AgendaItemType = {
+  _id: Id<"userAgenda">;
+  productionId: Id<"productions">;
+  venueId: Id<"venues">;
+  date: string;
+  start_time: string;
+  status: "planned" | "confirmed" | "canceled";
+  // add other fields as needed
+};
+
+function AgendaItem({ item }: { item: AgendaItemType }) {
+  const production = useQuery(api.productions.getProductionById, {
+    id: item.productionId,
+  });
+  const venue = useQuery(api.venues.getVenueById, { venueId: item.venueId });
+
+  return (
+    <Card className="border-none">
+      <CardHeader className="px-4 flex flex-row justify-between">
+        <div>
+          <CardTitle className="text-sm">{production?.title}</CardTitle>
+          <CardDescription className="text-xs">
+            {venue?.name}, {item.start_time.slice(0, 5)}
+          </CardDescription>
+        </div>
+        <div className="text-nowrap text-sm font-semibold text-blue-500">
+          {new Date(item.date).toLocaleDateString("nl-NL", {
+            day: "2-digit",
+            month: "short",
+          })}
+        </div>
+      </CardHeader>
+    </Card>
   );
 }

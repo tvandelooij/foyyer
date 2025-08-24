@@ -66,3 +66,20 @@ export const getUsers = query({
       .collect();
   },
 });
+
+export const getTotalVisitCountForUser = query({
+  args: { userId: v.string() },
+  handler: async (ctx, args) => {
+    const visitCount = await ctx.db
+      .query("userAgenda")
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("userId"), args.userId),
+          q.lt(q.field("date"), new Date(Date.now()).toISOString()),
+        ),
+      )
+      .collect();
+
+    return visitCount.length;
+  },
+});

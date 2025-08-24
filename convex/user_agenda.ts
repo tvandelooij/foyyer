@@ -51,3 +51,24 @@ export const getAgendaForUser = query({
       .filter((q) => q.eq(q.field("userId"), identity.subject));
   },
 });
+
+export const listAgendaItemsForUser = query({
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("userId is required to list agenda items.");
+    }
+
+    return ctx.db
+      .query("userAgenda")
+      .withIndex("by_date")
+      .order("asc")
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("userId"), identity.subject),
+          q.gt(q.field("date"), new Date(Date.now()).toISOString()),
+        ),
+      )
+      .collect();
+  },
+});

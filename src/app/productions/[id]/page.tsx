@@ -58,6 +58,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { CommandGroup, CommandInput } from "cmdk";
+import { useUser } from "@clerk/nextjs";
 
 export default function Page() {
   const params = useParams();
@@ -145,7 +146,10 @@ type Production = {
 };
 
 function AddToAgendaDialog({ production }: { production: Production }) {
-  const groups = useQuery(api.group_members.getGroupsForUserId);
+  const user = useUser();
+  const groups = useQuery(api.group_members.getGroupsForUserId, {
+    userId: user.user?.id,
+  });
   const venues = useQuery(api.venues.getVenues);
 
   const addToUserAgenda = useMutation(api.user_agenda.createAgendaItem);
@@ -158,9 +162,7 @@ function AddToAgendaDialog({ production }: { production: Production }) {
     type: z.enum(["personal", "group"]),
     groupId: z.optional(z.string()),
     date: z.string().min(0),
-    start_time: z
-      .string()
-      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Vul een tijd in (HH:MM)"),
+    start_time: z.string(),
     venue: z.string(),
   });
 

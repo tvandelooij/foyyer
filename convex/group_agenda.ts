@@ -1,4 +1,4 @@
-import { mutation } from "./_generated/server";
+import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
 export const addGroupAgendaItem = mutation({
@@ -35,5 +35,22 @@ export const addGroupAgendaItem = mutation({
         status: "planned",
       });
     }
+  },
+});
+
+export const getGroupVisitCount = query({
+  args: { groupId: v.id("groups") },
+  handler: async (ctx, args) => {
+    const visits = await ctx.db
+      .query("groupAgenda")
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("groupId"), args.groupId),
+          q.lt(q.field("date"), new Date(Date.now()).toISOString()),
+        ),
+      )
+      .collect();
+
+    return visits.length;
   },
 });
