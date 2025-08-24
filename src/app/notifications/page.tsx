@@ -208,7 +208,7 @@ function EventProposal({ notification }: { notification: any }) {
   const handleAgendaItemClick = async () => {
     await markNotificationAsRead({ notificationId: notification?._id });
     router.push(`/agenda/${agendaItem?._id}`);
-  }
+  };
 
   return (
     <div className="flex flex-col p-4 border-b">
@@ -220,7 +220,10 @@ function EventProposal({ notification }: { notification: any }) {
             <span className="font-semibold">{groupName}</span>
           </p>
           <div className="text-sm font-bold">{production?.title}</div>
-          <div className="flex flex-row justify-end" onClick={() => handleAgendaItemClick()}>
+          <div
+            className="flex flex-row justify-end"
+            onClick={() => handleAgendaItemClick()}
+          >
             <CircleArrowRight className="text-red-950" />
           </div>
         </div>

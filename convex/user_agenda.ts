@@ -100,8 +100,8 @@ export const getEventProposal = query({
         ),
       )
       .first();
-  }
-})
+  },
+});
 
 export const getAgendaItemsForGroup = query({
   args: { groupId: v.id("groups"), productionId: v.id("productions") },
