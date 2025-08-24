@@ -122,7 +122,7 @@ export function Header() {
       {!searchOpen && (
         <>
           <Link href="/" className="flex items-center gap-x-5">
-            <span className="font-sans text-2xl font-bold px-2 pb-1 text-red-950 border-r-3 border-b-3 border-red-950 bg-yellow-200">
+            <span className="font-sans text-2xl font-bold px-2 pb-1 text-red-950 rounded-xs border-2 border-r-4 border-b-4 border-red-950 bg-yellow-200">
               foyyer
             </span>
           </Link>

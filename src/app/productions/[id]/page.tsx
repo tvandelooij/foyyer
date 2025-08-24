@@ -87,7 +87,7 @@ export default function Page() {
             <div className="text-3xl font-bold">{production?.title}</div>
             <div>
               <Heart
-                className={`text-red-400 cursor-pointer ${hasLiked ? "fill-red-400" : "fill-none"}`}
+                className={`text-orange-500 cursor-pointer ${hasLiked ? "fill-orange-500" : "fill-none"}`}
                 onClick={
                   production?._id
                     ? () => handleLikeClick(production._id)
@@ -97,7 +97,7 @@ export default function Page() {
             </div>
           </div>
           <div>
-            <Badge className="p-1 px-2 bg-purple-300 font-semibold text-white">
+            <Badge className="p-1 pb-2 px-2 bg-stone-300 rounded-sm font-semibold text-white">
               {production?.discipline}
             </Badge>
           </div>
