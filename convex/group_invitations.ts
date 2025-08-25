@@ -7,7 +7,7 @@ export const getInvitationsForGroup = query({
   handler: async (ctx, args) => {
     return await ctx.db
       .query("groupInvitations")
-      .filter((q) => q.eq(q.field("groupId"), args.groupId))
+      .withIndex("by_group", (q) => q.eq("groupId", args.groupId))
       .collect();
   },
 });
@@ -42,11 +42,8 @@ export const updateInvitation = mutation({
 
     const invitation = await ctx.db
       .query("groupInvitations")
-      .filter((q) =>
-        q.and(
-          q.eq(q.field("groupId"), args.groupId),
-          q.eq(q.field("userId"), identity.subject),
-        ),
+      .withIndex("by_group_UserId", (q) =>
+        q.eq("groupId", args.groupId).eq("userId", identity.subject),
       )
       .first();
 
@@ -76,7 +73,7 @@ export const deleteGroupInvitations = mutation({
     // get member id for group id
     const invitations = await ctx.db
       .query("groupInvitations")
-      .filter((q) => q.eq(q.field("groupId"), args.groupId))
+      .withIndex("by_group", (q) => q.eq("groupId", args.groupId))
       .collect();
 
     for (const invitation of invitations) {

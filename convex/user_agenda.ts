@@ -92,12 +92,8 @@ export const getAgendaItemForProduction = query({
 
     return ctx.db
       .query("userAgenda")
-      .filter((q) =>
-        q.and(
-          q.eq(q.field("userId"), identity.subject),
-          q.eq(q.field("productionId"), args.id),
-          // q.gt(q.field("date"), new Date(Date.now()).toISOString()),
-        ),
+      .withIndex("by_userId_productionId", (q) =>
+        q.eq("userId", identity.subject).eq("productionId", args.id),
       )
       .first();
   },
@@ -113,12 +109,11 @@ export const getEventProposal = query({
 
     return ctx.db
       .query("userAgenda")
-      .filter((q) =>
-        q.and(
-          q.eq(q.field("userId"), identity.subject),
-          q.eq(q.field("groupId"), args.groupId),
-          q.eq(q.field("productionId"), args.productionId),
-        ),
+      .withIndex("by_userId_groupId_productionId", (q) =>
+        q
+          .eq("userId", identity.subject)
+          .eq("groupId", args.groupId)
+          .eq("productionId", args.productionId),
       )
       .first();
   },
@@ -129,11 +124,8 @@ export const getAgendaItemsForGroup = query({
   handler: async (ctx, args) => {
     return ctx.db
       .query("userAgenda")
-      .filter((q) =>
-        q.and(
-          q.eq(q.field("groupId"), args.groupId),
-          q.eq(q.field("productionId"), args.productionId),
-        ),
+      .withIndex("by_groupId_productionId", (q) =>
+        q.eq("groupId", args.groupId).eq("productionId", args.productionId),
       )
       .collect();
   },
@@ -148,9 +140,9 @@ export const getAgendaForUser = query({
 
     return ctx.db
       .query("userAgenda")
-      .withIndex("by_date")
+      .withIndex("by_userId_date", (q) => q.eq("userId", identity.subject))
       .order("asc")
-      .filter((q) => q.eq(q.field("userId"), identity.subject));
+      .collect();
   },
 });
 
@@ -163,14 +155,12 @@ export const listAgendaItemsForUser = query({
 
     return ctx.db
       .query("userAgenda")
-      .withIndex("by_date")
-      .order("asc")
-      .filter((q) =>
-        q.and(
-          q.eq(q.field("userId"), identity.subject),
-          q.gt(q.field("date"), new Date(Date.now()).toISOString()),
-        ),
+      .withIndex("by_userId_date", (q) =>
+        q
+          .eq("userId", identity.subject)
+          .gt("date", new Date(Date.now()).toISOString()),
       )
+      .order("asc")
       .collect();
   },
 });

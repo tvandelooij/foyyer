@@ -4,16 +4,15 @@ import { v } from "convex/values";
 export const getGroupsForUserId = query({
   args: { userId: v.optional(v.string()) },
   handler: async (ctx, args) => {
-    const groupIds = await ctx.db
+    const groupMemberships = await ctx.db
       .query("groupMembers")
-      .filter((q) => q.eq(q.field("userId"), args.userId))
+      .withIndex("by_user", (q) => q.eq("userId", args.userId as string))
       .collect();
 
-    const groupIdSet = new Set(groupIds.map((gm) => gm.groupId));
-    return await ctx.db
-      .query("groups")
-      .collect()
-      .then((groups) => groups.filter((group) => groupIdSet.has(group._id)));
+    const groupIds = groupMemberships.map((gm) => gm.groupId);
+
+    const groups = await Promise.all(groupIds.map((id) => ctx.db.get(id)));
+    return groups.filter(Boolean);
   },
 });
 
@@ -22,7 +21,7 @@ export const getMemberCountForGroupId = query({
   handler: async (ctx, args) => {
     const memberCount = await ctx.db
       .query("groupMembers")
-      .filter((q) => q.eq(q.field("groupId"), args.groupId))
+      .withIndex("by_group", (q) => q.eq("groupId", args.groupId))
       .collect();
 
     return memberCount.length;
@@ -34,7 +33,7 @@ export const listGroupMembers = query({
   handler: (ctx, args) => {
     return ctx.db
       .query("groupMembers")
-      .filter((q) => q.eq(q.field("groupId"), args.groupId))
+      .withIndex("by_group", (q) => q.eq("groupId", args.groupId))
       .collect();
   },
 });
@@ -56,7 +55,7 @@ export const deleteGroupMembers = mutation({
     // get member id for group id
     const members = await ctx.db
       .query("groupMembers")
-      .filter((q) => q.eq(q.field("groupId"), args.groupId))
+      .withIndex("by_group", (q) => q.eq("groupId", args.groupId))
       .collect();
 
     for (const member of members) {
@@ -70,7 +69,7 @@ export const getMembersForGroupId = query({
   handler: async (ctx, args) => {
     const members = await ctx.db
       .query("groupMembers")
-      .filter((q) => q.eq(q.field("groupId"), args.groupId))
+      .withIndex("by_group", (q) => q.eq("groupId", args.groupId))
       .collect();
 
     return members;

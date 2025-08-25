@@ -15,11 +15,8 @@ export const addGroupAgendaItem = mutation({
 
     const maybeGroupItem = await ctx.db
       .query("groupAgenda")
-      .filter((q) =>
-        q.and(
-          q.eq(q.field("groupId"), groupId),
-          q.eq(q.field("productionId"), productionId),
-        ),
+      .withIndex("by_groupId_productionId", (q) =>
+        q.eq("groupId", groupId).eq("productionId", productionId),
       )
       .first();
 
@@ -47,11 +44,8 @@ export const addGroupAgendaItem = mutation({
     for (const member of groupMembers) {
       const maybeItem = await ctx.db
         .query("userAgenda")
-        .filter((q) =>
-          q.and(
-            q.eq(q.field("userId"), member.userId),
-            q.eq(q.field("productionId"), productionId),
-          ),
+        .withIndex("by_userId_productionId", (q) =>
+          q.eq("userId", member.userId).eq("productionId", productionId),
         )
         .first();
 
@@ -95,11 +89,10 @@ export const getGroupVisitCount = query({
   handler: async (ctx, args) => {
     const visits = await ctx.db
       .query("groupAgenda")
-      .filter((q) =>
-        q.and(
-          q.eq(q.field("groupId"), args.groupId),
-          q.lt(q.field("date"), new Date().toISOString().slice(0, 10)),
-        ),
+      .withIndex("by_groupId_date", (q) =>
+        q
+          .eq("groupId", args.groupId)
+          .lt("date", new Date().toISOString().slice(0, 10)),
       )
       .collect();
 
@@ -112,17 +105,12 @@ export const getPastGroupVisits = query({
   handler: async (ctx, args) => {
     return ctx.db
       .query("groupAgenda")
-      .withIndex("by_date")
-      .order("desc")
-      .filter((q) =>
-        q.and(
-          q.eq(q.field("groupId"), args.groupId),
-          q.lt(
-            q.field("date"),
-            new Date(Date.now()).toISOString().slice(0, 10),
-          ),
-        ),
+      .withIndex("by_groupId_date", (q) =>
+        q
+          .eq("groupId", args.groupId)
+          .lt("date", new Date().toISOString().slice(0, 10)),
       )
+      .order("desc")
       .take(10);
   },
 });

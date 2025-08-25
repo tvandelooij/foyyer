@@ -34,11 +34,8 @@ export const getNotificationsForCurrentUser = query({
 
     const notifications = await ctx.db
       .query("notifications")
-      .filter((q) =>
-        q.and(
-          q.eq(q.field("userId"), identity.subject),
-          q.eq(q.field("read"), false),
-        ),
+      .withIndex("by_user_read", (q) =>
+        q.eq("userId", identity.subject).eq("read", false),
       )
       .collect();
 
@@ -57,7 +54,7 @@ export const hasUnreadNotifications = query({
 
     const notifications = await ctx.db
       .query("notifications")
-      .filter((q) => q.eq(q.field("userId"), identity.subject))
+      .withIndex("by_user", (q) => q.eq("userId", identity.subject))
       .collect();
 
     return notifications.some((n) => !n.read);
@@ -72,12 +69,8 @@ export const getNotificationIdForFriendship = query({
   handler: async (ctx, args) => {
     const notification = await ctx.db
       .query("notifications")
-      .filter((q) =>
-        q.and(
-          q.eq(q.field("userId"), args.userId),
-          q.eq(q.field("data.senderId"), args.data.senderId),
-        ),
-      )
+      .withIndex("by_user", (q) => q.eq("userId", args.userId as string))
+      .filter((q) => q.eq(q.field("data.senderId"), args.data.senderId))
       .first();
 
     return notification?._id;

@@ -6,11 +6,10 @@ export const getUpcomingPremieres = query({
   handler: async (ctx) => {
     const productions = await ctx.db
       .query("productions")
-      .withIndex("by_start_date")
-      .order("asc")
-      .filter((q) =>
-        q.gt(q.field("start_date"), new Date(Date.now()).toISOString()),
+      .withIndex("by_start_date", (q) =>
+        q.gt("start_date", new Date(Date.now()).toISOString()),
       )
+      .order("asc")
       .take(5);
     return productions;
   },

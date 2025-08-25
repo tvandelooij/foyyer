@@ -59,7 +59,11 @@ function GroupList() {
   }
 
   const allGroupsMap = new Map<string, Group>();
-  groups.forEach((g) => allGroupsMap.set(g._id, g));
+  groups.forEach((g) => {
+    if (g && g._id) {
+      allGroupsMap.set(g._id, g);
+    }
+  });
   groupsOwner.forEach((g) => allGroupsMap.set(g._id, g));
   const allGroups = Array.from(allGroupsMap.values());
 

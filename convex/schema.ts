@@ -8,9 +8,12 @@ export default defineSchema({
     email: v.string(),
     pictureUrl: v.optional(v.string()),
     updatedAt: v.number(),
-  }).searchIndex("search_nickname", {
-    searchField: "nickname",
-  }),
+  })
+    .index("by_userId", ["userId"])
+    .index("by_nickname", ["nickname"])
+    .searchIndex("search_nickname", {
+      searchField: "nickname",
+    }),
   userAgenda: defineTable({
     userId: v.string(),
     productionId: v.id("productions"),
@@ -24,8 +27,14 @@ export default defineSchema({
     ),
     groupId: v.optional(v.id("groups")),
   })
-    .index("by_date", ["date"])
-    .index("by_user", ["userId"]),
+    .index("by_userId_groupId_productionId", [
+      "userId",
+      "groupId",
+      "productionId",
+    ])
+    .index("by_groupId_productionId", ["groupId", "productionId"])
+    .index("by_userId_productionId", ["userId", "productionId"])
+    .index("by_userId_date", ["userId", "date"]),
   friendships: defineTable({
     userId1: v.string(),
     userId2: v.string(),
@@ -55,7 +64,9 @@ export default defineSchema({
     ), // additional data, e.g. reviewId, senderId
     read: v.boolean(),
     createdAt: v.number(),
-  }).index("by_user", ["userId"]),
+  })
+    .index("by_user_read", ["userId", "read"])
+    .index("by_user", ["userId"]),
   groups: defineTable({
     name: v.string(),
     description: v.optional(v.string()),
@@ -87,14 +98,19 @@ export default defineSchema({
       v.literal("accepted"),
       v.literal("declined"),
     ),
-  }),
+  })
+    .index("by_group", ["groupId"])
+    .index("by_group_UserId", ["groupId", "userId"]),
   groupAgenda: defineTable({
     groupId: v.id("groups"),
     productionId: v.id("productions"),
     venueId: v.id("venues"),
     date: v.string(),
     start_time: v.string(),
-  }).index("by_date", ["date"]),
+  })
+    .index("by_date", ["date"])
+    .index("by_groupId_date", ["groupId", "date"])
+    .index("by_groupId_productionId", ["groupId", "productionId"]),
   venues: defineTable({
     et_pageid: v.number(),
     name: v.string(),
@@ -125,5 +141,17 @@ export default defineSchema({
     user_id: v.string(),
   })
     .index("by_user", ["user_id"])
-    .index("by_production", ["production_id"]),
+    .index("by_production", ["production_id"])
+    .index("by_user_production", ["user_id", "production_id"]),
+  productionReviews: defineTable({
+    productionId: v.id("productions"),
+    userId: v.string(),
+    visited: v.boolean(),
+    rating: v.optional(v.number()),
+    review: v.optional(v.string()),
+    updatedAt: v.number(),
+  })
+    .index("by_production", ["productionId"])
+    .index("by_user", ["userId"])
+    .index("by_production_user", ["productionId", "userId"]),
 });

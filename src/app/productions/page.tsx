@@ -8,10 +8,16 @@ import { Id } from "../../../convex/_generated/dataModel";
 import { useRouter } from "next/navigation";
 
 export default function Page() {
+  const router = useRouter();
+
   const upcomingPremieres = useQuery(api.productions.getUpcomingPremieres);
   const likedProductions = useQuery(
-    api.production_likes.getLikedProductionsForUser,
+    api.production_likes.getTopLikedProductionsForUser,
   );
+
+  const handleViewAll = () => {
+    router.push("/productions/liked");
+  };
 
   return (
     <Authenticated>
@@ -21,6 +27,35 @@ export default function Page() {
             <div className="text-3xl font-bold">Voorstellingen</div>
           </div>
           <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4">
+              <div className="text-base font-semibold">Opgeslagen</div>
+              <div className="flex flex-col gap-2 pb-4">
+                {likedProductions &&
+                  likedProductions
+                    .filter(
+                      (production): production is Production =>
+                        production !== null,
+                    )
+                    .map((production) => (
+                      <LikedProduction
+                        key={production.priref_id}
+                        production={production}
+                      />
+                    ))}
+                {likedProductions && likedProductions.length >= 3 && (
+                  <div className="flex flex-row justify-end p-2">
+                    <button
+                      className="text-xs text-blue-500 font-semibold"
+                      onClick={() => {
+                        handleViewAll();
+                      }}
+                    >
+                      Bekijk alles
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
             <div className="text-base font-semibold">
               Binnenkort in premiere
             </div>
@@ -42,18 +77,6 @@ export default function Page() {
                 ))}
             </div>
           </div>
-          <div className="flex flex-col gap-4">
-            <div className="text-base font-semibold">Opgeslagen</div>
-            <div className="flex flex-col gap-2 pb-4">
-              {likedProductions &&
-                likedProductions.map((production) => (
-                  <LikedProduction
-                    key={production.priref_id}
-                    production={production}
-                  />
-                ))}
-            </div>
-          </div>
         </div>
       </div>
     </Authenticated>
@@ -61,6 +84,7 @@ export default function Page() {
 }
 
 type Production = {
+  _creationTime: number;
   _id: Id<"productions">;
   priref_id: string;
   title: string;

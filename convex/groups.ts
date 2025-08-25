@@ -12,7 +12,7 @@ export const listGroupsCreatedByUser = query({
 
     const groups = await ctx.db
       .query("groups")
-      .filter((q) => q.eq(q.field("createdBy"), identity.subject))
+      .withIndex("by_user", (q) => q.eq("createdBy", identity.subject))
       .collect();
 
     return groups;
@@ -62,8 +62,9 @@ export const getGroupById = query({
 
     const isInvited = await ctx.db
       .query("groupInvitations")
-      .filter((q) => q.eq(q.field("groupId"), group._id))
-      .filter((q) => q.eq(q.field("userId"), identity.subject))
+      .withIndex("by_group_UserId", (q) =>
+        q.eq("groupId", group._id).eq("userId", identity.subject),
+      )
       .first();
 
     if (isInvited) {
@@ -76,7 +77,7 @@ export const getGroupById = query({
 
     const groupMembers = await ctx.db
       .query("groupMembers")
-      .filter((q) => q.eq(q.field("groupId"), group._id))
+      .withIndex("by_group", (q) => q.eq("groupId", group._id))
       .collect();
 
     const isMember = groupMembers
