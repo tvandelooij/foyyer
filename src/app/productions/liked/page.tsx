@@ -18,12 +18,14 @@ export default function Page() {
         <div className="flex flex-col gap-2">
           <div className="text-3xl font-bold">Opgeslagen Voorstellingen</div>
           {likedProductions &&
-            likedProductions.map((production) => (
-              <LikedProduction
-                key={production.priref_id}
-                production={production}
-              />
-            ))}
+            likedProductions
+              .filter((production): production is Production => production !== null)
+              .map((production) => (
+                <LikedProduction
+                  key={production.priref_id}
+                  production={production}
+                />
+              ))}
         </div>
       </div>
     </Authenticated>
@@ -32,6 +34,7 @@ export default function Page() {
 
 type Production = {
   _id: Id<"productions">;
+  _creationTime: number;
   priref_id: string;
   title: string;
   start_date: string;

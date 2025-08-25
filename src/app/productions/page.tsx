@@ -31,12 +31,14 @@ export default function Page() {
               <div className="text-base font-semibold">Opgeslagen</div>
               <div className="flex flex-col gap-2 pb-4">
                 {likedProductions &&
-                  likedProductions.map((production) => (
-                    <LikedProduction
-                      key={production.priref_id}
-                      production={production}
-                    />
-                  ))}
+                  likedProductions
+                    .filter((production): production is Production => production !== null)
+                    .map((production) => (
+                      <LikedProduction
+                        key={production.priref_id}
+                        production={production}
+                      />
+                    ))}
                 {likedProductions && likedProductions.length >= 3 && (
                   <div className="flex flex-row justify-end p-2">
                     <button
@@ -79,6 +81,7 @@ export default function Page() {
 }
 
 type Production = {
+  _creationTime: number;
   _id: Id<"productions">;
   priref_id: string;
   title: string;
