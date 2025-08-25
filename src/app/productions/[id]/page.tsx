@@ -61,6 +61,7 @@ import { CommandGroup, CommandInput } from "cmdk";
 import { useUser } from "@clerk/nextjs";
 
 export default function Page() {
+  const router = useRouter();
   const params = useParams();
   const id = params.id as Id<"productions">;
 
@@ -77,6 +78,10 @@ export default function Page() {
     } else {
       await likeProduction({ productionId });
     }
+  };
+
+  const handleWriteReviewClick = () => {
+    router.push(`/review/new/${production?._id}`);
   };
 
   return (
@@ -127,7 +132,10 @@ export default function Page() {
         </div>
         <div className="flex flex-row gap-16 items-center justify-center border-b-1 pb-4">
           {production && <AddToAgendaDialog production={production} />}
-          <PenLine className="text-red-950 h-6 w-6" />
+          <PenLine
+            className="text-red-950 h-6 w-6"
+            onClick={handleWriteReviewClick}
+          />
         </div>
       </div>
     </Authenticated>
@@ -310,11 +318,11 @@ function AddToAgendaDialog({ production }: { production: Production }) {
                           <SelectContent>
                             {groups?.map((group) => (
                               <SelectItem
-                                key={group._id}
-                                value={group._id}
+                                key={group?._id}
+                                value={group?._id ?? ""}
                                 className="rounded-none"
                               >
-                                {group.name}
+                                {group?.name}
                               </SelectItem>
                             ))}
                           </SelectContent>

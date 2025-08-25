@@ -18,11 +18,10 @@ export const unlikeProduction = mutation({
     const identity = await ctx.auth.getUserIdentity();
     const like = await ctx.db
       .query("production_likes")
-      .filter((q) =>
-        q.and(
-          q.eq(q.field("production_id"), productionId),
-          q.eq(q.field("user_id"), identity?.subject as string),
-        ),
+      .withIndex("by_user_production", (q) =>
+        q
+          .eq("user_id", identity?.subject as string)
+          .eq("production_id", productionId),
       )
       .first();
     if (like) {
@@ -38,34 +37,53 @@ export const hasLikedProduction = query({
 
     const like = await ctx.db
       .query("production_likes")
-      .filter((q) =>
-        q.and(
-          q.eq(q.field("production_id"), productionId),
-          q.eq(q.field("user_id"), identity?.subject as string),
-        ),
+      .withIndex("by_user_production", (q) =>
+        q
+          .eq("user_id", identity?.subject as string)
+          .eq("production_id", productionId),
       )
       .first();
     return like !== null;
   },
 });
 
-export const getLikedProductionsForUser = query({
+export const getTopLikedProductionsForUser = query({
   args: {},
   handler: async (ctx) => {
     const identity = await ctx.auth.getUserIdentity();
 
     const likes = await ctx.db
       .query("production_likes")
-      .filter((q) => q.eq(q.field("user_id"), identity?.subject as string))
+      .withIndex("by_user", (q) => q.eq("user_id", identity?.subject as string))
+      .take(3);
+
+    const productionIds = likes.map((like) => like.production_id);
+
+    const productions = await Promise.all(
+      productionIds.map((id) => ctx.db.get(id)),
+    );
+
+    return productions.filter(Boolean);
+  },
+});
+
+export const getAllLikedProductions = query({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+
+    const likes = await ctx.db
+      .query("production_likes")
+      .withIndex("by_user", (q) => q.eq("user_id", identity?.subject as string))
+      .order("asc")
       .collect();
 
-    const productionIds = new Set(likes.map((like) => like.production_id));
+    const productionIds = likes.map((like) => like.production_id);
 
-    return await ctx.db
-      .query("productions")
-      .collect()
-      .then((productions) =>
-        productions.filter((production) => productionIds.has(production._id)),
-      );
+    const productions = await Promise.all(
+      productionIds.map((id) => ctx.db.get(id)),
+    );
+
+    return productions.filter(Boolean);
   },
 });

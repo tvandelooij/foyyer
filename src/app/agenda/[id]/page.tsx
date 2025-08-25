@@ -25,6 +25,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
@@ -72,6 +73,10 @@ export default function Page() {
     await deleteAgendaItem({ id });
   };
 
+  const handleProductionInfoClick = (productionId: Id<"productions">) => {
+    router.push(`/productions/${productionId}`);
+  };
+
   return (
     <div className="flex flex-col mx-6 my-4 pb-20 gap-4">
       {isDeleting ? (
@@ -92,6 +97,14 @@ export default function Page() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-32">
+                  <DropdownMenuItem
+                    onClick={() =>
+                      handleProductionInfoClick(agendaItem?.productionId)
+                    }
+                  >
+                    Meer info
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem
                     variant="destructive"
                     onClick={() => {

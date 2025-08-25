@@ -18,7 +18,7 @@ export default function Page() {
     <div className="flex flex-col mx-6 my-4 pb-20 gap-4">
       <div className="flex flex-col gap-4">
         <div className="text-xl font-bold pl-1 text-red-950">Agenda</div>
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-2">
           {agendaItems?.map((item) => (
             <AgendaItem key={item._id} item={item} />
           ))}

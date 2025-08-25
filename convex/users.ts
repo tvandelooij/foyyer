@@ -1,4 +1,3 @@
-import { Id } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
@@ -15,10 +14,10 @@ export const createUser = mutation({
       throw new Error("User identity is missing nickname or email");
     }
 
-    const userId = identity.subject as Id<"users">;
+    const userId = identity.subject;
     const maybeUser = await ctx.db
       .query("users")
-      .filter((q) => q.eq(q.field("userId"), userId))
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
       .first();
 
     if (maybeUser) {
@@ -43,7 +42,7 @@ export const getUserById = query({
   handler: async (ctx, args) => {
     return await ctx.db
       .query("users")
-      .filter((q) => q.eq(q.field("userId"), args.id))
+      .withIndex("by_userId", (q) => q.eq("userId", args.id))
       .first();
   },
 });
@@ -52,10 +51,6 @@ export const getUsers = query({
   args: { query: v.string() },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
-    const currentUser = await ctx.db
-      .query("users")
-      .filter((q) => q.eq(q.field("nickname"), identity?.nickname))
-      .first();
 
     return ctx.db
       .query("users")
@@ -72,11 +67,10 @@ export const getTotalVisitCountForUser = query({
   handler: async (ctx, args) => {
     const visitCount = await ctx.db
       .query("userAgenda")
-      .filter((q) =>
-        q.and(
-          q.eq(q.field("userId"), args.userId),
-          q.lt(q.field("date"), new Date(Date.now()).toISOString()),
-        ),
+      .withIndex("by_userId_date", (q) =>
+        q
+          .eq("userId", args.userId)
+          .lt("date", new Date(Date.now()).toISOString()),
       )
       .collect();
 

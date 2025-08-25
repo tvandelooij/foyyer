@@ -20,6 +20,7 @@ import type * as group_members from "../group_members.js";
 import type * as groups from "../groups.js";
 import type * as notifications from "../notifications.js";
 import type * as production_likes from "../production_likes.js";
+import type * as production_reviews from "../production_reviews.js";
 import type * as productions from "../productions.js";
 import type * as user_agenda from "../user_agenda.js";
 import type * as users from "../users.js";
@@ -41,6 +42,7 @@ declare const fullApi: ApiFromModules<{
   groups: typeof groups;
   notifications: typeof notifications;
   production_likes: typeof production_likes;
+  production_reviews: typeof production_reviews;
   productions: typeof productions;
   user_agenda: typeof user_agenda;
   users: typeof users;
