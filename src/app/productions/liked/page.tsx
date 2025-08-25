@@ -19,7 +19,9 @@ export default function Page() {
           <div className="text-3xl font-bold">Opgeslagen Voorstellingen</div>
           {likedProductions &&
             likedProductions
-              .filter((production): production is Production => production !== null)
+              .filter(
+                (production): production is Production => production !== null,
+              )
               .map((production) => (
                 <LikedProduction
                   key={production.priref_id}

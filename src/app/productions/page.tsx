@@ -32,7 +32,10 @@ export default function Page() {
               <div className="flex flex-col gap-2 pb-4">
                 {likedProductions &&
                   likedProductions
-                    .filter((production): production is Production => production !== null)
+                    .filter(
+                      (production): production is Production =>
+                        production !== null,
+                    )
                     .map((production) => (
                       <LikedProduction
                         key={production.priref_id}
