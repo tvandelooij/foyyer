@@ -10,21 +10,24 @@ import {
 } from "@/components/ui/card";
 import { Id } from "../../../convex/_generated/dataModel";
 import { useRouter } from "next/navigation";
+import { Authenticated } from "convex/react";
 
 export default function Page() {
   const agendaItems = useQuery(api.user_agenda.listAgendaItemsForUser);
 
   return (
-    <div className="flex flex-col mx-6 my-4 pb-20 gap-4">
-      <div className="flex flex-col gap-4">
-        <div className="text-xl font-bold pl-1 text-red-950">Agenda</div>
-        <div className="flex flex-col gap-2">
-          {agendaItems?.map((item) => (
-            <AgendaItem key={item._id} item={item} />
-          ))}
+    <Authenticated>
+      <div className="flex flex-col mx-6 my-4 pb-20 gap-4">
+        <div className="flex flex-col gap-4">
+          <div className="text-xl font-bold pl-1 text-red-950">Agenda</div>
+          <div className="flex flex-col gap-2">
+            {agendaItems?.map((item) => (
+              <AgendaItem key={item._id} item={item} />
+            ))}
+          </div>
         </div>
       </div>
-    </div>
+    </Authenticated>
   );
 }
 

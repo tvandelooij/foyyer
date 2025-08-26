@@ -11,7 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useMutation } from "convex/react";
+import { Authenticated, useMutation } from "convex/react";
 import {
   Select,
   SelectItem,
@@ -78,109 +78,111 @@ export default function Page() {
   };
 
   return (
-    <div className="flex flex-col mx-6 my-4 pb-20 gap-4">
-      {isDeleting ? (
-        <p>Groep wordt verwijderd...</p>
-      ) : agendaItem ? (
-        <div className="flex flex-col gap-4">
-          {agendaItem?.userId === user?.user?.id && (
-            <div className="flex justify-end">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
-                    size="icon"
-                  >
-                    <Ellipsis />
-                    <span className="sr-only">Open intellingen</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-32">
-                  <DropdownMenuItem
-                    onClick={() =>
-                      handleProductionInfoClick(agendaItem?.productionId)
-                    }
-                  >
-                    Meer info
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    variant="destructive"
-                    onClick={() => {
-                      handleDeleteAgendaItem(
-                        agendaItem?._id as Id<"userAgenda">,
-                      );
-                    }}
-                  >
-                    Verwijderen
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          )}
-          <div className="text-3xl font-bold">{production?.title}</div>
-
-          <div>
-            <Card className="border-none">
-              <CardHeader>
-                <CardDescription>
-                  <div className="flex flex-col gap-2">
-                    <div className="text-base text-black font-semibold">
-                      {agendaItem?.date
-                        ? new Date(agendaItem.date).toLocaleDateString(
-                            "nl-NL",
-                            {
-                              day: "2-digit",
-                              month: "short",
-                            },
-                          )
-                        : ""}
-                      , {agendaItem?.start_time.slice(0, 5)}
-                    </div>
-                    <div className="text-xs">{venue?.name}</div>
-                  </div>
-                </CardDescription>
-              </CardHeader>
-              {agendaItem?.groupId && (
-                <CardContent>
-                  <div className="flex flex-row justify-end">
-                    <Select
-                      value={
-                        agendaItem?.status === "planned"
-                          ? undefined
-                          : agendaItem?.status
-                      }
-                      onValueChange={(value) =>
-                        handleStatusUpdate(
-                          value as "planned" | "confirmed" | "canceled",
-                        )
+    <Authenticated>
+      <div className="flex flex-col mx-6 my-4 pb-20 gap-4">
+        {isDeleting ? (
+          <p>Groep wordt verwijderd...</p>
+        ) : agendaItem ? (
+          <div className="flex flex-col gap-4">
+            {agendaItem?.userId === user?.user?.id && (
+              <div className="flex justify-end">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
+                      size="icon"
+                    >
+                      <Ellipsis />
+                      <span className="sr-only">Open intellingen</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-32">
+                    <DropdownMenuItem
+                      onClick={() =>
+                        handleProductionInfoClick(agendaItem?.productionId)
                       }
                     >
-                      <SelectTrigger className="text-xs">
-                        <SelectValue placeholder="Geef aan of je meegaat" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="confirmed">Ik ga mee</SelectItem>
-                        <SelectItem value="canceled">Ik kan niet</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </CardContent>
-              )}
-            </Card>
+                      Meer info
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      variant="destructive"
+                      onClick={() => {
+                        handleDeleteAgendaItem(
+                          agendaItem?._id as Id<"userAgenda">,
+                        );
+                      }}
+                    >
+                      Verwijderen
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            )}
+            <div className="text-3xl font-bold">{production?.title}</div>
+
+            <div>
+              <Card className="border-none">
+                <CardHeader>
+                  <CardDescription>
+                    <div className="flex flex-col gap-2">
+                      <div className="text-base text-black font-semibold">
+                        {agendaItem?.date
+                          ? new Date(agendaItem.date).toLocaleDateString(
+                              "nl-NL",
+                              {
+                                day: "2-digit",
+                                month: "short",
+                              },
+                            )
+                          : ""}
+                        , {agendaItem?.start_time.slice(0, 5)}
+                      </div>
+                      <div className="text-xs">{venue?.name}</div>
+                    </div>
+                  </CardDescription>
+                </CardHeader>
+                {agendaItem?.groupId && (
+                  <CardContent>
+                    <div className="flex flex-row justify-end">
+                      <Select
+                        value={
+                          agendaItem?.status === "planned"
+                            ? undefined
+                            : agendaItem?.status
+                        }
+                        onValueChange={(value) =>
+                          handleStatusUpdate(
+                            value as "planned" | "confirmed" | "canceled",
+                          )
+                        }
+                      >
+                        <SelectTrigger className="text-xs">
+                          <SelectValue placeholder="Geef aan of je meegaat" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="confirmed">Ik ga mee</SelectItem>
+                          <SelectItem value="canceled">Ik kan niet</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </CardContent>
+                )}
+              </Card>
+            </div>
+            {agendaItem?.groupId && (
+              <GroupMembers
+                groupId={agendaItem?.groupId as Id<"groups">}
+                productionId={agendaItem?.productionId as Id<"productions">}
+              />
+            )}
           </div>
-          {agendaItem?.groupId && (
-            <GroupMembers
-              groupId={agendaItem?.groupId as Id<"groups">}
-              productionId={agendaItem?.productionId as Id<"productions">}
-            />
-          )}
-        </div>
-      ) : (
-        <p>Geen agenda-item gevonden.</p>
-      )}
-    </div>
+        ) : (
+          <p>Geen agenda-item gevonden.</p>
+        )}
+      </div>
+    </Authenticated>
   );
 }
 

@@ -31,17 +31,26 @@ export const createReview = mutation({
   },
 });
 
+export const updateRating = mutation({
+  args: {
+    id: v.id("productionReviews"),
+    rating: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.id, {
+      rating: args.rating,
+      updatedAt: Date.now(),
+    });
+  },
+});
+
 export const updateReview = mutation({
   args: {
     id: v.id("productionReviews"),
-    visited: v.boolean(),
-    rating: v.optional(v.number()),
     review: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     await ctx.db.patch(args.id, {
-      visited: args.visited,
-      rating: args.rating,
       review: args.review,
       updatedAt: Date.now(),
     });
@@ -63,5 +72,18 @@ export const getReviewsForProductionByUser = query({
         q.eq("productionId", args.productionId).eq("userId", identity.subject),
       )
       .first();
+  },
+});
+
+export const getReviewsForProduction = query({
+  args: { productionId: v.id("productions") },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("productionReviews")
+      .withIndex("by_production", (q) =>
+        q.eq("productionId", args.productionId),
+      )
+      .order("asc")
+      .collect();
   },
 });
