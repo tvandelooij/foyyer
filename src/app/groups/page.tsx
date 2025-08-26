@@ -33,21 +33,23 @@ export default function Page() {
   );
 }
 
-function NewGroup() {
+import React, { useCallback } from "react";
+
+const NewGroup = React.memo(function NewGroup() {
   const router = useRouter();
 
-  const handleAddGroup = () => {
+  const handleAddGroup = useCallback(() => {
     router.push("/groups/new");
-  };
+  }, [router]);
 
   return (
-    <Button className="bg-indigo-300 px-3" onClick={() => handleAddGroup()}>
+    <Button className="bg-indigo-300 px-3" onClick={handleAddGroup}>
       <div className="text-xs font-bold">Nieuwe groep</div>
     </Button>
   );
-}
+});
 
-function GroupList() {
+const GroupList = React.memo(function GroupList() {
   const user = useUser();
   const groups = useQuery(api.group_members.getGroupsForUserId, {
     userId: user.user?.id,
@@ -75,11 +77,11 @@ function GroupList() {
         </div>
       )}
       {allGroups?.map((group) => (
-        <GroupCard key={group._id} group={group} />
+        <MemoGroupCard key={group._id} group={group} />
       ))}
     </div>
   );
-}
+});
 
 type Group = {
   _id: Id<"groups">;
@@ -87,7 +89,11 @@ type Group = {
   // Add other fields if needed
 };
 
-function GroupCard({ group }: { group: Group }) {
+const MemoGroupCard = React.memo(function GroupCard({
+  group,
+}: {
+  group: Group;
+}) {
   const memberCount = useQuery(api.group_members.getMemberCountForGroupId, {
     groupId: group._id,
   });
@@ -97,9 +103,12 @@ function GroupCard({ group }: { group: Group }) {
 
   const router = useRouter();
 
-  const handleGroupClick = (groupId: Id<"groups">) => {
-    router.push(`/groups/${groupId}`);
-  };
+  const handleGroupClick = useCallback(
+    (groupId: Id<"groups">) => {
+      router.push(`/groups/${groupId}`);
+    },
+    [router],
+  );
 
   return (
     <Card onClick={() => handleGroupClick(group._id)}>
@@ -119,4 +128,4 @@ function GroupCard({ group }: { group: Group }) {
       </CardHeader>
     </Card>
   );
-}
+});

@@ -7,6 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Id } from "../../../convex/_generated/dataModel";
 import { useRouter } from "next/navigation";
 
+import React, { useCallback } from "react";
+
 export default function Page() {
   const router = useRouter();
 
@@ -15,9 +17,17 @@ export default function Page() {
     api.production_likes.getTopLikedProductionsForUser,
   );
 
-  const handleViewAll = () => {
+  const handleViewAll = useCallback(() => {
     router.push("/productions/liked");
-  };
+  }, [router]);
+
+  const filteredLikedProductions = React.useMemo(
+    () =>
+      likedProductions?.filter(
+        (production): production is Production => production !== null,
+      ) ?? [],
+    [likedProductions],
+  );
 
   return (
     <Authenticated>
@@ -30,25 +40,17 @@ export default function Page() {
             <div className="flex flex-col gap-4">
               <div className="text-base font-semibold">Opgeslagen</div>
               <div className="flex flex-col gap-2 pb-4">
-                {likedProductions &&
-                  likedProductions
-                    .filter(
-                      (production): production is Production =>
-                        production !== null,
-                    )
-                    .map((production) => (
-                      <LikedProduction
-                        key={production.priref_id}
-                        production={production}
-                      />
-                    ))}
+                {filteredLikedProductions.map((production) => (
+                  <MemoLikedProduction
+                    key={production.priref_id}
+                    production={production}
+                  />
+                ))}
                 {likedProductions && likedProductions.length >= 3 && (
                   <div className="flex flex-row justify-end p-2">
                     <button
                       className="text-xs text-blue-500 font-semibold"
-                      onClick={() => {
-                        handleViewAll();
-                      }}
+                      onClick={handleViewAll}
                     >
                       Bekijk alles
                     </button>
@@ -70,7 +72,7 @@ export default function Page() {
             >
               {upcomingPremieres &&
                 upcomingPremieres.map((production) => (
-                  <ProductionCard
+                  <MemoProductionCard
                     key={production.priref_id}
                     production={production}
                   />
@@ -95,12 +97,18 @@ type Production = {
   // Add other fields if needed
 };
 
-function ProductionCard({ production }: { production: Production }) {
+const MemoProductionCard = React.memo(function ProductionCard({
+  production,
+}: {
+  production: Production;
+}) {
   const router = useRouter();
-
-  const handleProductionClick = (id: Id<"productions">) => {
-    router.push(`/productions/${id}`);
-  };
+  const handleProductionClick = useCallback(
+    (id: Id<"productions">) => {
+      router.push(`/productions/${id}`);
+    },
+    [router],
+  );
 
   return (
     <Card
@@ -128,14 +136,20 @@ function ProductionCard({ production }: { production: Production }) {
       </CardContent>
     </Card>
   );
-}
+});
 
-function LikedProduction({ production }: { production: Production }) {
+const MemoLikedProduction = React.memo(function LikedProduction({
+  production,
+}: {
+  production: Production;
+}) {
   const router = useRouter();
-
-  const handleProductionClick = (id: Id<"productions">) => {
-    router.push(`/productions/${id}`);
-  };
+  const handleProductionClick = useCallback(
+    (id: Id<"productions">) => {
+      router.push(`/productions/${id}`);
+    },
+    [router],
+  );
 
   return (
     <Card
@@ -156,4 +170,4 @@ function LikedProduction({ production }: { production: Production }) {
       </CardContent>
     </Card>
   );
-}
+});

@@ -7,7 +7,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Id } from "../../../../convex/_generated/dataModel";
 
 import { format } from "date-fns";
-import React from "react";
+import React, { useCallback } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -84,17 +84,20 @@ export default function Page() {
   const likeProduction = useMutation(api.production_likes.likeProduction);
   const unlikeProduction = useMutation(api.production_likes.unlikeProduction);
 
-  const handleLikeClick = async (productionId: Id<"productions">) => {
-    if (hasLiked) {
-      await unlikeProduction({ productionId });
-    } else {
-      await likeProduction({ productionId });
-    }
-  };
+  const handleLikeClick = useCallback(
+    async (productionId: Id<"productions">) => {
+      if (hasLiked) {
+        await unlikeProduction({ productionId });
+      } else {
+        await likeProduction({ productionId });
+      }
+    },
+    [hasLiked, likeProduction, unlikeProduction],
+  );
 
-  const handleWriteReviewClick = () => {
+  const handleWriteReviewClick = useCallback(() => {
     router.push(`/review/new/${production?._id}`);
-  };
+  }, [router, production?._id]);
 
   return (
     <Authenticated>
@@ -152,7 +155,16 @@ export default function Page() {
               )}
             </div>
             <div>
-              <p className="text-xs text-gray-500">{production?.notes}</p>
+              {production?.season && Array.isArray(production.season)
+                ? production.season.map(
+                    (season: string, idx: number, arr: string[]) => (
+                      <span key={season} className="text-xs text-gray-500">
+                        {season}
+                        {idx !== arr.length - 1 && ", "}
+                      </span>
+                    ),
+                  )
+                : production?.season}
             </div>
           </div>
           {production && (
@@ -174,12 +186,16 @@ export default function Page() {
             </div>
           )}
         </div>
-        <div className="flex flex-row gap-16 items-center justify-center border-b-1 pb-4">
+        <div className="flex flex-row gap-2 items-center justify-center border-b-1 pb-4">
+          {/* Only mount AddToAgendaDialog when production exists and dialog is open */}
           {production && <AddToAgendaDialog production={production} />}
-          <PenLine
-            className="text-red-950 h-6 w-6"
+          <Button
+            className="bg-stone-50 shadow-none border-2 border-red-950"
             onClick={handleWriteReviewClick}
-          />
+          >
+            <PenLine className="text-red-950 h-6 w-6" />
+            <div className="text-xs text-red-950">Schrijf een review</div>
+          </Button>
         </div>
         <div className="flex flex-col gap-2">
           <div>
@@ -197,7 +213,7 @@ export default function Page() {
             )}
           </div>
           <div className="flex flex-row items-center gap-2">
-            <Stars n={production?.avg_rating} size={4} />
+            <MemoStars n={production?.avg_rating} size={4} />
             {production?.avg_rating ? (
               <p className="text-xs text-gray-500">
                 {production.avg_rating.toFixed(1)} ({production.rating_count}{" "}
@@ -212,7 +228,7 @@ export default function Page() {
           {reviews
             ?.filter((review) => (review.rating ?? 0) > 0)
             .map((review) => (
-              <ReviewCard
+              <MemoReviewCard
                 key={review._id}
                 review={{
                   ...review,
@@ -239,15 +255,16 @@ type Review = {
   updatedAt: number;
 };
 
-function ReviewCard({ review }: { review: Review }) {
+const MemoReviewCard = React.memo(function ReviewCard({
+  review,
+}: {
+  review: Review;
+}) {
   const router = useRouter();
-
   const user = useQuery(api.users.getUserById, { id: review.userId });
-
-  const handleProfileClick = () => {
-    router.push(`/profile/${user?.userId}`);
-  };
-
+  const handleProfileClick = useCallback(() => {
+    if (user?.userId) router.push(`/profile/${user.userId}`);
+  }, [router, user?.userId]);
   return (
     <Card className="border-none">
       <CardHeader className="flex flex-row items-center gap-4">
@@ -259,7 +276,7 @@ function ReviewCard({ review }: { review: Review }) {
             <span onClick={handleProfileClick}>{user?.nickname}</span>{" "}
             <span className="font-normal">geeft</span>
           </CardTitle>
-          <Stars n={review.rating ?? undefined} size={2} />
+          <MemoStars n={review.rating ?? undefined} size={2} />
         </div>
       </CardHeader>
       {review.review && (
@@ -269,7 +286,9 @@ function ReviewCard({ review }: { review: Review }) {
       )}
     </Card>
   );
-}
+});
+
+const MemoStars = React.memo(Stars);
 
 type Production = {
   _id: Id<"productions">;
@@ -392,7 +411,12 @@ function AddToAgendaDialog({ production }: { production: Production }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <CalendarPlus className="text-red-950 h-6 w-6" />
+        <div>
+          <Button className="bg-stone-50 shadow-none border-2 border-red-950">
+            <CalendarPlus className="text-red-950 h-6 w-6" />
+            <div className="text-xs text-red-950">Voeg toe aan agenda</div>
+          </Button>
+        </div>
       </DialogTrigger>
       <DialogContent>
         <Form {...form}>

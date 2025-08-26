@@ -7,9 +7,21 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Id } from "../../../../convex/_generated/dataModel";
 
+import React, { useCallback } from "react";
+
+const MemoLikedProduction = React.memo(LikedProduction);
+
 export default function Page() {
   const likedProductions = useQuery(
     api.production_likes.getAllLikedProductions,
+  );
+
+  const filteredProductions = React.useMemo(
+    () =>
+      likedProductions?.filter(
+        (production): production is Production => production !== null,
+      ) ?? [],
+    [likedProductions],
   );
 
   return (
@@ -17,17 +29,12 @@ export default function Page() {
       <div className="mx-6 my-4 pb-20">
         <div className="flex flex-col gap-2">
           <div className="text-3xl font-bold">Opgeslagen Voorstellingen</div>
-          {likedProductions &&
-            likedProductions
-              .filter(
-                (production): production is Production => production !== null,
-              )
-              .map((production) => (
-                <LikedProduction
-                  key={production.priref_id}
-                  production={production}
-                />
-              ))}
+          {filteredProductions.map((production) => (
+            <MemoLikedProduction
+              key={production.priref_id}
+              production={production}
+            />
+          ))}
         </div>
       </div>
     </Authenticated>
@@ -49,9 +56,24 @@ type Production = {
 function LikedProduction({ production }: { production: Production }) {
   const router = useRouter();
 
-  const handleProductionClick = (id: Id<"productions">) => {
-    router.push(`/productions/${id}`);
-  };
+  const handleProductionClick = useCallback(
+    (id: Id<"productions">) => {
+      router.push(`/productions/${id}`);
+    },
+    [router],
+  );
+
+  const producerNames = React.useMemo(
+    () =>
+      production.producer
+        .slice(0, 2)
+        .map((name) => {
+          const parts = name.split(",").map((part) => part.trim());
+          return parts.length === 2 ? `${parts[1]} ${parts[0]}` : name;
+        })
+        .join(", "),
+    [production.producer],
+  );
 
   return (
     <Card
@@ -62,13 +84,7 @@ function LikedProduction({ production }: { production: Production }) {
         <CardTitle className="text-xs text-wrap">{production.title}</CardTitle>
       </CardHeader>
       <CardContent className="text-xs text-stone-600">
-        {production.producer
-          .slice(0, 2)
-          .map((name) => {
-            const parts = name.split(",").map((part) => part.trim());
-            return parts.length === 2 ? `${parts[1]} ${parts[0]}` : name;
-          })
-          .join(", ")}
+        {producerNames}
       </CardContent>
     </Card>
   );

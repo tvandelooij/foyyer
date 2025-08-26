@@ -2,7 +2,7 @@
 
 import React from "react";
 
-import { Calendar, HouseIcon, Users, Drama } from "lucide-react";
+import { Calendar, HouseIcon, Users, Drama, Search } from "lucide-react";
 import Link from "next/link";
 import { Authenticated } from "convex/react";
 
@@ -21,15 +21,6 @@ const Navbar = () => {
         </div>
         <div className="flex-1 flex justify-center">
           <Link
-            href="/agenda"
-            className="text-red-950 dark:text-gray-200 hover:text-blue-500 transition-colors flex flex-col items-center gap-1"
-          >
-            <Calendar className="h-4 w-4" />
-            <div className="text-xs">Agenda</div>
-          </Link>
-        </div>
-        <div className="flex-1 flex justify-center">
-          <Link
             href="/productions"
             className="text-red-950 dark:text-gray-200 hover:text-blue-500 transition-colors flex flex-col items-center gap-1"
           >
@@ -39,11 +30,29 @@ const Navbar = () => {
         </div>
         <div className="flex-1 flex justify-center">
           <Link
+            href="/agenda"
+            className="text-red-950 dark:text-gray-200 hover:text-blue-500 transition-colors flex flex-col items-center gap-1"
+          >
+            <Calendar className="h-4 w-4" />
+            <div className="text-xs">Agenda</div>
+          </Link>
+        </div>
+        <div className="flex-1 flex justify-center">
+          <Link
             href="/groups"
             className="text-red-950 dark:text-gray-200 hover:text-blue-500 transition-colors flex flex-col items-center gap-1"
           >
             <Users className="h-4 w-4" />
             <div className="text-xs">Groepen</div>
+          </Link>
+        </div>
+        <div className="flex-1 flex justify-center">
+          <Link
+            href="/search"
+            className="text-red-950 dark:text-gray-200 hover:text-blue-500 transition-colors flex flex-col items-center gap-1"
+          >
+            <Search className="h-4 w-4" />
+            <div className="text-xs">Zoeken</div>
           </Link>
         </div>
       </nav>
