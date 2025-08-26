@@ -128,6 +128,11 @@ export default defineSchema({
     producer: v.array(v.string()),
     venue: v.string(),
     notes: v.optional(v.string()),
+    season: v.optional(v.array(v.string())),
+    tags: v.optional(v.array(v.string())),
+    avg_rating: v.optional(v.float64()),
+    rating_count: v.optional(v.number()),
+    review_count: v.optional(v.number()),
   })
     .index("by_start_date", ["start_date"])
     .searchIndex("search_title", {

@@ -17,7 +17,9 @@ class Production(BaseModel):
     start_date: str
     producer: list[str]
     venue: str
-    notes: str | None = None
+    notes: str = ""
+    season: list[str] = []
+    tags: list[str] = []
 
 
 def parse_adlib_xml(xml_string: str) -> List[Production]:
@@ -34,9 +36,21 @@ def parse_adlib_xml(xml_string: str) -> List[Production]:
             start_date = datetime.strptime(start_date_str, "%Y-%m-%d").isoformat()
         except (ValueError, TypeError):
             return
-        producer = [elem.text for elem in record.findall("producent/company") if elem.text] or []
+        producer = [elem.text for elem in record.findall("producent/company") if elem.text and elem.text != "Buitenlandse Gezelschappen"] or []
         venue = record.findtext("venue") or ""
         notes = record.findtext("notes") or ""
+
+        # Parse Content_subject tags
+        seasons = []
+        tags = []
+        for content_subject in record.findall("Content_subject/content.subject"):
+            val = content_subject.text
+            if val:
+                if "seizoen" in val.lower():
+                    seasons.append(val.lower().replace("seizoen ", "").strip())
+                else:
+                    tags.append(val)
+
         productions.append(Production(
             priref_id=priref_id,
             title=title,
@@ -44,7 +58,9 @@ def parse_adlib_xml(xml_string: str) -> List[Production]:
             start_date=start_date,
             producer=producer,
             venue=venue,
-            notes=notes
+            notes=notes,
+            season=seasons if seasons else [],
+            tags=tags if tags else []
         ))
     return productions
 
@@ -75,8 +91,8 @@ def get_adlib_data(start_date: str):
         has_more = len(productions) == params["limit"]
         params["startfrom"] += params["limit"]
 
-        print("Sleeping for 10 seconds...")
-        time.sleep(10)
+        print("Sleeping for 5 seconds...")
+        time.sleep(5)
 
     return all_productions
 
