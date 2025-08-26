@@ -4,7 +4,7 @@ import { Authenticated, useQuery } from "convex/react";
 import { UserButton, useUser } from "@clerk/nextjs";
 import Link from "next/link";
 
-import { Search, UserIcon, Bell } from "lucide-react";
+import { UserIcon, Bell } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 
 import { Input } from "@/components/ui/input";
@@ -61,12 +61,22 @@ export function Header() {
     <header className="flex h-16 items-center justify-between gap-4 px-4 relative border-b-2 border-red-950">
       <Authenticated>
         <div className="flex items-center min-w-[64px]">
-          <button
+          {/* <NotificationBell /> */}
+          <UserButton>
+            <UserButton.MenuItems>
+              <UserButton.Link
+                label="Profiel"
+                labelIcon={<UserIcon className="h-4 w-4 flex items-center" />}
+                href={`/profile/${user?.user?.id}`}
+              />
+            </UserButton.MenuItems>
+          </UserButton>
+          {/* <button
             onClick={() => setSearchOpen((v) => !v)}
             aria-label="Zoek vrienden"
           >
             <Search className="h-5 w-5 text-red-950 items-center" />
-          </button>
+          </button> */}
         </div>
       </Authenticated>
       {/* Overlay search bar and results when open */}
@@ -127,9 +137,9 @@ export function Header() {
             </span>
           </Link>
           <Authenticated>
-            <div className="flex items-center gap-x-4 min-w-[64px] relative">
+            <div className="flex items-center gap-x-4 min-w-[64px] relative justify-end">
               <NotificationBell />
-              <UserButton>
+              {/* <UserButton>
                 <UserButton.MenuItems>
                   <UserButton.Link
                     label="Profiel"
@@ -139,7 +149,7 @@ export function Header() {
                     href={`/profile/${user?.user?.id}`}
                   />
                 </UserButton.MenuItems>
-              </UserButton>
+              </UserButton> */}
             </div>
           </Authenticated>
         </>

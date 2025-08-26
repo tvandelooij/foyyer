@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Ellipsis } from "lucide-react";
-import { useState } from "react";
+import React, { useState, useCallback } from "react";
 
 export default function Page() {
   const user = useUser();
@@ -60,22 +60,28 @@ export default function Page() {
       : "skip",
   );
 
-  const handleStatusUpdate = async (
-    status: "planned" | "confirmed" | "canceled",
-  ) => {
-    await updateAgendaItemStatus({ id, status });
-  };
+  const handleStatusUpdate = useCallback(
+    async (status: "planned" | "confirmed" | "canceled") => {
+      await updateAgendaItemStatus({ id, status });
+    },
+    [id, updateAgendaItemStatus],
+  );
 
-  const handleDeleteAgendaItem = async (id: Id<"userAgenda">) => {
-    setIsDeleting(true);
+  const handleDeleteAgendaItem = useCallback(
+    async (id: Id<"userAgenda">) => {
+      setIsDeleting(true);
+      router.push("/agenda");
+      await deleteAgendaItem({ id });
+    },
+    [deleteAgendaItem, router],
+  );
 
-    router.push("/agenda");
-    await deleteAgendaItem({ id });
-  };
-
-  const handleProductionInfoClick = (productionId: Id<"productions">) => {
-    router.push(`/productions/${productionId}`);
-  };
+  const handleProductionInfoClick = useCallback(
+    (productionId: Id<"productions">) => {
+      router.push(`/productions/${productionId}`);
+    },
+    [router],
+  );
 
   return (
     <Authenticated>
@@ -172,7 +178,7 @@ export default function Page() {
               </Card>
             </div>
             {agendaItem?.groupId && (
-              <GroupMembers
+              <MemoGroupMembers
                 groupId={agendaItem?.groupId as Id<"groups">}
                 productionId={agendaItem?.productionId as Id<"productions">}
               />
@@ -186,7 +192,7 @@ export default function Page() {
   );
 }
 
-function GroupMembers({
+const MemoGroupMembers = React.memo(function GroupMembers({
   groupId,
   productionId,
 }: {
@@ -207,7 +213,7 @@ function GroupMembers({
       <CardContent>
         <div className="grid grid-cols-1 gap-3">
           {memberItems?.map((item) => (
-            <MemberStatus
+            <MemoMemberStatus
               key={item._id}
               userId={item.userId}
               status={item.status}
@@ -217,9 +223,15 @@ function GroupMembers({
       </CardContent>
     </Card>
   );
-}
+});
 
-function MemberStatus({ userId, status }: { userId: string; status: string }) {
+const MemoMemberStatus = React.memo(function MemberStatus({
+  userId,
+  status,
+}: {
+  userId: string;
+  status: string;
+}) {
   const user = useQuery(api.users.getUserById, { id: userId });
   return (
     <div className="flex flex-row text-xs items-center gap-4">
@@ -241,4 +253,4 @@ function MemberStatus({ userId, status }: { userId: string; status: string }) {
       </div>
     </div>
   );
-}
+});
