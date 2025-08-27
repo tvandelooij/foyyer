@@ -6,7 +6,13 @@ import { api } from "../../../convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Id } from "../../../convex/_generated/dataModel";
 import { useRouter } from "next/navigation";
-import { CircleChevronRight } from "lucide-react";
+import {
+  CircleChevronRight,
+  Music,
+  Footprints,
+  Theater,
+  Spotlight,
+} from "lucide-react";
 
 import { useCallback, useMemo, memo } from "react";
 
@@ -37,10 +43,11 @@ export default function Page() {
           <div className="flex flex-row">
             <div className="text-3xl font-bold">Voorstellingen</div>
           </div>
+
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-4">
               <div className="text-base font-semibold">Opgeslagen</div>
-              <div className="flex flex-col gap-2 pb-4">
+              <div className="flex flex-col gap-2">
                 {filteredLikedProductions.map((production) => (
                   <MemoLikedProduction
                     key={production.priref_id}
@@ -60,6 +67,7 @@ export default function Page() {
                 )}
               </div>
             </div>
+
             <div className="text-base font-semibold">
               Binnenkort in premiere
             </div>
@@ -80,32 +88,56 @@ export default function Page() {
                   />
                 ))}
             </div>
+
             <div className="text-base font-semibold pt-4">Ontdekken</div>
             <div className="grid grid-cols-2 gap-4">
               <Card
-                className="rounded-sm border-b-4 border-r-4 bg-orange-500 text-white"
+                className="rounded-sm border-b-4 border-r-4 bg-indigo-300 text-white"
                 onClick={() => router.push("/productions/category/toneel")}
               >
-                <CardHeader className="items-center">
-                  <CardTitle>Toneel</CardTitle>
+                <CardHeader>
+                  <CardTitle className="place-content-center gap-1 flex flex-row items-center">
+                    <Theater />
+                    <div>Toneel</div>
+                  </CardTitle>
                 </CardHeader>
               </Card>
 
               <Card
-                className="rounded-sm border-b-4 border-r-4 bg-sky-500 text-white"
+                className="rounded-sm border-b-4 border-r-4 bg-indigo-300 text-white"
                 onClick={() => router.push("/productions/category/dans")}
               >
-                <CardHeader className="items-center">
-                  <CardTitle>Dans</CardTitle>
+                <CardHeader>
+                  <CardTitle className="place-content-center gap-1 flex flex-row items-center">
+                    <Footprints />
+                    <div>Dans</div>
+                  </CardTitle>
                 </CardHeader>
               </Card>
 
               <Card
-                className="rounded-sm border-b-4 border-r-4 bg-lime-500 text-white"
+                className="rounded-sm border-b-4 border-r-4 bg-indigo-300 text-white"
                 onClick={() => router.push("/productions/category/muziek")}
               >
-                <CardHeader className="items-center">
-                  <CardTitle>Muziek</CardTitle>
+                <CardHeader className="p-0">
+                  <CardTitle className="place-content-center gap-1 flex flex-row items-center">
+                    <Music />
+                    <div>Muziektheater</div>
+                  </CardTitle>
+                </CardHeader>
+              </Card>
+
+              <Card
+                className="rounded-sm border-b-4 border-r-4 bg-indigo-300 text-white"
+                onClick={() =>
+                  router.push("/productions/category/amusementsvorm")
+                }
+              >
+                <CardHeader className="p-0">
+                  <CardTitle className="place-content-center gap-1 flex flex-row items-center">
+                    <Spotlight />
+                    <div>Amusement</div>
+                  </CardTitle>
                 </CardHeader>
               </Card>
             </div>

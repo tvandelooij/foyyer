@@ -120,7 +120,7 @@ export default function Page() {
             {production?.tags && production.tags.length > 0 && (
               <div className="flex flex-row flex-wrap gap-2">
                 {production.discipline !== "amusementsvorm" && (
-                  <Badge className="p-1 pb-2 px-2 bg-red-300 rounded-sm font-semibold text-white text-xs">
+                  <Badge className="p-1 pb-2 px-2 bg-stone-300 rounded-sm font-semibold text-white text-xs">
                     {production.discipline}
                   </Badge>
                 )}
