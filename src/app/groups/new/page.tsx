@@ -27,7 +27,7 @@ export default function Page() {
     <Authenticated>
       <div className="mx-6 my-4">
         <div className="flex flex-col gap-6">
-          <div className="text-2xl font-bold">Nieuwe groep</div>
+          <div className="text-2xl font-bold">Nieuwe groep aanmaken</div>
           <GroupForm />
         </div>
       </div>
@@ -81,7 +81,7 @@ function GroupForm() {
   }
 
   return (
-    <Card className="border-none">
+    <Card className="border-none shadow-none bg-stone-50 p-1">
       <CardContent className="px-4 my-0 py-0">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -90,11 +90,13 @@ function GroupForm() {
               name="name"
               render={({ field }) => (
                 <FormItem className="flex flex-col gap-2">
-                  <FormLabel className="font-lg">Groepsnaam</FormLabel>
+                  <FormLabel className="font-lg font-semibold">
+                    Groepsnaam
+                  </FormLabel>
                   <FormControl>
                     <Input
                       placeholder='bijv. "coole groep 😎"'
-                      className="text-sm rounded-none"
+                      className="text-sm rounded-sm border-2 border-b-4 border-red-950"
                       {...field}
                     />
                   </FormControl>
@@ -107,11 +109,13 @@ function GroupForm() {
               name="description"
               render={({ field }) => (
                 <FormItem className="flex flex-col gap-2">
-                  <FormLabel className="font-lg">Groepsbeschrijving</FormLabel>
+                  <FormLabel className="font-lg font-semibold">
+                    Groepsbeschrijving
+                  </FormLabel>
                   <FormControl>
                     <Input
                       placeholder='bijv. "Een groep voor coole mensen..."'
-                      className="text-sm rounded-none"
+                      className="text-sm rounded-sm border-2 border-b-4 border-red-950"
                       {...field}
                     />
                   </FormControl>
@@ -124,7 +128,9 @@ function GroupForm() {
               name="visibility"
               render={({ field }) => (
                 <FormItem className="space-y-2 pt-4">
-                  <FormLabel className="font-lg">Zichtbaarheid</FormLabel>
+                  <FormLabel className="font-lg font-semibold">
+                    Zichtbaarheid
+                  </FormLabel>
                   <FormControl>
                     <RadioGroup
                       defaultValue={field.value}
@@ -147,7 +153,7 @@ function GroupForm() {
             <div className="flex justify-center pt-6">
               <Button
                 type="submit"
-                className="bg-blue-500 px-3 w-full"
+                className="bg-lime-200 rounded-xs shadow-none font-semibold text-black px-3 border-red-950 border-2 border-b-4 border-r-4 w-full"
                 disabled={isLoading}
               >
                 Groep aanmaken

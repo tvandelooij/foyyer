@@ -82,17 +82,23 @@ export default function Page() {
                         size="icon"
                       >
                         <Ellipsis />
-                        <span className="sr-only">Open intellingen</span>
+                        <span className="sr-only">Open instellingen</span>
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-32">
+                    <DropdownMenuContent
+                      align="end"
+                      className="w-32 border-2 border-b-4 border-red-950 rounded-sm bg-red-800"
+                    >
                       <DropdownMenuItem
+                        className="bold"
                         variant="destructive"
                         onClick={() => {
                           handleDeleteGroup(group._id);
                         }}
                       >
-                        Verwijderen
+                        <div className="text-white font-semibold text-nowrap text-xs">
+                          Groep verwijderen
+                        </div>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -256,7 +262,7 @@ function AddGroupMemberDialog({ groupId }: { groupId: string }) {
 
   return (
     <Dialog>
-      <DialogTrigger className="bg-blue-500 text-white font-medium text-xs px-3 py-1 rounded-md">
+      <DialogTrigger className="bg-orange-500 border-2 border-b-4 border-red-950 text-white font-semibold text-xs px-3 py-1 rounded-sm">
         Uitnodigen
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
