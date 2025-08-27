@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Id } from "../../../convex/_generated/dataModel";
 import { useRouter } from "next/navigation";
 
-import React, { useCallback } from "react";
+import { useCallback, useMemo, memo } from "react";
 
 export default function Page() {
   const router = useRouter();
@@ -21,7 +21,7 @@ export default function Page() {
     router.push("/productions/liked");
   }, [router]);
 
-  const filteredLikedProductions = React.useMemo(
+  const filteredLikedProductions = useMemo(
     () =>
       likedProductions?.filter(
         (production): production is Production => production !== null,
@@ -78,6 +78,35 @@ export default function Page() {
                   />
                 ))}
             </div>
+            <div className="text-base font-semibold pt-4">Ontdekken</div>
+            <div className="grid grid-cols-2 gap-4">
+              <Card
+                className="rounded-sm border-b-4 border-r-4 bg-orange-500 text-white"
+                onClick={() => router.push("/productions/category/toneel")}
+              >
+                <CardHeader className="items-center">
+                  <CardTitle>Toneel</CardTitle>
+                </CardHeader>
+              </Card>
+
+              <Card
+                className="rounded-sm border-b-4 border-r-4 bg-sky-500 text-white"
+                onClick={() => router.push("/productions/category/dans")}
+              >
+                <CardHeader className="items-center">
+                  <CardTitle>Dans</CardTitle>
+                </CardHeader>
+              </Card>
+
+              <Card
+                className="rounded-sm border-b-4 border-r-4 bg-lime-500 text-white"
+                onClick={() => router.push("/productions/category/muziek")}
+              >
+                <CardHeader className="items-center">
+                  <CardTitle>Muziek</CardTitle>
+                </CardHeader>
+              </Card>
+            </div>
           </div>
         </div>
       </div>
@@ -97,7 +126,7 @@ type Production = {
   // Add other fields if needed
 };
 
-const MemoProductionCard = React.memo(function ProductionCard({
+const MemoProductionCard = memo(function ProductionCard({
   production,
 }: {
   production: Production;
@@ -138,7 +167,7 @@ const MemoProductionCard = React.memo(function ProductionCard({
   );
 });
 
-const MemoLikedProduction = React.memo(function LikedProduction({
+const MemoLikedProduction = memo(function LikedProduction({
   production,
 }: {
   production: Production;
