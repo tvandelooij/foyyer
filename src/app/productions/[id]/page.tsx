@@ -7,7 +7,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Id } from "../../../../convex/_generated/dataModel";
 
 import { format } from "date-fns";
-import React from "react";
+import React, { useCallback } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -59,6 +59,10 @@ import {
 } from "@/components/ui/command";
 import { CommandGroup, CommandInput } from "cmdk";
 import { useUser } from "@clerk/nextjs";
+import Rating from "@/components/rating";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Stars from "@/components/stars";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 
 export default function Page() {
   const router = useRouter();
@@ -69,20 +73,31 @@ export default function Page() {
   const hasLiked = useQuery(api.production_likes.hasLikedProduction, {
     productionId: id,
   });
+  const maybeReview = useQuery(
+    api.production_reviews.getReviewsForProductionByUser,
+    { productionId: id },
+  );
+  const reviews = useQuery(api.production_reviews.getReviewsForProduction, {
+    productionId: id,
+  });
+
   const likeProduction = useMutation(api.production_likes.likeProduction);
   const unlikeProduction = useMutation(api.production_likes.unlikeProduction);
 
-  const handleLikeClick = async (productionId: Id<"productions">) => {
-    if (hasLiked) {
-      await unlikeProduction({ productionId });
-    } else {
-      await likeProduction({ productionId });
-    }
-  };
+  const handleLikeClick = useCallback(
+    async (productionId: Id<"productions">) => {
+      if (hasLiked) {
+        await unlikeProduction({ productionId });
+      } else {
+        await likeProduction({ productionId });
+      }
+    },
+    [hasLiked, likeProduction, unlikeProduction],
+  );
 
-  const handleWriteReviewClick = () => {
+  const handleWriteReviewClick = useCallback(() => {
     router.push(`/review/new/${production?._id}`);
-  };
+  }, [router, production?._id]);
 
   return (
     <Authenticated>
@@ -102,12 +117,26 @@ export default function Page() {
             </div>
           </div>
           <div>
-            <Badge className="p-1 pb-2 px-2 bg-stone-300 rounded-sm font-semibold text-white">
-              {production?.discipline}
-            </Badge>
+            {production?.tags && production.tags.length > 0 && (
+              <div className="flex flex-row flex-wrap gap-2">
+                {production.discipline !== "amusementsvorm" && (
+                  <Badge className="p-1 pb-2 px-2 bg-red-300 rounded-sm font-semibold text-white text-xs">
+                    {production.discipline}
+                  </Badge>
+                )}
+                {production.tags.map((tag) => (
+                  <Badge
+                    key={tag}
+                    className="p-1 pb-2 px-2 bg-stone-300 rounded-sm font-semibold text-white text-xs"
+                  >
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
+            )}
           </div>
         </div>
-        <div className="border-b-1 pb-4">
+        <div className="flex flex-col gap-2 border-b-1 pb-4">
           <div className="flex flex-col gap-1">
             <div className="flex flex-row flex-wrap w-full">
               {(production?.producer.slice(0, 5) ?? []).map(
@@ -126,21 +155,140 @@ export default function Page() {
               )}
             </div>
             <div>
-              <p className="text-xs text-gray-500">{production?.notes}</p>
+              {production?.season && Array.isArray(production.season)
+                ? production.season.map(
+                    (season: string, idx: number, arr: string[]) => (
+                      <span key={season} className="text-xs text-gray-500">
+                        {season}
+                        {idx !== arr.length - 1 && ", "}
+                      </span>
+                    ),
+                  )
+                : production?.season}
             </div>
           </div>
+          {production && (
+            <div className="flex flex-col py-2 items-center gap-2 border-t-1">
+              <div className="text-sm text-gray-500">Jouw beoordeling</div>
+              <Rating
+                production={{
+                  _id: production!._id,
+                  avg_rating: production?.avg_rating ?? 0,
+                  rating_count: production?.rating_count ?? 0,
+                  review_count: production?.review_count ?? 0,
+                }}
+                maybeReview={
+                  maybeReview
+                    ? { _id: maybeReview._id, rating: maybeReview.rating ?? 0 }
+                    : undefined
+                }
+              />
+            </div>
+          )}
         </div>
-        <div className="flex flex-row gap-16 items-center justify-center border-b-1 pb-4">
+        <div className="flex flex-row gap-2 items-center justify-center border-b-1 pb-4">
+          {/* Only mount AddToAgendaDialog when production exists and dialog is open */}
           {production && <AddToAgendaDialog production={production} />}
-          <PenLine
-            className="text-red-950 h-6 w-6"
+          <Button
+            className="bg-stone-50 shadow-none border-2 border-red-950"
             onClick={handleWriteReviewClick}
-          />
+          >
+            <PenLine className="text-red-950 h-6 w-6" />
+            <div className="text-xs text-red-950">Schrijf een review</div>
+          </Button>
+        </div>
+        <div className="flex flex-col gap-2">
+          <div>
+            {production?.review_count && production.review_count > 0 ? (
+              <div>
+                <p className="text-xs text-gray-500">
+                  {production.review_count} review
+                  {production.review_count !== 1 ? "s" : ""}
+                </p>
+              </div>
+            ) : (
+              <div>
+                <p className="text-xs text-gray-500">Nog geen reviews</p>
+              </div>
+            )}
+          </div>
+          <div className="flex flex-row items-center gap-2">
+            <MemoStars n={production?.avg_rating} size={4} />
+            {production?.avg_rating ? (
+              <p className="text-xs text-gray-500">
+                {production.avg_rating.toFixed(1)} ({production.rating_count}{" "}
+                beoordeling{production.rating_count !== 1 ? "en" : ""})
+              </p>
+            ) : (
+              <p className="text-xs text-gray-500">(0)</p>
+            )}
+          </div>
+        </div>
+        <div className="flex flex-col gap-4">
+          {reviews
+            ?.filter((review) => (review.rating ?? 0) > 0)
+            .map((review) => (
+              <MemoReviewCard
+                key={review._id}
+                review={{
+                  ...review,
+                  rating: review.rating ?? null,
+                  review: review.review ?? null,
+                  userId: review.userId as Id<"users">,
+                }}
+              />
+            ))}
         </div>
       </div>
     </Authenticated>
   );
 }
+
+type Review = {
+  _id: Id<"productionReviews">;
+  _creationTime: number;
+  productionId: Id<"productions">;
+  userId: Id<"users">;
+  visited: boolean;
+  rating: number | null;
+  review: string | null;
+  updatedAt: number;
+};
+
+const MemoReviewCard = React.memo(function ReviewCard({
+  review,
+}: {
+  review: Review;
+}) {
+  const router = useRouter();
+  const user = useQuery(api.users.getUserById, { id: review.userId });
+  const handleProfileClick = useCallback(() => {
+    if (user?.userId) router.push(`/profile/${user.userId}`);
+  }, [router, user?.userId]);
+  return (
+    <Card className="border-none">
+      <CardHeader className="flex flex-row items-center gap-4">
+        <Avatar className="w-6 h-6" onClick={handleProfileClick}>
+          <AvatarImage src={user?.pictureUrl} alt={user?.nickname} />
+        </Avatar>
+        <div className="flex flex-row gap-2 items-center">
+          <CardTitle className="text-xs">
+            <span onClick={handleProfileClick}>{user?.nickname}</span>{" "}
+            <span className="font-normal">geeft</span>
+          </CardTitle>
+          <MemoStars n={review.rating ?? undefined} size={2} />
+        </div>
+      </CardHeader>
+      {review.review && (
+        <CardContent>
+          <p className="text-xs text-gray-500">{review.review}</p>
+        </CardContent>
+      )}
+    </Card>
+  );
+});
+
+const MemoStars = React.memo(Stars);
 
 type Production = {
   _id: Id<"productions">;
@@ -263,7 +411,12 @@ function AddToAgendaDialog({ production }: { production: Production }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <CalendarPlus className="text-red-950 h-6 w-6" />
+        <div>
+          <Button className="bg-stone-50 shadow-none border-2 border-red-950">
+            <CalendarPlus className="text-red-950 h-6 w-6" />
+            <div className="text-xs text-red-950">Voeg toe aan agenda</div>
+          </Button>
+        </div>
       </DialogTrigger>
       <DialogContent>
         <Form {...form}>
