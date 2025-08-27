@@ -6,6 +6,7 @@ import { api } from "../../../convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Id } from "../../../convex/_generated/dataModel";
 import { useRouter } from "next/navigation";
+import { CircleChevronRight } from "lucide-react";
 
 import React, { useCallback } from "react";
 
@@ -49,10 +50,11 @@ export default function Page() {
                 {likedProductions && likedProductions.length >= 3 && (
                   <div className="flex flex-row justify-end p-2">
                     <button
-                      className="text-xs text-blue-500 font-semibold"
+                      className="text-xs text-red-950 font-semibold flex flex-row gap-1 items-center"
                       onClick={handleViewAll}
                     >
-                      Bekijk alles
+                      <CircleChevronRight className="h-4 w-4" />
+                      <div>Bekijk alles</div>
                     </button>
                   </div>
                 )}
