@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Id } from "../../../../convex/_generated/dataModel";
 import { useQuery } from "convex-helpers/react/cache/hooks";
 import { api } from "../../../../convex/_generated/api";
@@ -30,14 +30,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Ellipsis } from "lucide-react";
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, use } from "react";
 
-export default function Page() {
+export default function Page({ params }: { params: Promise<{ id: string }> }) {
   const user = useUser();
-  const params = useParams();
   const router = useRouter();
 
-  const id = params.id as Id<"userAgenda">;
+  const { id } = use(params);
+  const agendaId = id as Id<"userAgenda">;
 
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -46,7 +46,7 @@ export default function Page() {
   );
   const deleteAgendaItem = useMutation(api.user_agenda.deleteAgendaItem);
 
-  const agendaItem = useQuery(api.user_agenda.getAgendaItem, { id });
+  const agendaItem = useQuery(api.user_agenda.getAgendaItem, { id: agendaId });
   const production = useQuery(
     api.productions.getProductionById,
     agendaItem?.productionId
@@ -62,9 +62,9 @@ export default function Page() {
 
   const handleStatusUpdate = useCallback(
     async (status: "planned" | "confirmed" | "canceled") => {
-      await updateAgendaItemStatus({ id, status });
+      await updateAgendaItemStatus({ id: agendaId, status });
     },
-    [id, updateAgendaItemStatus],
+    [agendaId, updateAgendaItemStatus],
   );
 
   const handleDeleteAgendaItem = useCallback(

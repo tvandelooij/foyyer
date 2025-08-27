@@ -135,6 +135,7 @@ export default defineSchema({
     review_count: v.optional(v.number()),
   })
     .index("by_start_date", ["start_date"])
+    .index("by_discipline_by_date", ["discipline", "start_date"])
     .searchIndex("search_title", {
       searchField: "title",
     })
