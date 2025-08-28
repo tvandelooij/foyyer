@@ -14,10 +14,10 @@ export default function Stars({
         let iconClass = `text-gray-300 h-${size} w-${size}`;
         let isHalf = false;
         if (star <= Math.floor(rating)) {
-          iconClass = `text-yellow-500 fill-yellow-500 font-thin h-${size} w-${size}`;
+          iconClass = `text-red-950 fill-red-950 font-thin h-${size} w-${size}`;
         } else if (star === Math.ceil(rating) && rating % 1 === 0.5) {
           isHalf = true;
-          iconClass = "text-yellow-500 font-thin h-4 w-4";
+          iconClass = "text-red-950 font-thin h-4 w-4";
         }
         return (
           <span
@@ -27,7 +27,7 @@ export default function Stars({
             <Star className={iconClass + (isHalf ? " opacity-50" : "")} />
             {isHalf && (
               <Star
-                className={`text-yellow-500 fill-yellow-500 font-thin h-${size} w-${size} absolute left-0 top-0`}
+                className={`text-red-950 fill-red-950 font-thin h-${size} w-${size} absolute left-0 top-0`}
                 style={{ clipPath: "inset(0 50% 0 0)" }}
               />
             )}

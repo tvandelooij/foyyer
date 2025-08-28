@@ -101,14 +101,14 @@ export default function Page() {
           <div>
             <Textarea
               placeholder="Optioneel"
-              className="text-base min-h-48"
+              className="text-base min-h-48 border-2 border-red-950"
               value={reviewText}
               onChange={(e) => setReviewText(e.target.value)}
               disabled={!editMode}
             />
           </div>
           <Button
-            className="bg-stone-50 shadow-none border-2 border-red-950 text-red-950"
+            className="bg-lime-200 rounded-xs font-semibold shadow-none border-2 border-b-4 border-r-4 border-red-950 text-red-950"
             onClick={handleButtonClick}
           >
             {maybeReview ? (editMode ? "Opslaan" : "Bewerken") : "Plaatsen"}

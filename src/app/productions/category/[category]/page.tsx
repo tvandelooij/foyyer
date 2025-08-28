@@ -74,7 +74,9 @@ const MemoLikedProduction = memo(function LikedProduction({
       onClick={() => handleProductionClick(production._id)}
     >
       <CardHeader className="flex flex-col">
-        <CardTitle className="text-xs text-wrap">{production.title}</CardTitle>
+        <CardTitle className="text-sm text-semibold text-wrap">
+          {production.title}
+        </CardTitle>
       </CardHeader>
       <CardContent className="text-xs text-stone-600 flex flex-col gap-2">
         <div>
@@ -88,12 +90,10 @@ const MemoLikedProduction = memo(function LikedProduction({
         </div>
         <div className="flex flex-row flex-wrap gap-2">
           {production.tags.map((tag) => {
-            const colors = ["bg-orange-500", "bg-sky-500", "bg-lime-500"];
-            const color = colors[Math.floor(Math.random() * colors.length)];
             return (
               <Badge
                 key={tag}
-                className={`${color} rounded-sm font-medium text-white text-xs`}
+                className="bg-indigo-300 rounded-sm font-medium text-white text-xs"
               >
                 {tag}
               </Badge>

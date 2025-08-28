@@ -102,8 +102,8 @@ export default function Rating({ production, maybeReview }: RatingProps) {
           <Star
             className={
               star <= (maybeReview?.rating ?? 0)
-                ? "text-yellow-500 fill-yellow-500 font-thin h-8 w-8"
-                : "text-gray-300 h-8 w-8"
+                ? "text-red-950 fill-red-950 font-thin h-8 w-8"
+                : "text-red-950 h-8 w-8"
             }
           />
         </button>
