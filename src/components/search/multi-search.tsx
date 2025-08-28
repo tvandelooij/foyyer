@@ -57,7 +57,7 @@ export default function MultiSearch() {
     <div className="flex flex-col gap-4">
       <Input
         placeholder="Voorstelling, groep, gebruiker"
-        className="text-sm rounded-sm border-2 border-b-4 border-red-950 h-10"
+        className="text-base rounded-sm border-2 border-b-4 border-red-950 h-10"
         value={query}
         onChange={handleInput}
       />

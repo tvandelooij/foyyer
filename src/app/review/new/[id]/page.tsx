@@ -101,7 +101,7 @@ export default function Page() {
           <div>
             <Textarea
               placeholder="Optioneel"
-              className="text-sm min-h-48"
+              className="text-base min-h-48"
               value={reviewText}
               onChange={(e) => setReviewText(e.target.value)}
               disabled={!editMode}

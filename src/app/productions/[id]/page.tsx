@@ -543,7 +543,7 @@ function AddToAgendaDialog({ production }: { production: Production }) {
                             step="1"
                             value={field.value}
                             onChange={field.onChange}
-                            className="bg-background text-sm rounded-none w-full appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+                            className="bg-background text-base rounded-none w-full appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
                           />
                         </FormControl>
                       </FormItem>
