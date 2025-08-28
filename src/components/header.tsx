@@ -31,9 +31,9 @@ export function Header() {
             foyyer
           </span>
         </Link>
-         <div className="flex items-center gap-x-4 min-w-[64px] relative justify-end">
-            <NotificationBell />
-          </div>
+        <div className="flex items-center gap-x-4 min-w-[64px] relative justify-end">
+          <NotificationBell />
+        </div>
       </Authenticated>
       <Unauthenticated>
         <Link href="/" className="flex flex-row mx-auto items-center gap-x-5">

@@ -26,7 +26,9 @@ export default function Home() {
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
         <Unauthenticated>
           <SignInButton>
-            <Button className="bg-orange-500 border-red-950 border-2 border-b-4 border-r-4 font-semibold text-white p-4">Log in</Button>
+            <Button className="bg-orange-500 border-red-950 border-2 border-b-4 border-r-4 font-semibold text-white p-4">
+              Log in
+            </Button>
           </SignInButton>
         </Unauthenticated>
         <Authenticated>hello {user?.username}</Authenticated>

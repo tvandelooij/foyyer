@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { Input } from "@/components/ui/input";
+
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 interface MultiSearchResult {
@@ -15,22 +17,43 @@ interface MultiSearchResult {
 }
 
 export default function MultiSearch() {
-  const [query, setQuery] = useState("");
-  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Initialize query from URL
+  const initialQ = searchParams.get("q") || "";
+  const [query, setQuery] = useState(initialQ);
+  const [debouncedQuery, setDebouncedQuery] = useState(initialQ);
   const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
 
-  // Debounce input
+  // Debounce input and update URL
   const handleInput = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      setQuery(e.target.value);
+      const value = e.target.value;
+      setQuery(value);
+      // Update URL param (replace, not push)
+      const params = new URLSearchParams(Array.from(searchParams.entries()));
+      if (value) {
+        params.set("q", value);
+      } else {
+        params.delete("q");
+      }
+      router.replace(`?${params.toString()}`);
       if (timer) clearTimeout(timer);
       const newTimer = setTimeout(() => {
-        setDebouncedQuery(e.target.value);
+        setDebouncedQuery(value);
       }, 500);
       setTimer(newTimer);
     },
-    [timer],
+    [timer, router, searchParams],
   );
+
+  // Sync state if user navigates with browser (back/forward)
+  useEffect(() => {
+    const urlQ = searchParams.get("q") || "";
+    setQuery(urlQ);
+    setDebouncedQuery(urlQ);
+  }, [searchParams]);
 
   const rawResults =
     useQuery(
