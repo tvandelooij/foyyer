@@ -75,7 +75,7 @@ function FriendRequest({ notification }: { notification: any }) {
 
   const setFriendshipStatus = async (status: string) => {
     await updateFriendshipStatus({
-      senderId: notification.data,
+      senderId: id,
       status: status,
     });
     await markNotificationAsRead({ notificationId: notification._id });

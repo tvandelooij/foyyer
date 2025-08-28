@@ -96,7 +96,7 @@ function GroupForm() {
                   <FormControl>
                     <Input
                       placeholder='bijv. "coole groep 😎"'
-                      className="text-sm rounded-sm border-2 border-b-4 border-red-950"
+                      className="text-base rounded-sm border-2 border-b-4 border-red-950"
                       {...field}
                     />
                   </FormControl>
@@ -115,7 +115,7 @@ function GroupForm() {
                   <FormControl>
                     <Input
                       placeholder='bijv. "Een groep voor coole mensen..."'
-                      className="text-sm rounded-sm border-2 border-b-4 border-red-950"
+                      className="text-base rounded-sm border-2 border-b-4 border-red-950"
                       {...field}
                     />
                   </FormControl>
