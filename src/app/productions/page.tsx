@@ -105,18 +105,6 @@ export default function Page() {
 
               <Card
                 className="rounded-sm border-b-4 border-r-4 bg-indigo-300 text-white"
-                onClick={() => router.push("/productions/category/dans")}
-              >
-                <CardHeader>
-                  <CardTitle className="place-content-center gap-1 flex flex-row items-center">
-                    <Footprints />
-                    <div>Dans</div>
-                  </CardTitle>
-                </CardHeader>
-              </Card>
-
-              <Card
-                className="rounded-sm border-b-4 border-r-4 bg-indigo-300 text-white"
                 onClick={() => router.push("/productions/category/muziek")}
               >
                 <CardHeader className="p-0">
@@ -137,6 +125,18 @@ export default function Page() {
                   <CardTitle className="place-content-center gap-1 flex flex-row items-center">
                     <Spotlight />
                     <div>Amusement</div>
+                  </CardTitle>
+                </CardHeader>
+              </Card>
+
+              <Card
+                className="rounded-sm border-b-4 border-r-4 bg-indigo-300 text-white"
+                onClick={() => router.push("/productions/category/dans")}
+              >
+                <CardHeader>
+                  <CardTitle className="place-content-center gap-1 flex flex-row items-center">
+                    <Footprints />
+                    <div>Dans</div>
                   </CardTitle>
                 </CardHeader>
               </Card>

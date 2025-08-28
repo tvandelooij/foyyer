@@ -181,7 +181,7 @@ function ProductionVisitCard({ visit }: { visit: ProductionVisit }) {
 
   return (
     <Card
-      className="gap-2 py-4 min-w-40 bg-stone-50 border-red-950 border-2 shadow-none rounded-none"
+      className="gap-2 py-4 min-w-40 bg-stone-200 border-red-950 border-2 border-b-4 border-r-4 shadow-none rounded-sm"
       onClick={() =>
         handleProductionClick(production?._id as Id<"productions">)
       }
@@ -223,7 +223,10 @@ function GroupMember({
   };
 
   return (
-    <Card className="py-3" onClick={handleUserClick(userId)}>
+    <Card
+      className="py-3 border-none bg-stone-50"
+      onClick={handleUserClick(userId)}
+    >
       <CardHeader className="gap-0">
         <div className="flex flex-row items-center gap-4">
           <Avatar>
@@ -337,7 +340,7 @@ function InviteFriend({ friendId, inviteSent, groupId }: InviteFriendProps) {
   };
 
   return (
-    <Card className="py-3 rounded-md mx-0">
+    <Card className="py-3 rounded-md border-2 bg-stone-100 mx-0">
       <CardHeader className="gap-0 px-3">
         <div className="flex flex-row items-center justify-between gap-4">
           <div className="flex flex-row items-center gap-4">
@@ -365,7 +368,7 @@ function InviteFriend({ friendId, inviteSent, groupId }: InviteFriendProps) {
               </span>
             ) : (
               <Button
-                className="bg-blue-500 text-white text-xs"
+                className="bg-lime-200 border-2 border-red-950 border-b-4 border-r-4 rounded-sm text-black font-semibold text-xs"
                 onClick={() => handleInvite(friendId, groupId)}
                 disabled={isLoading}
               >

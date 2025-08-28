@@ -120,14 +120,14 @@ export default function Page() {
             {production?.tags && production.tags.length > 0 && (
               <div className="flex flex-row flex-wrap gap-2">
                 {production.discipline !== "amusementsvorm" && (
-                  <Badge className="p-1 pb-2 px-2 bg-stone-300 rounded-sm font-semibold text-white text-xs">
+                  <Badge className="p-1 pb-2 px-2 bg-stone-300 rounded-sm font-semibold text-stone-500 text-xs">
                     {production.discipline}
                   </Badge>
                 )}
                 {production.tags.map((tag) => (
                   <Badge
                     key={tag}
-                    className="p-1 pb-2 px-2 bg-stone-300 rounded-sm font-semibold text-white text-xs"
+                    className="p-1 pb-2 px-2 bg-stone-300 rounded-sm font-semibold text-stone-500 text-xs"
                   >
                     {tag}
                   </Badge>
@@ -190,11 +190,11 @@ export default function Page() {
           {/* Only mount AddToAgendaDialog when production exists and dialog is open */}
           {production && <AddToAgendaDialog production={production} />}
           <Button
-            className="bg-stone-50 shadow-none border-2 border-red-950"
+            className="bg-stone-50 shadow-none border-2 rounded-xs bg-orange-500 border-r-4 border-b-4 border-red-950"
             onClick={handleWriteReviewClick}
           >
-            <PenLine className="text-red-950 h-6 w-6" />
-            <div className="text-xs text-red-950">Schrijf een review</div>
+            <PenLine className="h-6 w-6" />
+            <div className="text-xs font-semibold">Schrijf een review</div>
           </Button>
         </div>
         <div className="flex flex-col gap-2">
@@ -412,9 +412,9 @@ function AddToAgendaDialog({ production }: { production: Production }) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <div>
-          <Button className="bg-stone-50 shadow-none border-2 border-red-950">
-            <CalendarPlus className="text-red-950 h-6 w-6" />
-            <div className="text-xs text-red-950">Voeg toe aan agenda</div>
+          <Button className="bg-orange-500 shadow-none rounded-xs border-2 border-b-4 border-r-4 border-red-950">
+            <CalendarPlus className="h-6 w-6" />
+            <div className="text-xs font-semibold">Voeg toe aan agenda</div>
           </Button>
         </div>
       </DialogTrigger>
@@ -436,7 +436,7 @@ function AddToAgendaDialog({ production }: { production: Production }) {
                         onValueChange={field.onChange}
                         defaultValue={field.value}
                       >
-                        <SelectTrigger className="rounded-none">
+                        <SelectTrigger className="rounded-xs border-2 border-red-950 border-b-4 border-r-4">
                           <SelectValue placeholder="Selecteer een optie" />
                         </SelectTrigger>
                         <SelectContent>
@@ -465,7 +465,7 @@ function AddToAgendaDialog({ production }: { production: Production }) {
                           onValueChange={field.onChange}
                           defaultValue={field.value}
                         >
-                          <SelectTrigger className="rounded-none">
+                          <SelectTrigger className="rounded-xs border-2 border-red-950 border-b-4 border-r-4">
                             <SelectValue placeholder="Selecteer een groep" />
                           </SelectTrigger>
                           <SelectContent>
@@ -500,7 +500,7 @@ function AddToAgendaDialog({ production }: { production: Production }) {
                               <Button
                                 variant={"outline"}
                                 className={cn(
-                                  "w-full pl-3 text-left font-normal",
+                                  "w-full pl-3 text-left font-normal border-red-950 border-2 border-b-4 border-r-4 rounded-xs",
                                   !field.value && "text-muted-foreground",
                                 )}
                               >
@@ -543,7 +543,7 @@ function AddToAgendaDialog({ production }: { production: Production }) {
                             step="1"
                             value={field.value}
                             onChange={field.onChange}
-                            className="bg-background text-sm rounded-none w-full appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+                            className="border-2 border-red-950 border-b-4 border-r-4 bg-background text-sm rounded-xs w-full appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
                           />
                         </FormControl>
                       </FormItem>
@@ -568,7 +568,7 @@ function AddToAgendaDialog({ production }: { production: Production }) {
                             variant="outline"
                             role="combobox"
                             className={cn(
-                              "w-full justify-between",
+                              "w-full justify-between border-2 border-red-950 rounded-xs border-b-4 border-r-4",
                               !field.value && "text-muted-foreground",
                             )}
                           >
@@ -587,7 +587,7 @@ function AddToAgendaDialog({ production }: { production: Production }) {
                             placeholder="Zoek een locatie..."
                             className="h-9"
                           />
-                          <CommandList className="flex flex-col gap-2 pb-2 max-h-32 overflow-y-scroll overscroll-contain touch-auto">
+                          <CommandList className="flex flex-col gap-2 pb-2 max-h-32 overflow-y-auto overflow-y-scroll overscroll-contain touch-auto">
                             <CommandEmpty>Locatie niet gevonden</CommandEmpty>
                             <CommandGroup className="flex flex-row gap-2">
                               {venues?.map((venue) => (
@@ -624,7 +624,7 @@ function AddToAgendaDialog({ production }: { production: Production }) {
             <Button
               type="submit"
               disabled={isLoading}
-              className="flex w-full items-center bg-stone-50 border-2 border-red-950 text-red-950 font-bold"
+              className="flex w-full items-center bg-lime-200 border-2 border-b-4 border-r-4 rounded-xs border-red-950 text-red-950 font-bold"
             >
               Opslaan
             </Button>
