@@ -54,31 +54,19 @@ export const createFriendship = mutation({
 });
 
 export const getFriendship = query({
-  args: { userId: v.string() },
+  args: { userId: v.string(), friendId: v.string() },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (identity === null) {
-      throw new Error("Not authenticated");
-    }
-
-    const userId1 = identity.subject;
-    const userId2 = args.userId;
-
-    if (!userId1) {
-      throw new Error("Current user not found");
-    }
-
     const friendship = await ctx.db
       .query("friendships")
       .filter((q) =>
         q.or(
           q.and(
-            q.eq(q.field("userId1"), userId1),
-            q.eq(q.field("userId2"), userId2),
+            q.eq(q.field("userId1"), args.userId),
+            q.eq(q.field("userId2"), args.friendId),
           ),
           q.and(
-            q.eq(q.field("userId1"), userId2),
-            q.eq(q.field("userId2"), userId1),
+            q.eq(q.field("userId1"), args.friendId),
+            q.eq(q.field("userId2"), args.userId),
           ),
         ),
       )
@@ -89,25 +77,14 @@ export const getFriendship = query({
 });
 
 export const getTotalFriends = query({
-  args: {},
-  handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (identity === null) {
-      throw new Error("Not authenticated");
-    }
-
-    const userId = identity.subject as Id<"users">;
-
-    if (!userId) {
-      throw new Error("Current user not found");
-    }
-
+  args: { userId: v.string() },
+  handler: async (ctx, args) => {
     const totalFriends = await ctx.db
       .query("friendships")
       .filter((q) =>
         q.or(
-          q.eq(q.field("userId1"), userId),
-          q.eq(q.field("userId2"), userId),
+          q.eq(q.field("userId1"), args.userId),
+          q.eq(q.field("userId2"), args.userId),
         ),
       )
       .filter((q) => q.eq(q.field("status"), "accepted"))

@@ -7,7 +7,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Id } from "../../../../convex/_generated/dataModel";
 
 import { format } from "date-fns";
-import React, { memo, useCallback } from "react";
+import React, { memo, useCallback, useEffect } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -317,6 +317,7 @@ function AddToAgendaDialog({ production }: { production: Production }) {
   const venues = useQuery(api.venues.getVenues);
   const maybeItem = useQuery(api.user_agenda.getAgendaItemForProduction, {
     id: production._id as Id<"productions">,
+    userId: user.user?.id as string,
   });
 
   const addToUserAgenda = useMutation(api.user_agenda.createAgendaItem);
@@ -408,7 +409,7 @@ function AddToAgendaDialog({ production }: { production: Production }) {
   }
 
   // Reset form when dialog closes or when defaultValues change
-  React.useEffect(() => {
+  useEffect(() => {
     if (!open) {
       setIsLoading(false);
       form.reset(defaultValues);
@@ -421,7 +422,9 @@ function AddToAgendaDialog({ production }: { production: Production }) {
         <div>
           <Button className="bg-orange-500 shadow-none rounded-xs border-2 border-b-4 border-r-4 border-red-950">
             <CalendarPlus className="h-6 w-6" />
-            <div className="text-xs font-semibold">Voeg toe aan agenda</div>
+            <div className="text-xs font-semibold">
+              {maybeItem ? "Bewerk agenda" : "Voeg toe aan agenda"}
+            </div>
           </Button>
         </div>
       </DialogTrigger>

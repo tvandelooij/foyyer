@@ -7,12 +7,14 @@ import { Input } from "@/components/ui/input";
 
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { Card, CardDescription, CardHeader, CardTitle } from "../ui/card";
 
 interface MultiSearchResult {
   type: "production" | "user" | "group";
   id: string;
   display: string;
   pictureUrl?: string;
+  description?: string;
   // ...other fields as needed
 }
 
@@ -66,7 +68,7 @@ export default function MultiSearch() {
     id: r.id ?? r._id,
     display: r.display,
     pictureUrl: r.pictureUrl,
-    // ...add other fields as needed
+    description: r.description,
   }));
 
   // Group results by type
@@ -92,18 +94,26 @@ export default function MultiSearch() {
                 <div className="font-semibold text-xs text-gray-500 mb-1">
                   Voorstellingen
                 </div>
-                <ul className="grid gap-2">
+                <div className="flex flex-col gap-2">
                   {grouped.productions.map((prod) => (
-                    <li key={prod.id}>
-                      <Link
-                        href={`/productions/${prod.id}`}
-                        className="block p-3 border rounded bg-white hover:bg-gray-50 shadow-sm dark:bg-gray-900 dark:border-gray-700"
-                      >
-                        <span className="font-medium">{prod.display}</span>
-                      </Link>
-                    </li>
+                    <Link
+                      key={prod.id}
+                      href={`/productions/${prod.id}`}
+                      className="hover:bg-gray-50 dark:bg-gray-900 dark:border-gray-700 border-b-2"
+                    >
+                      <Card className="border-none py-4">
+                        <CardHeader>
+                          <CardTitle className="text-xs">
+                            {prod.display}
+                          </CardTitle>
+                          <CardDescription className="text-xs">
+                            {prod.description}
+                          </CardDescription>
+                        </CardHeader>
+                      </Card>
+                    </Link>
                   ))}
-                </ul>
+                </div>
               </div>
             )}
             {grouped.groups.length > 0 && (
@@ -111,18 +121,26 @@ export default function MultiSearch() {
                 <div className="font-semibold text-xs text-gray-500 mb-1">
                   Groepen
                 </div>
-                <ul className="grid gap-2">
+                <div className="flex flex-col gap-2">
                   {grouped.groups.map((group) => (
-                    <li key={group.id}>
-                      <Link
-                        href={`/groups/${group.id}`}
-                        className="block p-3 border rounded bg-white hover:bg-gray-50 shadow-sm dark:bg-gray-900 dark:border-gray-700"
-                      >
-                        <span className="font-medium">{group.display}</span>
-                      </Link>
-                    </li>
+                    <Link
+                      key={group.id}
+                      href={`/groups/${group.id}`}
+                      className="hover:bg-gray-50 dark:bg-gray-900 dark:border-gray-700 border-b-2"
+                    >
+                      <Card className="border-none py-4">
+                        <CardHeader>
+                          <CardTitle className="text-xs">
+                            {group.display}
+                          </CardTitle>
+                          <CardDescription className="text-xs">
+                            {group.description}
+                          </CardDescription>
+                        </CardHeader>
+                      </Card>
+                    </Link>
                   ))}
-                </ul>
+                </div>
               </div>
             )}
             {grouped.users.length > 0 && (
@@ -130,18 +148,23 @@ export default function MultiSearch() {
                 <div className="font-semibold text-xs text-gray-500 mb-1">
                   Gebruikers
                 </div>
-                <ul className="grid gap-2">
+                <div className="flex flex-col gap-2">
                   {grouped.users.map((user) => (
-                    <li key={user.id}>
-                      <Link
-                        href={`/profile/${user.id}`}
-                        className="block p-3 border rounded bg-white hover:bg-gray-50 shadow-sm dark:bg-gray-900 dark:border-gray-700"
-                      >
-                        <span className="font-medium">{user.display}</span>
-                      </Link>
-                    </li>
+                    <Link
+                      key={user.id}
+                      href={`/users/${user.id}`}
+                      className="hover:bg-gray-50 dark:bg-gray-900 dark:border-gray-700 border-b-2"
+                    >
+                      <Card className="border-none py-4 gap-0">
+                        <CardHeader>
+                          <CardTitle className="text-xs">
+                            {user.display}
+                          </CardTitle>
+                        </CardHeader>
+                      </Card>
+                    </Link>
                   ))}
-                </ul>
+                </div>
               </div>
             )}
             {results.length === 0 && (

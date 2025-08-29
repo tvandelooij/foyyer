@@ -28,14 +28,22 @@ export default query(async ({ db }, { q }) => {
       type: "production",
       id: p._id,
       display: p.title,
+      description: p.producer,
       ...p,
     })),
     ...users.map((u) => ({
       type: "user",
       id: u.userId,
       display: u.nickname,
+      description: undefined,
       ...u,
     })),
-    ...groups.map((g) => ({ type: "group", id: g._id, display: g.name, ...g })),
+    ...groups.map((g) => ({
+      type: "group",
+      id: g._id,
+      display: g.name,
+      ...g,
+      description: g.description,
+    })),
   ];
 });
