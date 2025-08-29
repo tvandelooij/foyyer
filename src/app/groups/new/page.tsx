@@ -81,7 +81,7 @@ function GroupForm() {
   }
 
   return (
-    <Card className="border-none shadow-none bg-stone-50 p-1">
+    <Card className="border-none shadow-none bg-stone-50 p-1 dark:bg-gray-900 dark:border-gray-700">
       <CardContent className="px-4 my-0 py-0">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">

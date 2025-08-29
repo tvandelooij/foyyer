@@ -13,7 +13,7 @@ export function Header() {
   const user = useUser();
 
   return (
-    <header className="flex h-16 items-center justify-between gap-4 px-4 relative border-b-2 border-red-950">
+    <header className="flex h-16 items-center justify-between gap-4 px-4 relative border-b-2 border-red-950 dark:border-gray-200">
       <Authenticated>
         <div className="flex items-center min-w-[64px]">
           <UserButton>

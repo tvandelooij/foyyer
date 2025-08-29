@@ -45,7 +45,10 @@ export default defineSchema({
     ), // "pending", "accepted", "blocked"
     createdAt: v.number(),
     updatedAt: v.number(),
-  }).index("by_users", ["userId1", "userId2"]),
+  })
+    .index("by_user_1", ["userId1"])
+    .index("by_user_2", ["userId2"])
+    .index("by_users", ["userId1", "userId2"]),
   notifications: defineTable({
     userId: v.string(),
     type: v.union(
@@ -160,4 +163,14 @@ export default defineSchema({
     .index("by_production", ["productionId"])
     .index("by_user", ["userId"])
     .index("by_production_user", ["productionId", "userId"]),
+  feed: defineTable({
+    userId: v.string(),
+    type: v.union(v.literal("review")),
+    data: v.union(
+      v.object({
+        productionId: v.id("productions"),
+        reviewId: v.id("productionReviews"),
+      }),
+    ),
+  }).index("by_user", ["userId"]),
 });

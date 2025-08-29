@@ -31,6 +31,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Ellipsis } from "lucide-react";
 import React, { useState, useCallback, use } from "react";
+import Link from "next/link";
 
 export default function Page({ params }: { params: Promise<{ id: string }> }) {
   const user = useUser();
@@ -234,23 +235,25 @@ const MemoMemberStatus = React.memo(function MemberStatus({
 }) {
   const user = useQuery(api.users.getUserById, { id: userId });
   return (
-    <div className="flex flex-row text-xs items-center gap-4">
-      <Avatar className="w-6 h-6">
-        <AvatarImage src={user?.pictureUrl} alt={user?.nickname} />
-      </Avatar>
-      <div
-        className={`text-sm ${
-          status === "planned"
-            ? "text-gray-400"
-            : status === "confirmed"
-              ? "text-green-600"
-              : status === "canceled"
-                ? "text-red-500"
-                : ""
-        }`}
-      >
-        {user?.nickname}
+    <Link href={`/profile/${user?.userId}`}>
+      <div className="flex flex-row text-xs items-center gap-4">
+        <Avatar className="w-6 h-6">
+          <AvatarImage src={user?.pictureUrl} alt={user?.nickname} />
+        </Avatar>
+        <div
+          className={`text-sm ${
+            status === "planned"
+              ? "text-gray-400"
+              : status === "confirmed"
+                ? "text-green-600"
+                : status === "canceled"
+                  ? "text-red-500"
+                  : ""
+          }`}
+        >
+          {user?.nickname}
+        </div>
       </div>
-    </div>
+    </Link>
   );
 });

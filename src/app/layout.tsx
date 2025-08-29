@@ -44,7 +44,7 @@ export default function RootLayout({
                 enableSystem
                 disableTransitionOnChange
               >
-                <div className="flex flex-col h-screen mx-auto w-full max-w-4xl md:px-4 md:w-2/3 bg-stone-50">
+                <div className="flex flex-col h-screen mx-auto w-full max-w-4xl md:px-4 md:w-2/3 bg-stone-50 dark:bg-gray-900 dark:border-gray-700">
                   <Header />
                   <main className="flex-1 min-h-0 overflow-y-auto">
                     {children}

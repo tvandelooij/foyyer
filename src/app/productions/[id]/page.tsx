@@ -7,7 +7,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Id } from "../../../../convex/_generated/dataModel";
 
 import { format } from "date-fns";
-import React, { useCallback } from "react";
+import React, { memo, useCallback } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -43,7 +43,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn, formatDateDiff } from "@/lib/utils";
 import {
   Popover,
   PopoverContent,
@@ -65,6 +65,7 @@ import Stars from "@/components/stars";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 
 export default function Page() {
+  const user = useUser();
   const router = useRouter();
   const params = useParams();
   const id = params.id as Id<"productions">;
@@ -75,7 +76,7 @@ export default function Page() {
   });
   const maybeReview = useQuery(
     api.production_reviews.getReviewsForProductionByUser,
-    { productionId: id },
+    { productionId: id, userId: user?.user?.id as string },
   );
   const reviews = useQuery(api.production_reviews.getReviewsForProduction, {
     productionId: id,
@@ -265,18 +266,24 @@ const MemoReviewCard = React.memo(function ReviewCard({
   const handleProfileClick = useCallback(() => {
     if (user?.userId) router.push(`/profile/${user.userId}`);
   }, [router, user?.userId]);
+
   return (
     <Card className="border-none">
       <CardHeader className="flex flex-row items-center gap-4">
         <Avatar className="w-6 h-6" onClick={handleProfileClick}>
           <AvatarImage src={user?.pictureUrl} alt={user?.nickname} />
         </Avatar>
-        <div className="flex flex-row gap-2 items-center">
-          <CardTitle className="text-xs">
-            <span onClick={handleProfileClick}>{user?.nickname}</span>{" "}
-            <span className="font-normal">geeft</span>
-          </CardTitle>
-          <MemoStars n={review.rating ?? undefined} size={2} />
+        <div className="flex flex-row gap-2 items-center justify-between w-full">
+          <div className="flex flex-row gap-2 items-center">
+            <CardTitle className="text-xs">
+              <span onClick={handleProfileClick}>{user?.nickname}</span>{" "}
+              <span className="font-normal">geeft</span>
+            </CardTitle>
+            <MemoStars n={review.rating ?? undefined} size={2} />
+          </div>
+          <div className="flex flex-row text-xs text-gray-500">
+            {formatDateDiff(review._creationTime)}
+          </div>
         </div>
       </CardHeader>
       {review.review && (
@@ -288,7 +295,7 @@ const MemoReviewCard = React.memo(function ReviewCard({
   );
 });
 
-const MemoStars = React.memo(Stars);
+const MemoStars = memo(Stars);
 
 type Production = {
   _id: Id<"productions">;

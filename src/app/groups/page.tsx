@@ -117,7 +117,7 @@ const MemoGroupCard = React.memo(function GroupCard({
   return (
     <Card
       onClick={() => handleGroupClick(group._id)}
-      className="rounded-sm border-b-4 border-r-4 p-4 bg-stone-100"
+      className="rounded-sm border-b-4 border-r-4 p-4 bg-stone-100 dark:bg-gray-900 dark:border-gray-700"
     >
       <CardHeader>
         <div className="flex flex-row items-center justify-between">

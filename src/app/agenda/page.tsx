@@ -23,7 +23,9 @@ export default function Page() {
     <Authenticated>
       <div className="flex flex-col mx-6 my-4 pb-20 gap-4">
         <div className="flex flex-col gap-4">
-          <div className="text-xl font-bold pl-1 text-red-950">Agenda</div>
+          <div className="text-xl font-bold pl-1 text-red-950 dark:text-gray-200">
+            Agenda
+          </div>
           <div className="flex flex-col gap-2">
             {agendaItems?.map((item) => (
               <MemoAgendaItem key={item._id} item={item} />
@@ -61,7 +63,7 @@ function AgendaItem({ item }: { item: AgendaItemType }) {
 
   return (
     <Card
-      className="bg-stone-50 rounded-sm"
+      className="bg-stone-50 rounded-sm dark:bg-gray-700 dark:border-gray-700"
       onClick={() => handleAgendaItemClick(item._id)}
     >
       <CardHeader className="px-4 flex flex-row justify-between">

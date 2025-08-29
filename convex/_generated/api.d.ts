@@ -8,6 +8,7 @@
  * @module
  */
 
+import type * as feed from "../feed.js";
 import type * as friendships from "../friendships.js";
 import type * as group_agenda from "../group_agenda.js";
 import type * as group_invitations from "../group_invitations.js";
@@ -37,6 +38,7 @@ import type {
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  feed: typeof feed;
   friendships: typeof friendships;
   group_agenda: typeof group_agenda;
   group_invitations: typeof group_invitations;
