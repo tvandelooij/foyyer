@@ -80,7 +80,7 @@ export default function MultiSearch() {
     <div className="flex flex-col gap-4">
       <Input
         placeholder="Voorstelling, groep, gebruiker"
-        className="text-base rounded-sm border-2 border-b-4 border-red-950 h-10"
+        className="text-base rounded-sm border-2 border-b-4 border-red-950 h-10 dark:border-gray-200"
         value={query}
         onChange={handleInput}
       />
@@ -97,7 +97,7 @@ export default function MultiSearch() {
                     <li key={prod.id}>
                       <Link
                         href={`/productions/${prod.id}`}
-                        className="block p-3 border rounded bg-white hover:bg-gray-50 shadow-sm"
+                        className="block p-3 border rounded bg-white hover:bg-gray-50 shadow-sm dark:bg-gray-900 dark:border-gray-700"
                       >
                         <span className="font-medium">{prod.display}</span>
                       </Link>
@@ -116,7 +116,7 @@ export default function MultiSearch() {
                     <li key={group.id}>
                       <Link
                         href={`/groups/${group.id}`}
-                        className="block p-3 border rounded bg-white hover:bg-gray-50 shadow-sm"
+                        className="block p-3 border rounded bg-white hover:bg-gray-50 shadow-sm dark:bg-gray-900 dark:border-gray-700"
                       >
                         <span className="font-medium">{group.display}</span>
                       </Link>
@@ -135,7 +135,7 @@ export default function MultiSearch() {
                     <li key={user.id}>
                       <Link
                         href={`/profile/${user.id}`}
-                        className="block p-3 border rounded bg-white hover:bg-gray-50 shadow-sm"
+                        className="block p-3 border rounded bg-white hover:bg-gray-50 shadow-sm dark:bg-gray-900 dark:border-gray-700"
                       >
                         <span className="font-medium">{user.display}</span>
                       </Link>

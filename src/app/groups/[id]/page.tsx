@@ -224,7 +224,7 @@ function GroupMember({
 
   return (
     <Card
-      className="py-3 border-none bg-stone-50"
+      className="py-3 border-none bg-stone-50 dark:bg-gray-700 dark:border-gray-700"
       onClick={handleUserClick(userId)}
     >
       <CardHeader className="gap-0">
