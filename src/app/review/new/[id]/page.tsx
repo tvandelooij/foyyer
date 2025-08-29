@@ -22,7 +22,7 @@ export default function Page() {
   const production = useQuery(api.productions.getProductionById, { id: id });
   const maybeReview = useQuery(
     api.production_reviews.getReviewsForProductionByUser,
-    { productionId: id },
+    { productionId: id, userId: user?.user?.id as string },
   );
 
   const createReview = useMutation(api.production_reviews.createReview);

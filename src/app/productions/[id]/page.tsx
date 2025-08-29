@@ -7,7 +7,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Id } from "../../../../convex/_generated/dataModel";
 
 import { format } from "date-fns";
-import React, { useCallback } from "react";
+import React, { memo, useCallback } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -43,7 +43,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn, formatDateDiff } from "@/lib/utils";
 import {
   Popover,
   PopoverContent,
@@ -65,6 +65,7 @@ import Stars from "@/components/stars";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 
 export default function Page() {
+  const user = useUser();
   const router = useRouter();
   const params = useParams();
   const id = params.id as Id<"productions">;
@@ -75,7 +76,7 @@ export default function Page() {
   });
   const maybeReview = useQuery(
     api.production_reviews.getReviewsForProductionByUser,
-    { productionId: id },
+    { productionId: id, userId: user?.user?.id as string },
   );
   const reviews = useQuery(api.production_reviews.getReviewsForProduction, {
     productionId: id,
@@ -266,30 +267,6 @@ const MemoReviewCard = React.memo(function ReviewCard({
     if (user?.userId) router.push(`/profile/${user.userId}`);
   }, [router, user?.userId]);
 
-  // Calculate time since review was posted
-  const now = Date.now();
-  const diffMs = now - review._creationTime;
-  const diffMins = Math.floor(diffMs / (1000 * 60));
-  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  const diffMonths = Math.floor(diffDays / 30);
-  const diffYears = Math.floor(diffDays / 365);
-
-  let formattedDate = "";
-  if (diffYears > 0) {
-    formattedDate = `${diffYears} jaar`;
-  } else if (diffMonths > 0) {
-    formattedDate = `${diffMonths}m`;
-  } else if (diffDays > 0) {
-    formattedDate = `${diffDays}d`;
-  } else if (diffHours > 0) {
-    formattedDate = `${diffHours}u`;
-  } else if (diffMins > 0) {
-    formattedDate = `${diffMins}min`;
-  } else {
-    formattedDate = "zojuist";
-  }
-
   return (
     <Card className="border-none">
       <CardHeader className="flex flex-row items-center gap-4">
@@ -305,7 +282,7 @@ const MemoReviewCard = React.memo(function ReviewCard({
             <MemoStars n={review.rating ?? undefined} size={2} />
           </div>
           <div className="flex flex-row text-xs text-gray-500">
-            {formattedDate}
+            {formatDateDiff(review._creationTime)}
           </div>
         </div>
       </CardHeader>
@@ -318,7 +295,7 @@ const MemoReviewCard = React.memo(function ReviewCard({
   );
 });
 
-const MemoStars = React.memo(Stars);
+const MemoStars = memo(Stars);
 
 type Production = {
   _id: Id<"productions">;

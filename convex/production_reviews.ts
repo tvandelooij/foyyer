@@ -20,7 +20,7 @@ export const createReview = mutation({
     const { productionId, visited, rating, review } = args;
 
     // Create the review in the database
-    await ctx.db.insert("productionReviews", {
+    return await ctx.db.insert("productionReviews", {
       productionId,
       userId: identity.subject,
       visited,
@@ -58,18 +58,13 @@ export const updateReview = mutation({
 });
 
 export const getReviewsForProductionByUser = query({
-  args: { productionId: v.id("productions") },
+  args: { productionId: v.id("productions"), userId: v.string() },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error("User not authenticated");
-    }
-
     // Fetch the reviews from the database
     return await ctx.db
       .query("productionReviews")
       .withIndex("by_production_user", (q) =>
-        q.eq("productionId", args.productionId).eq("userId", identity.subject),
+        q.eq("productionId", args.productionId).eq("userId", args.userId),
       )
       .first();
   },

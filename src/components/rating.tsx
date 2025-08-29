@@ -1,4 +1,5 @@
 import { useMutation } from "convex/react";
+import { useQuery } from "convex-helpers/react/cache/hooks";
 import { Star } from "lucide-react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
@@ -22,6 +23,14 @@ export default function Rating({ production, maybeReview }: RatingProps) {
 
   const addReview = useMutation(api.production_reviews.createReview);
   const updateRating = useMutation(api.production_reviews.updateRating);
+
+  const createFeedItem = useMutation(api.feed.createFeedItem);
+  const deleteFeedItem = useMutation(api.feed.deleteFeedItem);
+  const maybeFeedItem = useQuery(api.feed.getFeedItemFromUserByProduction, {
+    userId: user.user?.id as string,
+    productionId: production._id as Id<"productions">,
+    type: "review",
+  });
 
   const updateProductionStats = useMutation(
     api.productions.updateProductionStats,
@@ -52,10 +61,25 @@ export default function Rating({ production, maybeReview }: RatingProps) {
           newAvg = 0;
         }
         newCount = currentCount - 1;
+
+        if (maybeFeedItem) {
+          await deleteFeedItem({
+            id: maybeFeedItem[0]?._id,
+          });
+        }
       } else if (prevRating === 0) {
         // First time rating: add to total, increase count
         newAvg = (currentAvg * currentCount + newRating) / (currentCount + 1);
         newCount = currentCount + 1;
+
+        await createFeedItem({
+          userId: user.user?.id as string,
+          type: "review",
+          data: {
+            productionId: production._id as Id<"productions">,
+            reviewId: maybeReview._id,
+          },
+        });
       } else {
         // Update rating: adjust total, count stays the same
         newAvg =
@@ -70,7 +94,7 @@ export default function Rating({ production, maybeReview }: RatingProps) {
       });
     } else {
       // First review for this user
-      await addReview({
+      const review = await addReview({
         visited: true,
         productionId: production._id as Id<"productions">,
         rating: newRating,
@@ -86,6 +110,15 @@ export default function Rating({ production, maybeReview }: RatingProps) {
         avg_rating: newAvg,
         rating_count: newCount,
         review_count: production?.review_count ?? 0,
+      });
+
+      await createFeedItem({
+        userId: user.user?.id as string,
+        type: "review",
+        data: {
+          productionId: production._id as Id<"productions">,
+          reviewId: review,
+        },
       });
     }
   };
