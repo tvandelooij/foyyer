@@ -24,8 +24,13 @@ export default function ProfilePage() {
 
   const addFriend = useMutation(api.friendships.createFriendship);
   const createNotification = useMutation(api.notifications.createNotification);
-  const friendship = useQuery(api.friendships.getFriendship, { userId: id });
-  const totalFriends = useQuery(api.friendships.getTotalFriends);
+  const friendship = useQuery(api.friendships.getFriendship, {
+    userId: user.user?.id as string,
+    friendId: id,
+  });
+  const totalFriends = useQuery(api.friendships.getTotalFriends, {
+    userId: id,
+  });
   const visitCount = useQuery(api.users.getTotalVisitCountForUser, {
     userId: id,
   });

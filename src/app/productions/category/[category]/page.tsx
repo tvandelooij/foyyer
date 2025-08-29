@@ -1,8 +1,8 @@
 "use client";
 
-import { useQuery } from "convex-helpers/react/cache/hooks";
+import { usePaginatedQuery } from "convex-helpers/react/cache/hooks";
 import { Authenticated } from "convex/react";
-import { memo, use, useCallback } from "react";
+import { memo, use, useCallback, useEffect, useRef } from "react";
 import { api } from "../../../../../convex/_generated/api";
 import { useRouter } from "next/navigation";
 import { Id } from "../../../../../convex/_generated/dataModel";
@@ -15,10 +15,38 @@ export default function Page({
   params: Promise<{ category: string }>;
 }) {
   const { category } = use(params);
-  const productions = useQuery(
+  const initialDateRef = useRef(Date.now());
+  const date = initialDateRef.current;
+  const { results, status, loadMore } = usePaginatedQuery(
     api.productions.getRandomProductionsForCategory,
-    category === "muziek" ? { category: "muziektheater" } : { category },
+    category === "muziek"
+      ? { category: "muziektheater", start_date: date }
+      : { category, start_date: date },
+    { initialNumItems: 10 },
   );
+
+  // Infinite scroll logic
+  const loaderRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (status !== "CanLoadMore") return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && status === "CanLoadMore") {
+          loadMore(10);
+        }
+      },
+      { rootMargin: "200px" },
+    );
+    const loaderElem = loaderRef.current;
+    if (loaderElem) {
+      observer.observe(loaderElem);
+    }
+    return () => {
+      if (loaderElem) {
+        observer.unobserve(loaderElem);
+      }
+    };
+  }, [status, loadMore]);
 
   return (
     <Authenticated>
@@ -27,7 +55,7 @@ export default function Page({
           <div className="text-3xl font-bold">
             {category.charAt(0).toUpperCase() + category.slice(1)}
           </div>
-          {productions?.map((production) => (
+          {results?.map((production) => (
             <MemoLikedProduction
               key={production.priref_id}
               production={{
@@ -36,6 +64,12 @@ export default function Page({
               }}
             />
           ))}
+          <div ref={loaderRef} />
+          {status === "LoadingMore" && (
+            <div className="text-center text-xs text-stone-400 py-4">
+              Meer voorstellingen aan het laden...
+            </div>
+          )}
         </div>
       </div>
     </Authenticated>

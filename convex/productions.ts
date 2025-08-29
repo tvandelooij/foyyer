@@ -3,6 +3,7 @@ import { v } from "convex/values";
 import { DataModel } from "./_generated/dataModel";
 import { components } from "./_generated/api";
 import { TableAggregate } from "@convex-dev/aggregate";
+import { paginationOptsValidator } from "convex/server";
 
 const randomize = new TableAggregate<{
   DataModel: DataModel;
@@ -56,17 +57,21 @@ export const updateProductionStats = mutation({
 });
 
 export const getRandomProductionsForCategory = query({
-  args: { category: v.string() },
+  args: {
+    category: v.string(),
+    start_date: v.number(),
+    paginationOpts: paginationOptsValidator,
+  },
   handler: async (ctx, args) => {
     const productions = await ctx.db
       .query("productions")
       .withIndex("by_discipline_by_date", (q) =>
         q
           .eq("discipline", args.category)
-          .gt("start_date", new Date(Date.now()).toISOString()),
+          .gt("start_date", new Date(args.start_date).toISOString()),
       )
       .order("asc")
-      .take(10);
+      .paginate(args.paginationOpts);
     return productions;
   },
 });

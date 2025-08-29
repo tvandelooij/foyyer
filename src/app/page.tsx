@@ -19,12 +19,12 @@ import Link from "next/link";
 
 export default function Home() {
   const auth = useConvexAuth();
-  const mutateUser = useMutation(api.users.createUser);
+  const createUser = useMutation(api.users.createUser);
   const { user } = useUser();
 
   if (auth.isAuthenticated) {
     // add user data to convex and set user state
-    mutateUser();
+    createUser();
   }
 
   return (

@@ -78,7 +78,7 @@ export const getReviewsForProduction = query({
       .withIndex("by_production", (q) =>
         q.eq("productionId", args.productionId),
       )
-      .order("asc")
+      .order("desc")
       .collect();
   },
 });

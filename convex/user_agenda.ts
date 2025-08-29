@@ -83,17 +83,12 @@ export const getAgendaItem = query({
 });
 
 export const getAgendaItemForProduction = query({
-  args: { id: v.id("productions") },
+  args: { id: v.id("productions"), userId: v.string() },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error("userId is required to get agenda item.");
-    }
-
     return ctx.db
       .query("userAgenda")
       .withIndex("by_userId_productionId", (q) =>
-        q.eq("userId", identity.subject).eq("productionId", args.id),
+        q.eq("userId", args.userId).eq("productionId", args.id),
       )
       .first();
   },
