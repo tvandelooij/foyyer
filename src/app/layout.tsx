@@ -9,7 +9,7 @@ import { neobrutalism } from "@clerk/themes";
 import { ConvexClientProvider } from "./ConvexClientProvider";
 import { ConvexQueryCacheProvider } from "convex-helpers/react/cache/provider";
 import Navbar from "@/components/navbar";
-import { SpeedInsights } from "@vercel/speed-insights/next"
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
