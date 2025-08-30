@@ -64,6 +64,7 @@ import Rating from "@/components/rating";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Stars from "@/components/stars";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { Production, Review } from "@/lib/types";
 
 export default function Page() {
   const user = useUser();
@@ -217,7 +218,7 @@ export default function Page() {
           </div>
           {production && (
             <div className="flex flex-col py-2 items-center gap-2 border-t-1">
-              <div className="flex flex-row rounded-sm border-red-950 border-2 border-b-4 border-r-4">
+              <div className="flex flex-row rounded-sm border-red-950 border-2 border-b-4 border-r-4 mt-2">
                 <Button
                   className={cn(
                     "text-red-950 text-xs font-semibold rounded-xs border-r-2 border-red-950",
@@ -282,7 +283,14 @@ export default function Page() {
         </div>
         <div className="flex flex-row gap-2 items-center justify-center border-b-1 pb-4">
           {/* Only mount AddToAgendaDialog when production exists and dialog is open */}
-          {production && <AddToAgendaDialog production={production} />}
+          {production && (
+            <AddToAgendaDialog
+              production={{
+                ...production,
+                tags: production.tags ?? [],
+              }}
+            />
+          )}
           <Button
             className="bg-stone-50 shadow-none border-2 rounded-xs bg-orange-500 border-r-4 border-b-4 border-red-950"
             onClick={handleWriteReviewClick}
@@ -369,7 +377,7 @@ function MoreProductions({ producer }: { producer: string }) {
         {filteredProductions.map((production) => (
           <MemoProductionCard
             key={production.priref_id}
-            production={production}
+            production={{ ...production, tags: production.tags ?? [] }}
           />
         ))}
       </div>
@@ -408,17 +416,6 @@ const MemoProductionCard = memo(function ProductionCard({
     </Card>
   );
 });
-
-type Review = {
-  _id: Id<"productionReviews">;
-  _creationTime: number;
-  productionId: Id<"productions">;
-  userId: Id<"users">;
-  visited: boolean;
-  rating: number | null;
-  review: string | null;
-  updatedAt: number;
-};
 
 const MemoReviewCard = React.memo(function ReviewCard({
   review,
@@ -460,17 +457,6 @@ const MemoReviewCard = React.memo(function ReviewCard({
 });
 
 const MemoStars = memo(Stars);
-
-type Production = {
-  _id: Id<"productions">;
-  priref_id: string;
-  title: string;
-  start_date: string;
-  discipline: string;
-  producer: string;
-  venue: string;
-  // Add other fields if needed
-};
 
 function AddToAgendaDialog({ production }: { production: Production }) {
   const user = useUser();

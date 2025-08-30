@@ -33,7 +33,8 @@ export default function Page() {
   );
 }
 
-import React, { useCallback } from "react";
+import React, { memo, useCallback } from "react";
+import { Group } from "@/lib/types";
 
 const NewGroup = React.memo(function NewGroup() {
   const router = useRouter();
@@ -87,17 +88,7 @@ const GroupList = React.memo(function GroupList() {
   );
 });
 
-type Group = {
-  _id: Id<"groups">;
-  name: string;
-  // Add other fields if needed
-};
-
-const MemoGroupCard = React.memo(function GroupCard({
-  group,
-}: {
-  group: Group;
-}) {
+const MemoGroupCard = memo(function GroupCard({ group }: { group: Group }) {
   const memberCount = useQuery(api.group_members.getMemberCountForGroupId, {
     groupId: group._id,
   });

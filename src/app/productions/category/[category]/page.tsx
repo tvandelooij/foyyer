@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { Id } from "../../../../../convex/_generated/dataModel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Production } from "@/lib/types";
 
 export default function Page({
   params,
@@ -75,19 +76,6 @@ export default function Page({
     </Authenticated>
   );
 }
-
-type Production = {
-  _creationTime: number;
-  _id: Id<"productions">;
-  priref_id: string;
-  title: string;
-  start_date: string;
-  discipline: string;
-  producer: string;
-  venue: string;
-  tags: string[];
-  // Add other fields if needed
-};
 
 const MemoLikedProduction = memo(function LikedProduction({
   production,

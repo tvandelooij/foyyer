@@ -10,6 +10,7 @@ import { CircleChevronRight } from "lucide-react";
 
 import { useCallback, useMemo, memo } from "react";
 import { DiscoverCategories } from "@/components/search/discover";
+import { Production } from "@/lib/types";
 
 export default function Page() {
   const router = useRouter();
@@ -79,7 +80,10 @@ export default function Page() {
                 upcomingPremieres.map((production) => (
                   <MemoProductionCard
                     key={production.priref_id}
-                    production={production}
+                    production={{
+                      ...production,
+                      tags: production.tags ?? [],
+                    }}
                   />
                 ))}
             </div>
@@ -92,18 +96,6 @@ export default function Page() {
     </Authenticated>
   );
 }
-
-type Production = {
-  _creationTime: number;
-  _id: Id<"productions">;
-  priref_id: string;
-  title: string;
-  start_date: string;
-  discipline: string;
-  producer: string;
-  venue: string;
-  // Add other fields if needed
-};
 
 const MemoProductionCard = memo(function ProductionCard({
   production,

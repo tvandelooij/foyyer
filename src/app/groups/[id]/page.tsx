@@ -25,6 +25,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { InviteFriendProps, ProductionVisit } from "@/lib/types";
 
 export default function Page() {
   const params = useParams();
@@ -162,12 +163,6 @@ export default function Page() {
     </Authenticated>
   );
 }
-
-type ProductionVisit = {
-  productionId: string;
-  date: string;
-  // Add other properties if needed
-};
 
 function ProductionVisitCard({ visit }: { visit: ProductionVisit }) {
   const production = useQuery(api.productions.getProductionById, {
@@ -310,12 +305,6 @@ function AddGroupMemberDialog({ groupId }: { groupId: string }) {
     </Dialog>
   );
 }
-
-type InviteFriendProps = {
-  friendId: string;
-  inviteSent: boolean;
-  groupId: string;
-};
 
 function InviteFriend({ friendId, inviteSent, groupId }: InviteFriendProps) {
   const friend = useQuery(api.users.getUserById, { id: friendId });

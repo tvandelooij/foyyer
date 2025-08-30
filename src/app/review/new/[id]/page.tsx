@@ -25,6 +25,9 @@ export default function Page() {
     { productionId: id, userId: user?.user?.id as string },
   );
 
+  const updateProductionStats = useMutation(
+    api.productions.updateProductionStats,
+  );
   const createReview = useMutation(api.production_reviews.createReview);
   const updateReview = useMutation(api.production_reviews.updateReview);
 
@@ -49,6 +52,16 @@ export default function Page() {
     } else if (maybeReview && editMode) {
       // Update review
       await updateReview({ id: maybeReview._id, review: reviewText });
+
+      if (maybeReview) {
+        await updateProductionStats({
+          id: production?._id as Id<"productions">,
+          avg_rating: production?.avg_rating ?? 0,
+          rating_count: production?.rating_count ?? 0,
+          review_count: (production?.review_count ?? 0) + 1,
+        });
+      }
+
       setEditMode(false);
       router.back();
     } else {
@@ -60,6 +73,15 @@ export default function Page() {
         rating: maybeReview?.rating ?? 0,
         review: reviewText,
       });
+      // Update production stats (review_count)
+      if (production) {
+        await updateProductionStats({
+          id,
+          avg_rating: production.avg_rating ?? 0,
+          rating_count: production.rating_count ?? 0,
+          review_count: (production.review_count ?? 0) + 1,
+        });
+      }
       setEditMode(false);
       router.back();
     }

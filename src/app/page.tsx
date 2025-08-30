@@ -16,6 +16,7 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Id } from "../../convex/_generated/dataModel";
 import { formatDateDiff } from "@/lib/utils";
 import Link from "next/link";
+import type { FeedProps, FeedItem, FeedTextProps } from "@/lib/types";
 
 export default function Home() {
   const auth = useConvexAuth();
@@ -47,10 +48,6 @@ export default function Home() {
   );
 }
 
-type FeedProps = {
-  userId: string | undefined;
-};
-
 function Feed({ userId }: FeedProps) {
   const feedItems = useQuery(api.feed.getItemsForUser, {
     userId: userId as string,
@@ -72,16 +69,6 @@ function Feed({ userId }: FeedProps) {
     </>
   );
 }
-
-type FeedItem = {
-  _id: string;
-  userId: string;
-  type: "review";
-  data: {
-    productionId: string;
-    reviewId: string;
-  };
-};
 
 function FeedItem({ feedItem }: { feedItem: FeedItem }) {
   const user = useQuery(api.users.getUserById, { id: feedItem.userId });
@@ -129,12 +116,6 @@ function FeedItem({ feedItem }: { feedItem: FeedItem }) {
     </Card>
   );
 }
-
-type FeedTextProps = {
-  user: { userId: string; nickname: string };
-  review: { visited: boolean; rating?: number };
-  production: { _id: string; title: string };
-};
 
 function FeedText({ user, review, production }: FeedTextProps) {
   const formattedRating =
