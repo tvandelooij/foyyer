@@ -34,6 +34,7 @@ export default function Page() {
 
   const group = useQuery(api.groups.getGroupById, {
     id: params.id as Id<"groups">,
+    userId: user?.user?.id as string,
   });
   const groupMembers = useQuery(api.group_members.listGroupMembers, {
     groupId: params.id as Id<"groups">,

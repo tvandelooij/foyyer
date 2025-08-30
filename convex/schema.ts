@@ -128,10 +128,10 @@ export default defineSchema({
     title: v.string(),
     discipline: v.string(),
     start_date: v.string(),
-    producer: v.array(v.string()),
+    producer: v.string(),
     venue: v.string(),
     notes: v.optional(v.string()),
-    season: v.optional(v.array(v.string())),
+    season: v.optional(v.string()),
     tags: v.optional(v.array(v.string())),
     avg_rating: v.optional(v.float64()),
     rating_count: v.optional(v.number()),
@@ -144,6 +144,9 @@ export default defineSchema({
     })
     .searchIndex("search_producer", {
       searchField: "producer",
+    })
+    .searchIndex("search_season", {
+      searchField: "season",
     }),
   production_likes: defineTable({
     production_id: v.id("productions"),

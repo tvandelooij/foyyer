@@ -15,11 +15,32 @@ class Production(BaseModel):
     title: str
     discipline: str
     start_date: str
-    producer: list[str]
+    producer: str
     venue: str
     notes: str = ""
-    season: list[str] = []
+    season: str = ""
     tags: list[str] = []
+
+def process_producer(name: str) -> str:
+    """
+        Receive a producer name in one of the following formats:
+
+            "Rotterdam, Productiehuis Theater"
+            "Tweetakt"
+            "Studio, De"
+            "C-Takt"
+        
+        Parse the name so that it becomes:
+
+            "Productiehuis Theater Rotterdam"
+            "Tweetakt"
+            "De Studio"
+            "C-Takt"
+    """
+    parts = name.split(", ")
+    if len(parts) == 2:
+        return f"{parts[1]} {parts[0]}"
+    return name
 
 
 def parse_adlib_xml(xml_string: str) -> List[Production]:
@@ -36,7 +57,8 @@ def parse_adlib_xml(xml_string: str) -> List[Production]:
             start_date = datetime.strptime(start_date_str, "%Y-%m-%d").isoformat()
         except (ValueError, TypeError):
             return
-        producer = [elem.text for elem in record.findall("producent/company") if elem.text and elem.text != "Buitenlandse Gezelschappen"] or []
+        producers = [process_producer(elem.text) for elem in record.findall("producent/company") if elem.text and elem.text != "Buitenlandse Gezelschappen"] or []
+        producer = " ? ".join(producers)
         venue = record.findtext("venue") or ""
         notes = record.findtext("notes") or ""
 
@@ -59,7 +81,7 @@ def parse_adlib_xml(xml_string: str) -> List[Production]:
             producer=producer,
             venue=venue,
             notes=notes,
-            season=seasons if seasons else [],
+            season=" ? ".join(seasons),
             tags=tags if tags else []
         ))
     return productions
@@ -92,7 +114,7 @@ def get_adlib_data(start_date: str):
         params["startfrom"] += params["limit"]
 
         print("Sleeping for 5 seconds...")
-        time.sleep(5)
+        time.sleep(10)
 
     return all_productions
 

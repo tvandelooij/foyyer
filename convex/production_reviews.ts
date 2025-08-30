@@ -81,6 +81,6 @@ export const getReviewsForProduction = query({
         q.eq("productionId", args.productionId),
       )
       .order("desc")
-      .collect();
+      .take(5);
   },
 });

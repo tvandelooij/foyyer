@@ -36,6 +36,19 @@ export const getProductionById = query({
   },
 });
 
+export const getByProducer = query({
+  args: { producer: v.string() },
+  handler: async (ctx, args) => {
+    const productions = await ctx.db
+      .query("productions")
+      .withSearchIndex("search_producer", (q) =>
+        q.search("producer", args.producer),
+      )
+      .take(10);
+    return productions;
+  },
+});
+
 export const updateProductionStats = mutation({
   args: {
     id: v.id("productions"),

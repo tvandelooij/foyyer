@@ -4,10 +4,23 @@ export default query(async ({ db }, { q }) => {
   if (!q || typeof q !== "string" || q.trim() === "") return [];
 
   // Search productions by title
-  const productions = await db
+  const productionsByTitle = await db
     .query("productions")
     .withSearchIndex("search_title", (qBuilder) => qBuilder.search("title", q))
     .take(5);
+
+  const productionsByProducer = await db
+    .query("productions")
+    .withSearchIndex("search_producer", (qBuilder) =>
+      qBuilder.search("producer", q),
+    )
+    .take(5);
+
+  const productionsMap = new Map();
+  [...productionsByTitle, ...productionsByProducer].forEach((p) => {
+    productionsMap.set(p._id, p);
+  });
+  const productions = Array.from(productionsMap.values());
 
   // Search users by nickname
   const users = await db

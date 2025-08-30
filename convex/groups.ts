@@ -46,14 +46,8 @@ export const createGroup = mutation({
 });
 
 export const getGroupById = query({
-  args: { id: v.id("groups") },
+  args: { id: v.id("groups"), userId: v.string() },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (identity === null) {
-      throw new Error("Not authenticated");
-    }
-
     const group = await ctx.db.get(args.id);
 
     if (group === null) {
@@ -63,7 +57,7 @@ export const getGroupById = query({
     const isInvited = await ctx.db
       .query("groupInvitations")
       .withIndex("by_group_UserId", (q) =>
-        q.eq("groupId", group._id).eq("userId", identity.subject),
+        q.eq("groupId", group._id).eq("userId", args.userId),
       )
       .first();
 
@@ -71,18 +65,16 @@ export const getGroupById = query({
       return group;
     }
 
-    if (group.createdBy !== identity.subject) {
-      throw new Error("Not authorized");
-    }
+    // if (group.createdBy !== args.userId) {
+    //   throw new Error("Not authorized");
+    // }
 
     const groupMembers = await ctx.db
       .query("groupMembers")
       .withIndex("by_group", (q) => q.eq("groupId", group._id))
       .collect();
 
-    const isMember = groupMembers
-      .map((gm) => gm.userId)
-      .includes(identity.subject);
+    const isMember = groupMembers.map((gm) => gm.userId).includes(args.userId);
 
     if (!isMember && group.visibility === "private") {
       throw new Error("Not authorized");
