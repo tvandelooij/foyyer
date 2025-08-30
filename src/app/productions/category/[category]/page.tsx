@@ -83,7 +83,7 @@ type Production = {
   title: string;
   start_date: string;
   discipline: string;
-  producer: string[];
+  producer: string;
   venue: string;
   tags: string[];
   // Add other fields if needed
@@ -113,15 +113,7 @@ const MemoLikedProduction = memo(function LikedProduction({
         </CardTitle>
       </CardHeader>
       <CardContent className="text-xs text-stone-600 flex flex-col gap-2">
-        <div>
-          {production.producer
-            .slice(0, 2)
-            .map((name) => {
-              const parts = name.split(",").map((part) => part.trim());
-              return parts.length === 2 ? `${parts[1]} ${parts[0]}` : name;
-            })
-            .join(", ")}
-        </div>
+        <div>{production.producer.split(" ? ").slice(0, 2).join(", ")}</div>
         <div className="flex flex-row flex-wrap gap-2">
           {production.tags.map((tag) => {
             return (

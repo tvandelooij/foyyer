@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Card, CardDescription, CardHeader, CardTitle } from "../ui/card";
+import { DiscoverCategories } from "./discover";
 
 interface MultiSearchResult {
   type: "production" | "user" | "group";
@@ -81,12 +82,17 @@ export default function MultiSearch() {
   return (
     <div className="flex flex-col gap-4">
       <Input
-        placeholder="Voorstelling, groep, gebruiker"
+        placeholder="Voorstelling, producent, vrienden"
         className="text-base rounded-sm border-2 border-b-4 border-red-950 h-10 dark:border-gray-200"
         value={query}
         onChange={handleInput}
       />
       <div className="flex flex-col gap-4">
+        {rawResults.length < 1 && !debouncedQuery && (
+          <div className="pt-2">
+            <DiscoverCategories />
+          </div>
+        )}
         {debouncedQuery && (
           <>
             {grouped.productions.length > 0 && (
@@ -107,7 +113,7 @@ export default function MultiSearch() {
                             {prod.display}
                           </CardTitle>
                           <CardDescription className="text-xs">
-                            {prod.description}
+                            {prod.description?.split(" ? ").join(", ")}
                           </CardDescription>
                         </CardHeader>
                       </Card>

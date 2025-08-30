@@ -48,7 +48,7 @@ type Production = {
   title: string;
   start_date: string;
   discipline: string;
-  producer: string[];
+  producer: string;
   venue: string;
   // Add other fields if needed
 };
@@ -66,6 +66,7 @@ function LikedProduction({ production }: { production: Production }) {
   const producerNames = React.useMemo(
     () =>
       production.producer
+        .split(" ? ")
         .slice(0, 2)
         .map((name) => {
           const parts = name.split(",").map((part) => part.trim());

@@ -6,15 +6,10 @@ import { api } from "../../../convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Id } from "../../../convex/_generated/dataModel";
 import { useRouter } from "next/navigation";
-import {
-  CircleChevronRight,
-  Music,
-  Footprints,
-  Theater,
-  Spotlight,
-} from "lucide-react";
+import { CircleChevronRight } from "lucide-react";
 
 import { useCallback, useMemo, memo } from "react";
+import { DiscoverCategories } from "@/components/search/discover";
 
 export default function Page() {
   const router = useRouter();
@@ -90,57 +85,7 @@ export default function Page() {
             </div>
 
             <div className="text-base font-semibold pt-4">Ontdekken</div>
-            <div className="grid grid-cols-2 gap-4">
-              <Card
-                className="rounded-sm border-b-4 border-r-4 bg-indigo-300 text-white"
-                onClick={() => router.push("/productions/category/toneel")}
-              >
-                <CardHeader>
-                  <CardTitle className="place-content-center gap-1 flex flex-row items-center">
-                    <Theater />
-                    <div>Toneel</div>
-                  </CardTitle>
-                </CardHeader>
-              </Card>
-
-              <Card
-                className="rounded-sm border-b-4 border-r-4 bg-indigo-300 text-white"
-                onClick={() => router.push("/productions/category/muziek")}
-              >
-                <CardHeader className="p-0">
-                  <CardTitle className="place-content-center gap-1 flex flex-row items-center">
-                    <Music />
-                    <div>Muziektheater</div>
-                  </CardTitle>
-                </CardHeader>
-              </Card>
-
-              <Card
-                className="rounded-sm border-b-4 border-r-4 bg-indigo-300 text-white"
-                onClick={() =>
-                  router.push("/productions/category/amusementsvorm")
-                }
-              >
-                <CardHeader className="p-0">
-                  <CardTitle className="place-content-center gap-1 flex flex-row items-center">
-                    <Spotlight />
-                    <div>Amusement</div>
-                  </CardTitle>
-                </CardHeader>
-              </Card>
-
-              <Card
-                className="rounded-sm border-b-4 border-r-4 bg-indigo-300 text-white"
-                onClick={() => router.push("/productions/category/dans")}
-              >
-                <CardHeader>
-                  <CardTitle className="place-content-center gap-1 flex flex-row items-center">
-                    <Footprints />
-                    <div>Dans</div>
-                  </CardTitle>
-                </CardHeader>
-              </Card>
-            </div>
+            <DiscoverCategories />
           </div>
         </div>
       </div>
@@ -155,7 +100,7 @@ type Production = {
   title: string;
   start_date: string;
   discipline: string;
-  producer: string[];
+  producer: string;
   venue: string;
   // Add other fields if needed
 };
@@ -189,13 +134,7 @@ const MemoProductionCard = memo(function ProductionCard({
         </div>
       </CardHeader>
       <CardContent className="text-xs text-stone-500">
-        {production.producer
-          .slice(0, 2)
-          .map((name) => {
-            const parts = name.split(",").map((part) => part.trim());
-            return parts.length === 2 ? `${parts[1]} ${parts[0]}` : name;
-          })
-          .join(", ")}
+        {production.producer.split(" ? ").slice(0, 2).join(", ")}
       </CardContent>
     </Card>
   );
@@ -223,13 +162,7 @@ const MemoLikedProduction = memo(function LikedProduction({
         <CardTitle className="text-xs text-wrap">{production.title}</CardTitle>
       </CardHeader>
       <CardContent className="text-xs text-stone-600">
-        {production.producer
-          .slice(0, 2)
-          .map((name) => {
-            const parts = name.split(",").map((part) => part.trim());
-            return parts.length === 2 ? `${parts[1]} ${parts[0]}` : name;
-          })
-          .join(", ")}
+        {production.producer.split(" ? ").slice(0, 2).join(", ")}
       </CardContent>
     </Card>
   );

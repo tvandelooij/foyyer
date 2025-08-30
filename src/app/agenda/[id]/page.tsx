@@ -191,7 +191,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
                 )}
               </Card>
             </div>
-            {agendaItem?.groupId && (
+            {agendaItem?.groupId && user?.user?.id !== undefined && (
               <MemoGroupMembers
                 groupId={agendaItem?.groupId as Id<"groups">}
                 productionId={agendaItem?.productionId as Id<"productions">}
@@ -213,11 +213,15 @@ const MemoGroupMembers = React.memo(function GroupMembers({
   groupId: Id<"groups">;
   productionId: Id<"productions">;
 }) {
+  const user = useUser();
   const memberItems = useQuery(api.user_agenda.getAgendaItemsForGroup, {
     groupId,
     productionId,
   });
-  const group = useQuery(api.groups.getGroupById, { id: groupId });
+  const group = useQuery(api.groups.getGroupById, {
+    id: groupId,
+    userId: user?.user?.id as string,
+  });
 
   return (
     <Card className="border-none gap-3">

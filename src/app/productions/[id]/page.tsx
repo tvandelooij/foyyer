@@ -189,15 +189,14 @@ export default function Page() {
         <div className="flex flex-col gap-2 border-b-1 pb-4 mx-6">
           <div className="flex flex-col gap-1">
             <div className="flex flex-row flex-wrap w-full">
-              {(production?.producer.slice(0, 5) ?? []).map(
+              {(production?.producer.split(" ? ") ?? []).map(
                 (name, idx, arr) => {
-                  const parts = name.split(",").map((part) => part.trim());
                   return (
                     <div
                       key={name}
                       className="text-sm text-gray-800 flex items-center"
                     >
-                      {parts.length === 2 ? `${parts[1]} ${parts[0]}` : name}
+                      {name}
                       {idx !== arr.length - 1 && <Dot />}
                     </div>
                   );
@@ -205,16 +204,15 @@ export default function Page() {
               )}
             </div>
             <div>
-              {production?.season && Array.isArray(production.season)
-                ? production.season.map(
-                    (season: string, idx: number, arr: string[]) => (
-                      <span key={season} className="text-xs text-gray-500">
-                        {season}
-                        {idx !== arr.length - 1 && ", "}
-                      </span>
-                    ),
-                  )
-                : production?.season}
+              {production?.season &&
+                production.season
+                  .split(" ? ")
+                  .map((season: string, idx: number, arr: string[]) => (
+                    <span key={season} className="text-xs text-gray-500">
+                      {season}
+                      {idx !== arr.length - 1 && ", "}
+                    </span>
+                  ))}
             </div>
           </div>
           {production && (
@@ -335,10 +333,79 @@ export default function Page() {
               />
             ))}
         </div>
+        {production?.producer.split(" ? ").length === 1 && (
+          <MoreProductions producer={production?.producer} />
+        )}
       </div>
     </Authenticated>
   );
 }
+
+function MoreProductions({ producer }: { producer: string }) {
+  const productions = useQuery(api.productions.getByProducer, { producer });
+
+  // Only show productions where producer is an exact match with one of the entries in production.producer.split(" ? ")
+  const filteredProductions =
+    productions?.filter((p) =>
+      p.producer.split(" ? ").some((name) => name === producer),
+    ) ?? [];
+
+  return (
+    <div className="flex flex-col gap-4 mx-6 pt-4">
+      <div className="text-red-950 text-base font-semibold">
+        Meer van {producer}
+      </div>
+      <div
+        className="flex flex-row gap-4 pb-4"
+        style={{
+          overflowX: "auto",
+          overflowY: "hidden",
+          WebkitOverflowScrolling: "touch",
+          scrollbarWidth: "thin",
+        }}
+      >
+        {filteredProductions.map((production) => (
+          <MemoProductionCard
+            key={production.priref_id}
+            production={production}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+const MemoProductionCard = memo(function ProductionCard({
+  production,
+}: {
+  production: Production;
+}) {
+  const router = useRouter();
+  const handleProductionClick = useCallback(
+    (id: Id<"productions">) => {
+      router.push(`/productions/${id}`);
+    },
+    [router],
+  );
+
+  return (
+    <Card
+      className="gap-2 py-4 min-w-40 bg-stone-200 border-b-4 border-r-4 rounded-sm place-content-center"
+      onClick={() => handleProductionClick(production._id)}
+    >
+      <CardHeader className="flex flex-col">
+        <CardTitle className="text-sm min-h-8 max-h-8 text-wrap">
+          {production.title.length > 20
+            ? production.title.slice(0, 17) + "..."
+            : production.title}
+        </CardTitle>
+        <div className="text-xs text-stone-800 text-medium py-1">
+          {new Date(production.start_date).toISOString().slice(0, 10)}
+        </div>
+      </CardHeader>
+    </Card>
+  );
+});
 
 type Review = {
   _id: Id<"productionReviews">;
@@ -398,7 +465,7 @@ type Production = {
   title: string;
   start_date: string;
   discipline: string;
-  producer: string[];
+  producer: string;
   venue: string;
   // Add other fields if needed
 };
