@@ -28,7 +28,7 @@ export default function Home() {
   }
 
   return (
-    <div className="flex flex-col mx-6 my-4 pb-20 gap-4 pb-20 sm:p-2 dark:bg-gray-900 dark:border-gray-700">
+    <div className="flex flex-col my-4 pb-20 gap-4 pb-20 sm:p-2 dark:bg-gray-900 dark:border-gray-700">
       <main className="flex flex-col items-center sm:items-start">
         <Unauthenticated>
           <SignInButton>
@@ -56,7 +56,7 @@ function Feed({ userId }: FeedProps) {
     userId: userId as string,
   });
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-2">
       {feedItems?.map((item) => (
         <FeedItem key={item._id} feedItem={item} />
       ))}

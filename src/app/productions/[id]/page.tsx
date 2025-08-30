@@ -102,8 +102,8 @@ export default function Page() {
 
   return (
     <Authenticated>
-      <div className="flex flex-col mx-6 my-4 pb-20 gap-4">
-        <div className="flex flex-col gap-4">
+      <div className="flex flex-col my-4 pb-20 gap-4">
+        <div className="flex flex-col gap-4 mx-6">
           <div className="flex flex-row justify-between items-center gap-2">
             <div className="text-3xl font-bold">{production?.title}</div>
             <div>
@@ -137,7 +137,7 @@ export default function Page() {
             )}
           </div>
         </div>
-        <div className="flex flex-col gap-2 border-b-1 pb-4">
+        <div className="flex flex-col gap-2 border-b-1 pb-4 mx-6">
           <div className="flex flex-col gap-1">
             <div className="flex flex-row flex-wrap w-full">
               {(production?.producer.slice(0, 5) ?? []).map(
@@ -198,7 +198,7 @@ export default function Page() {
             <div className="text-xs font-semibold">Schrijf een review</div>
           </Button>
         </div>
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 mx-6">
           <div>
             {production?.review_count && production.review_count > 0 ? (
               <div>
