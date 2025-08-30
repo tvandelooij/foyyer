@@ -158,7 +158,7 @@ export default function MultiSearch() {
                   {grouped.users.map((user) => (
                     <Link
                       key={user.id}
-                      href={`/users/${user.id}`}
+                      href={`/profile/${user.id}`}
                       className="hover:bg-gray-50 dark:bg-gray-900 dark:border-gray-700 border-b-2"
                     >
                       <Card className="border-none py-4 gap-0">
