@@ -28,7 +28,7 @@ export default function Home() {
   }
 
   return (
-    <div className="flex flex-col mx-6 my-4 pb-20 gap-4 pb-20 sm:p-2 dark:bg-gray-900 dark:border-gray-700">
+    <div className="flex flex-col my-4 pb-20 gap-4 pb-20 sm:p-2 dark:bg-gray-900 dark:border-gray-700">
       <main className="flex flex-col items-center sm:items-start">
         <Unauthenticated>
           <SignInButton>
@@ -56,7 +56,7 @@ function Feed({ userId }: FeedProps) {
     userId: userId as string,
   });
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-2">
       {feedItems?.map((item) => (
         <FeedItem key={item._id} feedItem={item} />
       ))}
@@ -87,13 +87,6 @@ function FeedItem({ feedItem }: { feedItem: FeedItem }) {
     id: feedItem.data.productionId as Id<"productions">,
   });
 
-  const formattedRating =
-    review?.rating !== undefined
-      ? review.rating < 2
-        ? `${review.rating} ster`
-        : `${review.rating} sterren`
-      : "";
-
   return (
     <Card className="border-none">
       <CardHeader className="flex flex-row items-center gap-4">
@@ -105,11 +98,13 @@ function FeedItem({ feedItem }: { feedItem: FeedItem }) {
         <div className="flex flex-row gap-2 items-center justify-between w-full">
           <div className="flex flex-row gap-2 items-center">
             <CardTitle className="text-xs">
-              <Link href={`/profile/${user?.userId}`}>{user?.nickname}</Link>{" "}
-              <span className="font-normal">geeft {formattedRating} aan</span>{" "}
-              <Link href={`/productions/${production?._id}`}>
-                {production?.title}
-              </Link>
+              {user && review && production && (
+                <FeedText
+                  user={{ userId: user.userId, nickname: user.nickname }}
+                  review={{ visited: review.visited, rating: review.rating }}
+                  production={{ _id: production._id, title: production.title }}
+                />
+              )}
             </CardTitle>
           </div>
           <div className="flex flex-row text-xs text-gray-500">
@@ -123,5 +118,44 @@ function FeedItem({ feedItem }: { feedItem: FeedItem }) {
         </CardContent>
       )}
     </Card>
+  );
+}
+
+type FeedTextProps = {
+  user: { userId: string; nickname: string };
+  review: { visited: boolean; rating?: number };
+  production: { _id: string; title: string };
+};
+
+function FeedText({ user, review, production }: FeedTextProps) {
+  const formattedRating =
+    review.rating !== undefined
+      ? review.rating < 2
+        ? `${review.rating} ster`
+        : `${review.rating} sterren`
+      : "";
+
+  return (
+    <>
+      {review.visited && review.rating === undefined && (
+        <>
+          <Link href={`/profile/${user?.userId}`}>{user?.nickname}</Link>{" "}
+          <span className="font-normal">heeft</span>{" "}
+          <Link href={`/productions/${production?._id}`}>
+            {production?.title}
+          </Link>{" "}
+          <span className="font-normal">gezien</span>
+        </>
+      )}
+      {review.visited && review.rating !== undefined && (
+        <>
+          <Link href={`/profile/${user?.userId}`}>{user?.nickname}</Link>{" "}
+          <span className="font-normal">geeft {formattedRating} aan</span>{" "}
+          <Link href={`/productions/${production?._id}`}>
+            {production?.title}
+          </Link>
+        </>
+      )}
+    </>
   );
 }

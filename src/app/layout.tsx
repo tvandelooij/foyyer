@@ -34,7 +34,7 @@ export default function RootLayout({
     <ClerkProvider localization={nlNL} appearance={{ theme: neobrutalism }}>
       <html lang="en" className="h-full" suppressHydrationWarning>
         <body
-          className={`${geistSans.variable} ${geistMono.variable} flex min-h-screen h-screen flex-col antialiased bg-background`}
+          className={`${geistSans.variable} ${geistMono.variable} flex min-h-screen flex-col antialiased bg-background`}
         >
           <ConvexClientProvider>
             <ConvexQueryCacheProvider>
@@ -44,7 +44,7 @@ export default function RootLayout({
                 enableSystem
                 disableTransitionOnChange
               >
-                <div className="flex flex-col h-screen mx-auto w-full max-w-4xl md:px-4 md:w-2/3 bg-stone-50 dark:bg-gray-900 dark:border-gray-700">
+                <div className="flex flex-col min-h-screen md:min-h-screen mobile:min-h-[100dvh] mx-auto w-full max-w-4xl md:px-4 md:w-2/3 bg-stone-50 dark:bg-gray-900 dark:border-gray-700">
                   <Header />
                   <main className="flex-1 min-h-0 overflow-y-auto">
                     {children}
