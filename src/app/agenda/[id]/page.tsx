@@ -127,7 +127,9 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
                 </DropdownMenu>
               </div>
             )}
-            <div className="text-3xl font-bold">{production?.title}</div>
+            <Link href={`/productions/${production?._id}`}>
+              <div className="text-3xl font-bold">{production?.title}</div>
+            </Link>
 
             <div>
               <Card className="border-none">

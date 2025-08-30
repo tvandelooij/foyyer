@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Id } from "../../../../convex/_generated/dataModel";
 
 import React, { useCallback } from "react";
+import { Production } from "@/lib/types";
 
 const MemoLikedProduction = React.memo(LikedProduction);
 
@@ -40,18 +41,6 @@ export default function Page() {
     </Authenticated>
   );
 }
-
-type Production = {
-  _id: Id<"productions">;
-  _creationTime: number;
-  priref_id: string;
-  title: string;
-  start_date: string;
-  discipline: string;
-  producer: string;
-  venue: string;
-  // Add other fields if needed
-};
 
 function LikedProduction({ production }: { production: Production }) {
   const router = useRouter();

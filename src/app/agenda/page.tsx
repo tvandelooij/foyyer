@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import { Authenticated } from "convex/react";
 
 import React, { useCallback } from "react";
+import { AgendaItemType } from "@/lib/types";
 
 const MemoAgendaItem = React.memo(AgendaItem);
 
@@ -36,16 +37,6 @@ export default function Page() {
     </Authenticated>
   );
 }
-
-type AgendaItemType = {
-  _id: Id<"userAgenda">;
-  productionId: Id<"productions">;
-  venueId: Id<"venues">;
-  date: string;
-  start_time: string;
-  status: "planned" | "confirmed" | "canceled";
-  // add other fields as needed
-};
 
 function AgendaItem({ item }: { item: AgendaItemType }) {
   const router = useRouter();

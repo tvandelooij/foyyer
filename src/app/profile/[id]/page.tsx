@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Ban, CircleCheck, CirclePlus } from "lucide-react";
 import { useUser } from "@clerk/nextjs";
+import Link from "next/link";
 
 export default function ProfilePage() {
   const user = useUser();
@@ -136,12 +137,14 @@ export default function ProfilePage() {
             </CardHeader>
           </Card>
 
-          <Card className="@container/card rounded-sm bg-stone-100">
-            <CardHeader>
-              <CardDescription>Voorstellingen bezocht</CardDescription>
-              <CardTitle className="text-xl">{visitCount}</CardTitle>
-            </CardHeader>
-          </Card>
+          <Link href={`/profile/${id}/visits`}>
+            <Card className="@container/card rounded-sm bg-stone-100">
+              <CardHeader>
+                <CardDescription>Voorstellingen bezocht</CardDescription>
+                <CardTitle className="text-xl">{visitCount}</CardTitle>
+              </CardHeader>
+            </Card>
+          </Link>
 
           <Card className="@container/card rounded-sm bg-stone-100">
             <CardHeader>

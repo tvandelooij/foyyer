@@ -1,72 +1,50 @@
 "use client";
 
-import {
-  Authenticated,
-  Unauthenticated,
-  useConvexAuth,
-  useMutation,
-} from "convex/react";
-import { api } from "../../convex/_generated/api";
 import { useQuery } from "convex-helpers/react/cache/hooks";
-
-import { SignInButton, useUser } from "@clerk/nextjs";
-import { Button } from "@/components/ui/button";
+import { Authenticated } from "convex/react";
+import { api } from "../../../../../convex/_generated/api";
+import { use } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { Id } from "../../convex/_generated/dataModel";
 import { formatDateDiff } from "@/lib/utils";
+import { Id } from "../../../../../convex/_generated/dataModel";
 import Link from "next/link";
-import type { FeedProps, FeedItem, FeedTextProps } from "@/lib/types";
+import type { FeedItem, FeedTextProps } from "@/lib/types";
 
-export default function Home() {
-  const auth = useConvexAuth();
-  const createUser = useMutation(api.users.createUser);
-  const { user } = useUser();
-
-  if (auth.isAuthenticated) {
-    // add user data to convex and set user state
-    createUser();
-  }
-
-  return (
-    <div className="flex flex-col my-4 pb-20 gap-4 pb-20 sm:p-2 dark:bg-gray-900 dark:border-gray-700">
-      <main className="flex flex-col items-center sm:items-start">
-        <Unauthenticated>
-          <SignInButton>
-            <Button className="bg-orange-500 border-red-950 border-2 border-b-4 border-r-4 font-semibold text-white p-4">
-              Log in
-            </Button>
-          </SignInButton>
-        </Unauthenticated>
-        <Authenticated>
-          <div className="flex flex-col w-full">
-            <Feed userId={user?.id} />
-          </div>
-        </Authenticated>
-      </main>
-    </div>
-  );
-}
-
-function Feed({ userId }: FeedProps) {
-  const feedItems = useQuery(api.feed.getItemsForUser, {
-    userId: userId as string,
+export default function Page({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
+  const userProfile = useQuery(api.users.getUserById, { id });
+  const reviews = useQuery(api.production_reviews.getAllReviewsByUser, {
+    userId: id,
   });
+
+  const feedItems: FeedItem[] = reviews
+    ? reviews.map((review) => ({
+        _id: review._id,
+        userId: review.userId,
+        type: "review",
+        data: {
+          productionId: review.productionId,
+          reviewId: review._id,
+        },
+      }))
+    : [];
+
   return (
-    <>
-      {feedItems?.length === 0 && (
-        <div className="mx-auto my-auto">
-          <div className="text-red-950 text-xs">
-            Maak snel vrienden om hun activiteit hier te zien!
+    <Authenticated>
+      <div className="mx-6 my-4">
+        <div className="flex flex-col gap-6">
+          <div className="text-2xl font-bold">
+            Bezocht door {userProfile?.nickname}
+          </div>
+          <div className="flex flex-col gap-4">
+            {feedItems?.map((item) => (
+              <FeedItem key={item._id} feedItem={item} />
+            ))}
           </div>
         </div>
-      )}
-      <div className="flex flex-col gap-2">
-        {feedItems?.map((item) => (
-          <FeedItem key={item._id} feedItem={item} />
-        ))}
       </div>
-    </>
+    </Authenticated>
   );
 }
 

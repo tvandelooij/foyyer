@@ -66,11 +66,9 @@ export const getTotalVisitCountForUser = query({
   args: { userId: v.string() },
   handler: async (ctx, args) => {
     const visitCount = await ctx.db
-      .query("userAgenda")
-      .withIndex("by_userId_date", (q) =>
-        q
-          .eq("userId", args.userId)
-          .lt("date", new Date(Date.now()).toISOString()),
+      .query("productionReviews")
+      .withIndex("by_user_by_status", (q) =>
+        q.eq("userId", args.userId).eq("visited", true),
       )
       .collect();
 

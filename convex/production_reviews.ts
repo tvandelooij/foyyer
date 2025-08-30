@@ -84,3 +84,14 @@ export const getReviewsForProduction = query({
       .take(5);
   },
 });
+
+export const getAllReviewsByUser = query({
+  args: { userId: v.string() },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("productionReviews")
+      .withIndex("by_user", (q) => q.eq("userId", args.userId))
+      .order("desc")
+      .collect();
+  },
+});
