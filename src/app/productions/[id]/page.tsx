@@ -333,9 +333,11 @@ export default function Page() {
               />
             ))}
         </div>
-        {production?.producer.split(" ? ").length === 1 && (
-          <MoreProductions producer={production?.producer} />
-        )}
+        <div className="flex flex-col gap-6 ml-6 pt-6">
+          {production?.producer.split(" ? ").map((producer) => (
+            <MoreProductions key={producer} producer={producer} />
+          ))}
+        </div>
       </div>
     </Authenticated>
   );
@@ -351,7 +353,7 @@ function MoreProductions({ producer }: { producer: string }) {
     ) ?? [];
 
   return (
-    <div className="flex flex-col gap-4 mx-6 pt-4">
+    <div className="flex flex-col gap-4">
       <div className="text-red-950 text-base font-semibold">
         Meer van {producer}
       </div>

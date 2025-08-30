@@ -165,6 +165,7 @@ export default defineSchema({
   })
     .index("by_production", ["productionId"])
     .index("by_user", ["userId"])
+    .index("by_user_by_status", ["userId", "visited"])
     .index("by_production_user", ["productionId", "userId"]),
   feed: defineTable({
     userId: v.string(),
