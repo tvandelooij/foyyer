@@ -93,7 +93,7 @@ export default function Page() {
               }}
               maybeReview={
                 maybeReview
-                  ? { _id: maybeReview._id, rating: maybeReview.rating ?? 0 }
+                  ? { _id: maybeReview._id, rating: maybeReview.rating ?? 0, visited: maybeReview.visited ?? false }
                   : undefined
               }
             />

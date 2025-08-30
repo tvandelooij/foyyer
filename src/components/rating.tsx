@@ -15,6 +15,7 @@ type RatingProps = {
   maybeReview?: {
     _id: Id<"productionReviews">;
     rating: number;
+    visited: boolean;
   };
 };
 
@@ -42,11 +43,13 @@ export default function Rating({ production, maybeReview }: RatingProps) {
     const newRating = isRemoving ? 0 : star;
     const currentAvg = production?.avg_rating ?? 0;
     const currentCount = production?.rating_count ?? 0;
+    const visited = isRemoving ? false : true;
 
     if (maybeReview) {
       await updateRating({
         id: maybeReview._id,
         rating: newRating,
+        visited: visited,
       });
 
       let newAvg = currentAvg;
@@ -62,9 +65,10 @@ export default function Rating({ production, maybeReview }: RatingProps) {
         }
         newCount = currentCount - 1;
 
-        if (maybeFeedItem) {
+        // Remove feed item if it exists
+        if (maybeFeedItem && maybeFeedItem[0]?._id) {
           await deleteFeedItem({
-            id: maybeFeedItem[0]?._id,
+            id: maybeFeedItem[0]._id,
           });
         }
       } else if (prevRating === 0) {
@@ -72,18 +76,39 @@ export default function Rating({ production, maybeReview }: RatingProps) {
         newAvg = (currentAvg * currentCount + newRating) / (currentCount + 1);
         newCount = currentCount + 1;
 
-        await createFeedItem({
-          userId: user.user?.id as string,
-          type: "review",
-          data: {
-            productionId: production._id as Id<"productions">,
-            reviewId: maybeReview._id,
-          },
-        });
+        // Create feed item if it doesn't exist
+        if (!maybeFeedItem || maybeFeedItem.length === 0) {
+          await createFeedItem({
+            userId: user.user?.id as string,
+            type: "review",
+            data: {
+              productionId: production._id as Id<"productions">,
+              reviewId: maybeReview._id,
+            },
+          });
+        } else {
+          // If a feed item exists (e.g., from marking as visited), update it with the reviewId
+          await updateRating({
+            id: maybeReview._id,
+            rating: newRating,
+            visited: visited,
+          });
+        }
       } else {
         // Update rating: adjust total, count stays the same
         newAvg =
           (currentAvg * currentCount - prevRating + newRating) / currentCount;
+        // If there is no feed item (e.g., after removal and re-rate), create it
+        if (!maybeFeedItem || maybeFeedItem.length === 0) {
+          await createFeedItem({
+            userId: user.user?.id as string,
+            type: "review",
+            data: {
+              productionId: production._id as Id<"productions">,
+              reviewId: maybeReview._id,
+            },
+          });
+        }
       }
 
       await updateProductionStats({

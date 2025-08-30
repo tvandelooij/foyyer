@@ -15,6 +15,7 @@ import {
   CalendarIcon,
   CalendarPlus,
   Check,
+  ChevronDown,
   ChevronsUpDown,
   Dot,
   Heart,
@@ -84,6 +85,54 @@ export default function Page() {
 
   const likeProduction = useMutation(api.production_likes.likeProduction);
   const unlikeProduction = useMutation(api.production_likes.unlikeProduction);
+
+  const addReview = useMutation(api.production_reviews.createReview);
+  const updateRating = useMutation(api.production_reviews.updateRating);
+
+  const createFeedItem = useMutation(api.feed.createFeedItem);
+  const deleteFeedItem = useMutation(api.feed.deleteFeedItem);
+  const maybeFeedItem = useQuery(api.feed.getFeedItemFromUserByProduction, {
+    userId: user.user?.id as string,
+    productionId: id as Id<"productions">,
+    type: "review",
+  });
+
+  // State to control the visited popover
+  const [visitedPopoverOpen, setVisitedPopoverOpen] = React.useState(false);
+
+  const handleVisitedClick = async (visited: boolean) => {
+    setVisitedPopoverOpen(false); // Close popover after click
+
+    if (maybeReview?._id) {
+      await updateRating({ id: maybeReview._id, visited });
+
+      if (visited && !maybeFeedItem) {
+        await createFeedItem({
+          userId: user.user?.id as string,
+          type: "review",
+          data: { productionId: id, reviewId: maybeReview?._id },
+        });
+      } else if (!visited && maybeFeedItem) {
+        await deleteFeedItem({
+          id: maybeFeedItem[0]?._id,
+        });
+      }
+      return;
+    }
+
+    const reviewId = await addReview({
+      productionId: id,
+      userId: user.user?.id as string,
+      visited,
+      rating: undefined,
+      review: undefined,
+    });
+    await createFeedItem({
+      userId: user.user?.id as string,
+      type: "review",
+      data: { productionId: id, reviewId },
+    });
+  };
 
   const handleLikeClick = useCallback(
     async (productionId: Id<"productions">) => {
@@ -170,6 +219,48 @@ export default function Page() {
           </div>
           {production && (
             <div className="flex flex-col py-2 items-center gap-2 border-t-1">
+              <div className="flex flex-row rounded-sm border-red-950 border-2 border-b-4 border-r-4">
+                <Button
+                  className={cn(
+                    "text-red-950 text-xs font-semibold rounded-xs border-r-2 border-red-950",
+                    hasLiked ? "bg-lime-200" : "bg-lime-100",
+                  )}
+                  onClick={
+                    production?._id
+                      ? () => handleLikeClick(production._id)
+                      : undefined
+                  }
+                  disabled={maybeReview?.visited}
+                >
+                  {maybeReview?.visited
+                    ? "Voorstelling bezocht"
+                    : "Wil ik zien"}
+                </Button>
+                <Popover
+                  open={visitedPopoverOpen}
+                  onOpenChange={setVisitedPopoverOpen}
+                >
+                  <PopoverTrigger className="bg-lime-100 px-2 rounded-xs">
+                    <ChevronDown className="text-red-950 h-4 w-4" />
+                  </PopoverTrigger>
+                  <PopoverContent
+                    className="w-full bg-lime-100 rounded-sm border-red-950 border-b-2 border-r-2 border-l-2 p-0 m-0 flex flex-row justify-end"
+                    align="end"
+                  >
+                    <Button
+                      className="bg-lime-100 rounded-sm text-xs text-red-950 font-semibold border-none shadow-none px-4 m-0"
+                      onClick={() =>
+                        handleVisitedClick(maybeReview?.visited ? false : true)
+                      }
+                    >
+                      {maybeReview?.visited
+                        ? "Wil ik zien"
+                        : "Voorstelling bezocht"}
+                    </Button>
+                  </PopoverContent>
+                </Popover>
+              </div>
+
               <div className="text-sm text-gray-500">Jouw beoordeling</div>
               <Rating
                 production={{
@@ -180,7 +271,11 @@ export default function Page() {
                 }}
                 maybeReview={
                   maybeReview
-                    ? { _id: maybeReview._id, rating: maybeReview.rating ?? 0 }
+                    ? {
+                        _id: maybeReview._id,
+                        rating: maybeReview.rating ?? 0,
+                        visited: maybeReview.visited ?? false,
+                      }
                     : undefined
                 }
               />

@@ -35,10 +35,12 @@ export const updateRating = mutation({
   args: {
     id: v.id("productionReviews"),
     rating: v.optional(v.number()),
+    visited: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
     await ctx.db.patch(args.id, {
       rating: args.rating,
+      visited: args.visited,
       updatedAt: Date.now(),
     });
   },

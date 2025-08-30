@@ -165,12 +165,25 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
                           )
                         }
                       >
-                        <SelectTrigger className="text-xs">
-                          <SelectValue placeholder="Geef aan of je meegaat" />
+                        <SelectTrigger className="text-xs text-white font-semibold bg-orange-500 rounded-sm border-red-950 border-2 border-b-4 border-r-4 shadow-none">
+                          <SelectValue
+                            placeholder="Geef aan of je meegaat"
+                            className="text-xs text-white"
+                          />
                         </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="confirmed">Ik ga mee</SelectItem>
-                          <SelectItem value="canceled">Ik kan niet</SelectItem>
+                        <SelectContent className="text-xs text-white font-semibold bg-orange-500 rounded-sm border-red-950 border-2 border-b-4 border-r-4 shadow-none">
+                          <SelectItem
+                            value="confirmed"
+                            className="text-xs text-white font-semibold bg-orange-500 rounded-sm focus:bg-orange-400 focus:text-white"
+                          >
+                            Ik ga mee
+                          </SelectItem>
+                          <SelectItem
+                            value="canceled"
+                            className="text-xs text-white font-semibold bg-orange-500 rounded-sm focus:bg-orange-400 focus:text-white"
+                          >
+                            Ik kan niet
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
