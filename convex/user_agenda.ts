@@ -148,12 +148,13 @@ export const listAgendaItemsForUser = query({
       throw new Error("userId is required to list agenda items.");
     }
 
+    const previousDay = new Date();
+    previousDay.setDate(previousDay.getDate() - 1);
+
     return ctx.db
       .query("userAgenda")
       .withIndex("by_userId_date", (q) =>
-        q
-          .eq("userId", identity.subject)
-          .gt("date", new Date(Date.now()).toISOString()),
+        q.eq("userId", identity.subject).gte("date", previousDay.toISOString()),
       )
       .order("asc")
       .collect();

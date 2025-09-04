@@ -87,9 +87,9 @@ def parse_adlib_xml(xml_string: str) -> List[Production]:
     return productions
 
 
-def get_adlib_data(start_date: str):
+def get_adlib_data(start_date: str, end_date: str):
     params = {
-        "search": f"dating.date.start>'{start_date}'",
+        "search": f"dating.date.start>'{start_date}' AND dating.date.start<'{end_date}'",
         "limit": 500,
         "startfrom": 0
     }
@@ -120,12 +120,13 @@ def get_adlib_data(start_date: str):
 
 
 def main():
-    start_date = "2020-01-01"
-    data = get_adlib_data(start_date)
+    start_date = "2014-01-01"
+    end_date = "2025-09-01"
+    data = get_adlib_data(start_date, end_date)
 
     print("Writing data to JSONL...")
 
-    with open("data/productions.jsonl", "w", encoding="utf-8") as f:
+    with open("data/productions-2014.jsonl", "w", encoding="utf-8") as f:
         for loc in data:
             f.write(json.dumps(loc.model_dump(), ensure_ascii=False) + "\n")
 
