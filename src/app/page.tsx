@@ -33,7 +33,7 @@ export default function Home() {
       <main className="flex flex-col items-center sm:items-start">
         <Unauthenticated>
           <SignInButton>
-            <Button className="bg-orange-500 border-red-950 border-2 border-b-4 border-r-4 font-semibold text-white p-4">
+            <Button className="bg-orange-500 border-red-950 border-2 border-b-4 border-r-4 font-semibold text-white p-4 mx-auto">
               Log in
             </Button>
           </SignInButton>

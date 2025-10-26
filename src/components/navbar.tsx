@@ -9,7 +9,7 @@ import { Authenticated } from "convex/react";
 const Navbar = () => {
   return (
     <Authenticated>
-      <nav className="fixed bottom-0 left-0 w-full pt-1 border-t-2 border-red-950 flex justify-between items-center h-14 z-50 dark:bg-gray-900 dark:border-gray-700 bg-stone-50">
+      <nav className="fixed bottom-0 left-0 w-full max-w-4xl pt-1 border-t-2 border-red-950 flex justify-between items-center h-14 z-50 dark:bg-gray-900 dark:border-gray-700 bg-stone-50">
         <div className="flex-1 flex justify-center">
           <Link
             href="/"
