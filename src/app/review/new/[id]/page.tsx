@@ -35,14 +35,16 @@ export default function Page() {
   const [editMode, setEditMode] = useState(false);
 
   useEffect(() => {
-    if (maybeReview?.review !== undefined) {
-      setReviewText(maybeReview.review ?? "");
-      setEditMode(false);
-    } else {
-      setReviewText("");
-      setEditMode(true);
+    if (!editMode) {
+      if (maybeReview?.review !== undefined) {
+        setReviewText(maybeReview.review ?? "");
+        setEditMode(false);
+      } else {
+        setReviewText("");
+        setEditMode(true);
+      }
     }
-  }, [maybeReview]);
+  }, [maybeReview, editMode]);
 
   const handleButtonClick = async () => {
     if (!user.user) return;
