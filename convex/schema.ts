@@ -137,6 +137,7 @@ export default defineSchema({
     rating_count: v.optional(v.number()),
     review_count: v.optional(v.number()),
   })
+    .index("by_priref_id", ["priref_id"])
     .index("by_start_date", ["start_date"])
     .index("by_discipline_by_date", ["discipline", "start_date"])
     .searchIndex("search_title", {
