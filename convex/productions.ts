@@ -88,3 +88,44 @@ export const getRandomProductionsForCategory = query({
     return productions;
   },
 });
+
+export const getByPrirefId = query({
+  args: { priref_id: v.string() },
+  handler: async (ctx, args) => {
+    return ctx.db
+      .query("productions")
+      .withIndex("by_priref_id", (q) =>
+        q.eq("priref_id", args.priref_id),
+      ).collect()
+  },
+});
+
+export const addProduction = mutation({
+  args: {
+    priref_id: v.string(),
+    title: v.string(),
+    discipline: v.string(),
+    start_date: v.string(),
+    producer: v.string(),
+    venue: v.string(),
+    notes: v.optional(v.string()),
+    season: v.optional(v.string()),
+    tags: v.optional(v.array(v.string())),
+  },
+  handler: async (ctx, args) => {
+    const production = {
+      priref_id: args.priref_id,
+      title: args.title,
+      discipline: args.discipline,
+      start_date: args.start_date,
+      producer: args.producer,
+      venue: args.venue,
+      notes: args.notes,
+      season: args.season,
+      tags: args.tags,
+
+    }
+    const id = await ctx.db.insert("productions", production);
+    return id;
+  },
+});

@@ -21,21 +21,22 @@ class Production(BaseModel):
     season: str = ""
     tags: list[str] = []
 
+
 def process_producer(name: str) -> str:
     """
-        Receive a producer name in one of the following formats:
+    Receive a producer name in one of the following formats:
 
-            "Rotterdam, Productiehuis Theater"
-            "Tweetakt"
-            "Studio, De"
-            "C-Takt"
-        
-        Parse the name so that it becomes:
+        "Rotterdam, Productiehuis Theater"
+        "Tweetakt"
+        "Studio, De"
+        "C-Takt"
 
-            "Productiehuis Theater Rotterdam"
-            "Tweetakt"
-            "De Studio"
-            "C-Takt"
+    Parse the name so that it becomes:
+
+        "Productiehuis Theater Rotterdam"
+        "Tweetakt"
+        "De Studio"
+        "C-Takt"
     """
     parts = name.split(", ")
     if len(parts) == 2:
@@ -57,7 +58,11 @@ def parse_adlib_xml(xml_string: str) -> List[Production]:
             start_date = datetime.strptime(start_date_str, "%Y-%m-%d").isoformat()
         except (ValueError, TypeError):
             return
-        producers = [process_producer(elem.text) for elem in record.findall("producent/company") if elem.text and elem.text != "Buitenlandse Gezelschappen"] or []
+        producers = [
+            process_producer(elem.text)
+            for elem in record.findall("producent/company")
+            if elem.text and elem.text != "Buitenlandse Gezelschappen"
+        ] or []
         producer = " ? ".join(producers)
         venue = record.findtext("venue") or ""
         notes = record.findtext("notes") or ""
@@ -73,26 +78,29 @@ def parse_adlib_xml(xml_string: str) -> List[Production]:
                 else:
                     tags.append(val)
 
-        productions.append(Production(
-            priref_id=priref_id,
-            title=title,
-            discipline=discipline,
-            start_date=start_date,
-            producer=producer,
-            venue=venue,
-            notes=notes,
-            season=" ? ".join(seasons),
-            tags=tags if tags else []
-        ))
+        productions.append(
+            Production(
+                priref_id=priref_id,
+                title=title,
+                discipline=discipline,
+                start_date=start_date,
+                producer=producer,
+                venue=venue,
+                notes=notes,
+                season=" ? ".join(seasons),
+                tags=tags if tags else [],
+            )
+        )
     return productions
 
 
-def get_adlib_data(start_date: str, end_date: str):
-    params = {
-        "search": f"dating.date.start>'{start_date}' AND dating.date.start<'{end_date}'",
-        "limit": 500,
-        "startfrom": 0
-    }
+def get_adlib_data(start_date: str, end_date: str | None = None):
+    search_query = f"dating.date.start>'{start_date}'"
+
+    if end_date:
+        search_query += f" AND dating.date.start<'{end_date}'"
+
+    params = {"search": search_query, "limit": 500, "startfrom": 0}
 
     has_more = True
 
@@ -120,9 +128,9 @@ def get_adlib_data(start_date: str, end_date: str):
 
 
 def main():
-    start_date = "2014-01-01"
-    end_date = "2025-09-01"
-    data = get_adlib_data(start_date, end_date)
+    start_date = "2025-09-01"
+    # end_date = "2025-09-01"
+    data = get_adlib_data(start_date)
 
     print("Writing data to JSONL...")
 
