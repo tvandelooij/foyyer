@@ -94,9 +94,8 @@ export const getByPrirefId = query({
   handler: async (ctx, args) => {
     return ctx.db
       .query("productions")
-      .withIndex("by_priref_id", (q) =>
-        q.eq("priref_id", args.priref_id),
-      ).collect()
+      .withIndex("by_priref_id", (q) => q.eq("priref_id", args.priref_id))
+      .collect();
   },
 });
 
@@ -123,8 +122,7 @@ export const addProduction = mutation({
       notes: args.notes,
       season: args.season,
       tags: args.tags,
-
-    }
+    };
     const id = await ctx.db.insert("productions", production);
     return id;
   },

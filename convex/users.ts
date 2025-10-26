@@ -24,7 +24,7 @@ export const createUser = mutation({
       await ctx.db.patch(maybeUser._id, {
         pictureUrl: identity.pictureUrl?.toString(),
         updatedAt: Date.now(),
-      })
+      });
       return maybeUser;
     }
 
