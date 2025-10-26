@@ -10,6 +10,8 @@ if __name__ == "__main__":
 
     client = ConvexClient(os.getenv("CONVEX_URL"))
 
+    print(os.getenv("CONVEX_URL"))
+
     with open("data/productions-2509.jsonl", "r", encoding="utf-8") as f:
         for line in f:
             production = json.loads(line)
