@@ -95,3 +95,57 @@ export const getAllReviewsByUser = query({
       .collect();
   },
 });
+
+// Denormalized query that fetches all review data with related user and production info
+export const getAllReviewsByUserWithDetails = query({
+  args: { userId: v.string() },
+  handler: async (ctx, args) => {
+    // Fetch all reviews by the user
+    const reviews = await ctx.db
+      .query("productionReviews")
+      .withIndex("by_user", (q) => q.eq("userId", args.userId))
+      .order("desc")
+      .collect();
+
+    // Fetch related data for all reviews in parallel
+    const reviewsWithDetails = await Promise.all(
+      reviews.map(async (review) => {
+        const [user, production] = await Promise.all([
+          ctx.db
+            .query("users")
+            .withIndex("by_userId", (q) => q.eq("userId", review.userId))
+            .first(),
+          ctx.db.get(review.productionId),
+        ]);
+
+        return {
+          _id: review._id,
+          _creationTime: review._creationTime,
+          userId: review.userId,
+          productionId: review.productionId,
+          user: user
+            ? {
+                userId: user.userId,
+                nickname: user.nickname,
+                pictureUrl: user.pictureUrl,
+              }
+            : null,
+          review: {
+            visited: review.visited,
+            rating: review.rating,
+            review: review.review,
+            _creationTime: review._creationTime,
+          },
+          production: production
+            ? {
+                _id: production._id,
+                title: production.title,
+              }
+            : null,
+        };
+      }),
+    );
+
+    return reviewsWithDetails;
+  },
+});

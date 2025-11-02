@@ -328,7 +328,11 @@ export default function Page() {
         </div>
         <div className="flex flex-col gap-4">
           {reviews
-            ?.filter((review) => (review.rating ?? 0) > 0)
+            ?.filter(
+              (review) =>
+                (review.rating ?? 0) > 0 ||
+                (review.review && review.review.trim().length > 0),
+            )
             .map((review) => (
               <MemoReviewCard
                 key={review._id}
@@ -437,10 +441,17 @@ const MemoReviewCard = React.memo(function ReviewCard({
         <div className="flex flex-row gap-2 items-center justify-between w-full">
           <div className="flex flex-row gap-2 items-center">
             <CardTitle className="text-xs">
-              <span onClick={handleProfileClick}>{user?.nickname}</span>{" "}
-              <span className="font-normal">geeft</span>
+              <span onClick={handleProfileClick}>{user?.nickname}</span>
+              {review.rating !== null && review.rating !== undefined && (
+                <>
+                  {" "}
+                  <span className="font-normal">geeft</span>
+                </>
+              )}
             </CardTitle>
-            <MemoStars n={review.rating ?? undefined} size={2} />
+            {review.rating !== null && review.rating !== undefined && (
+              <MemoStars n={review.rating} size={2} />
+            )}
           </div>
           <div className="flex flex-row text-xs text-gray-500">
             {formatDateDiff(review._creationTime)}
