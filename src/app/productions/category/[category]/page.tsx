@@ -2,13 +2,14 @@
 
 import { usePaginatedQuery } from "convex-helpers/react/cache/hooks";
 import { Authenticated } from "convex/react";
-import { memo, use, useCallback, useEffect, useRef } from "react";
+import { memo, use, useCallback, useRef } from "react";
 import { api } from "../../../../../convex/_generated/api";
 import { useRouter } from "next/navigation";
 import { Id } from "../../../../../convex/_generated/dataModel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Production } from "@/lib/types";
+import { useInfiniteScroll } from "@/lib/hooks/useInfiniteScroll";
 
 export default function Page({
   params,
@@ -26,28 +27,11 @@ export default function Page({
     { initialNumItems: 10 },
   );
 
-  // Infinite scroll logic
-  const loaderRef = useRef<HTMLDivElement | null>(null);
-  useEffect(() => {
-    if (status !== "CanLoadMore") return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && status === "CanLoadMore") {
-          loadMore(10);
-        }
-      },
-      { rootMargin: "200px" },
-    );
-    const loaderElem = loaderRef.current;
-    if (loaderElem) {
-      observer.observe(loaderElem);
-    }
-    return () => {
-      if (loaderElem) {
-        observer.unobserve(loaderElem);
-      }
-    };
-  }, [status, loadMore]);
+  const { loaderRef } = useInfiniteScroll({
+    status,
+    loadMore,
+    itemsPerPage: 10,
+  });
 
   return (
     <Authenticated>

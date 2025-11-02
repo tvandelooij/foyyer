@@ -1,5 +1,6 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { paginationOptsValidator } from "convex/server";
 
 export const createFeedItem = mutation({
   args: {
@@ -25,21 +26,118 @@ export const createFeedItem = mutation({
 export const getItemsForUser = query({
   args: { userId: v.string() },
   handler: async (ctx, { userId }) => {
-    const allFriendships = await ctx.db.query("friendships").collect();
-    const friends = allFriendships
-      .filter(
-        (f) =>
-          f.status === "accepted" &&
-          (f.userId1 === userId || f.userId2 === userId),
-      )
-      .map((f) => (f.userId1 === userId ? f.userId2 : f.userId1));
+    // Get user's friends using indexed queries (no full table scan)
+    const [friendships1, friendships2] = await Promise.all([
+      ctx.db
+        .query("friendships")
+        .withIndex("by_user_1_status", (q) =>
+          q.eq("userId1", userId).eq("status", "accepted"),
+        )
+        .collect(),
+      ctx.db
+        .query("friendships")
+        .withIndex("by_user_2_status", (q) =>
+          q.eq("userId2", userId).eq("status", "accepted"),
+        )
+        .collect(),
+    ]);
 
-    const allFeed = await ctx.db.query("feed").collect();
-    const feedItems = allFeed
-      .filter((item) => friends.includes(item.userId))
+    const friends = [
+      ...friendships1.map((f) => f.userId2),
+      ...friendships2.map((f) => f.userId1),
+    ];
+
+    // If no friends, return empty array early
+    if (friends.length === 0) {
+      return [];
+    }
+
+    // Query feed items for each friend in parallel
+    const feedItemsPerFriend = await Promise.all(
+      friends.map((friendId) =>
+        ctx.db
+          .query("feed")
+          .withIndex("by_user", (q) => q.eq("userId", friendId))
+          .collect(),
+      ),
+    );
+
+    // Flatten and sort all feed items by creation time (newest first)
+    const feedItems = feedItemsPerFriend
+      .flat()
       .sort((a, b) => b._creationTime - a._creationTime);
 
     return feedItems;
+  },
+});
+
+export const getItemsForUserPaginated = query({
+  args: {
+    userId: v.string(),
+    paginationOpts: paginationOptsValidator,
+  },
+  handler: async (ctx, { userId, paginationOpts }) => {
+    // Get user's friends using indexed queries (no full table scan)
+    const [friendships1, friendships2] = await Promise.all([
+      ctx.db
+        .query("friendships")
+        .withIndex("by_user_1_status", (q) =>
+          q.eq("userId1", userId).eq("status", "accepted"),
+        )
+        .collect(),
+      ctx.db
+        .query("friendships")
+        .withIndex("by_user_2_status", (q) =>
+          q.eq("userId2", userId).eq("status", "accepted"),
+        )
+        .collect(),
+    ]);
+
+    const friends = [
+      ...friendships1.map((f) => f.userId2),
+      ...friendships2.map((f) => f.userId1),
+    ];
+
+    // If no friends, return empty result early
+    if (friends.length === 0) {
+      return {
+        page: [],
+        isDone: true,
+        continueCursor: "",
+      };
+    }
+
+    // Query feed items for each friend in parallel
+    // Note: We collect all items per friend since we need to sort by _creationTime across all friends
+    const feedItemsPerFriend = await Promise.all(
+      friends.map((friendId) =>
+        ctx.db
+          .query("feed")
+          .withIndex("by_user", (q) => q.eq("userId", friendId))
+          .collect(),
+      ),
+    );
+
+    // Flatten and sort all feed items by creation time (newest first)
+    const allFeedItems = feedItemsPerFriend
+      .flat()
+      .sort((a, b) => b._creationTime - a._creationTime);
+
+    // Manual pagination: determine start and end indices
+    const cursor = paginationOpts.cursor;
+    const startIndex =
+      cursor && cursor !== "" ? parseInt(cursor as string, 10) : 0;
+    const endIndex = startIndex + paginationOpts.numItems;
+
+    const page = allFeedItems.slice(startIndex, endIndex);
+    const isDone = endIndex >= allFeedItems.length;
+    const continueCursor = isDone ? "" : endIndex.toString();
+
+    return {
+      page,
+      isDone,
+      continueCursor,
+    };
   },
 });
 
