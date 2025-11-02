@@ -7,9 +7,10 @@ import {
   useMutation,
 } from "convex/react";
 import { api } from "../../convex/_generated/api";
-import { useQuery } from "convex-helpers/react/cache/hooks";
+import { usePaginatedQuery, useQuery } from "convex-helpers/react/cache/hooks";
 
 import { SignInButton, useUser } from "@clerk/nextjs";
+import { useInfiniteScroll } from "@/lib/hooks/useInfiniteScroll";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
@@ -49,12 +50,21 @@ export default function Home() {
 }
 
 function Feed({ userId }: FeedProps) {
-  const feedItems = useQuery(api.feed.getItemsForUser, {
-    userId: userId as string,
+  const { results, status, loadMore } = usePaginatedQuery(
+    api.feed.getItemsForUserPaginated,
+    { userId: userId as string },
+    { initialNumItems: 10 },
+  );
+
+  const { loaderRef } = useInfiniteScroll({
+    status,
+    loadMore,
+    itemsPerPage: 10,
   });
+
   return (
     <>
-      {feedItems?.length === 0 && (
+      {results?.length === 0 && status !== "LoadingFirstPage" && (
         <div className="mx-auto my-auto">
           <div className="text-red-950 text-xs">
             Maak snel vrienden om hun activiteit hier te zien!
@@ -62,9 +72,15 @@ function Feed({ userId }: FeedProps) {
         </div>
       )}
       <div className="flex flex-col gap-2">
-        {feedItems?.map((item) => (
+        {results?.map((item) => (
           <FeedItem key={item._id} feedItem={item} />
         ))}
+        <div ref={loaderRef} />
+        {status === "LoadingMore" && (
+          <div className="text-center text-xs text-stone-400 py-4">
+            Meer activiteit aan het laden...
+          </div>
+        )}
       </div>
     </>
   );
