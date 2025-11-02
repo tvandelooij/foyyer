@@ -87,13 +87,15 @@ export default function ProfilePage() {
       <div className="items-center justify-items-center min-h-screen p-4 gap-16 sm:p-20 pb-20">
         <div className="border-b pb-4">
           <div className="flex flex-col items-center gap-2 pb-4">
-            <Image
-              src={userProfile.pictureUrl || "/default-avatar.png"}
-              alt={userProfile.nickname}
-              width={150}
-              height={150}
-              className="rounded-full object-cover border-2 border-gray-300 shadow-sm"
-            />
+            <div className="relative w-[150px] h-[150px] rounded-full overflow-hidden border-2 border-gray-300 shadow-sm">
+              <Image
+                src={userProfile.pictureUrl || "/default-avatar.png"}
+                alt={userProfile.nickname}
+                fill
+                className="object-cover"
+                sizes="150px"
+              />
+            </div>
             <div className="text-2xl font-bold">
               <p>{userProfile.nickname}</p>
             </div>

@@ -87,16 +87,23 @@ function FriendRequest({ notification }: { notification: any }) {
 
   return (
     <div className="flex items-center justify-between gap-4 p-4 border-b">
-      <Image
-        src={sender?.pictureUrl || "/default-avatar.png"}
-        alt={sender?.nickname || "Vriend"}
-        width={40}
-        height={40}
-        className="rounded-full"
+      <div
+        className="relative w-[40px] h-[40px] rounded-full overflow-hidden cursor-pointer"
         onClick={() => handleProfileClick()}
-      />
+      >
+        <Image
+          src={sender?.pictureUrl || "/default-avatar.png"}
+          alt={sender?.nickname || "Vriend"}
+          fill
+          className="object-cover"
+          sizes="40px"
+        />
+      </div>
       <div className="flex flex-col gap-1">
-        <p className="font-semibold" onClick={() => handleProfileClick()}>
+        <p
+          className="font-semibold cursor-pointer"
+          onClick={() => handleProfileClick()}
+        >
           {sender?.nickname}
         </p>
         <p className="text-xs text-gray-500">
@@ -149,21 +156,25 @@ function GroupInvitation({ notification }: { notification: any }) {
   return (
     <div className="flex flex-col p-4 border-b">
       <div className="flex flex-row items-center gap-4">
-        <Image
-          src={sender?.pictureUrl || "/default-avatar.png"}
-          alt={sender?.nickname || "Vriend"}
-          width={40}
-          height={40}
-          className="rounded-full"
+        <div
+          className="relative w-[40px] h-[40px] rounded-full overflow-hidden cursor-pointer"
           onClick={() => handleProfileClick()}
-        />
+        >
+          <Image
+            src={sender?.pictureUrl || "/default-avatar.png"}
+            alt={sender?.nickname || "Vriend"}
+            fill
+            className="object-cover"
+            sizes="40px"
+          />
+        </div>
         <div className="flex flex-col gap-1">
           <p className="text-xs text-gray-500 text-nowrap">
             <span className="font-semibold">{sender?.nickname}</span> heeft je
             uitgenodigd voor
           </p>
           <span
-            className="text-sm font-semibold text-gray-800"
+            className="text-sm font-semibold text-gray-800 cursor-pointer"
             onClick={() => router.push(`/groups/${notification.data.groupId}`)}
           >
             {groupName}

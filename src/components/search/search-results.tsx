@@ -42,13 +42,15 @@ function SearchResults(props: SearchResultsProps) {
                   alt={result.nickname}
                 />
                 <AvatarFallback>
-                  <Image
-                    src="/default-avatar.png"
-                    width={8}
-                    height={8}
-                    alt={result.nickname}
-                    className="w-8 h-8 rounded-full"
-                  />
+                  <div className="relative w-8 h-8 rounded-full overflow-hidden">
+                    <Image
+                      src="/default-avatar.png"
+                      fill
+                      alt={result.nickname}
+                      className="object-cover"
+                      sizes="32px"
+                    />
+                  </div>
                 </AvatarFallback>
               </Avatar>
               <span className="text-sm items-center">{result.nickname}</span>
