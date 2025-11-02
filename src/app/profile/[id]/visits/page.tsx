@@ -32,9 +32,9 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
 
   return (
     <Authenticated>
-      <div className="mx-6 my-4">
+      <div className="my-4">
         <div className="flex flex-col gap-6">
-          <div className="text-2xl font-bold">
+          <div className="mx-6 text-2xl font-bold">
             Bezocht door {userProfile?.nickname}
           </div>
           <div className="flex flex-col gap-4">

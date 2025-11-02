@@ -1,6 +1,7 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { paginationOptsValidator } from "convex/server";
+import { Doc } from "./_generated/dataModel";
 
 export const createFeedItem = mutation({
   args: {
@@ -164,5 +165,121 @@ export const deleteFeedItem = mutation({
   args: { id: v.id("feed") },
   handler: async (ctx, { id }) => {
     await ctx.db.delete(id);
+  },
+});
+
+// Denormalized query that fetches all feed data with related user, review, and production info
+export const getItemsForUserPaginatedWithDetails = query({
+  args: {
+    userId: v.string(),
+    paginationOpts: paginationOptsValidator,
+  },
+  handler: async (ctx, { userId, paginationOpts }) => {
+    // Get user's friends using indexed queries
+    const [friendships1, friendships2] = await Promise.all([
+      ctx.db
+        .query("friendships")
+        .withIndex("by_user_1_status", (q) =>
+          q.eq("userId1", userId).eq("status", "accepted"),
+        )
+        .collect(),
+      ctx.db
+        .query("friendships")
+        .withIndex("by_user_2_status", (q) =>
+          q.eq("userId2", userId).eq("status", "accepted"),
+        )
+        .collect(),
+    ]);
+
+    const friends = [
+      ...friendships1.map((f) => f.userId2),
+      ...friendships2.map((f) => f.userId1),
+    ];
+
+    if (friends.length === 0) {
+      return {
+        page: [],
+        isDone: true,
+        continueCursor: "",
+      };
+    }
+
+    // Query feed items for each friend in parallel
+    const feedItemsPerFriend = await Promise.all(
+      friends.map((friendId) =>
+        ctx.db
+          .query("feed")
+          .withIndex("by_user", (q) => q.eq("userId", friendId))
+          .collect(),
+      ),
+    );
+
+    // Flatten and sort all feed items by creation time
+    const allFeedItems = feedItemsPerFriend
+      .flat()
+      .sort((a, b) => b._creationTime - a._creationTime);
+
+    // Manual pagination
+    const cursor = paginationOpts.cursor;
+    const startIndex =
+      cursor && cursor !== "" ? parseInt(cursor as string, 10) : 0;
+    const endIndex = startIndex + paginationOpts.numItems;
+
+    const pageFeedItems = allFeedItems.slice(startIndex, endIndex);
+
+    // Fetch related data for paginated items in parallel
+    const pageWithDetails = await Promise.all(
+      pageFeedItems.map(async (item) => {
+        const [user, review, production] = await Promise.all([
+          ctx.db
+            .query("users")
+            .withIndex("by_userId", (q) => q.eq("userId", item.userId))
+            .first(),
+          ctx.db
+            .query("productionReviews")
+            .withIndex("by_production_user", (q) =>
+              q
+                .eq("productionId", item.data.productionId)
+                .eq("userId", item.userId),
+            )
+            .first(),
+          ctx.db.get(item.data.productionId),
+        ]);
+
+        return {
+          ...item,
+          user: user
+            ? {
+                userId: user.userId,
+                nickname: user.nickname,
+                pictureUrl: user.pictureUrl,
+              }
+            : null,
+          review: review
+            ? {
+                _creationTime: review._creationTime,
+                visited: review.visited,
+                rating: review.rating,
+                review: review.review,
+              }
+            : null,
+          production: production
+            ? {
+                _id: production._id,
+                title: production.title,
+              }
+            : null,
+        };
+      }),
+    );
+
+    const isDone = endIndex >= allFeedItems.length;
+    const continueCursor = isDone ? "" : endIndex.toString();
+
+    return {
+      page: pageWithDetails,
+      isDone,
+      continueCursor,
+    };
   },
 });
