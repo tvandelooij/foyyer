@@ -48,7 +48,9 @@ export default defineSchema({
   })
     .index("by_user_1", ["userId1"])
     .index("by_user_2", ["userId2"])
-    .index("by_users", ["userId1", "userId2"]),
+    .index("by_users", ["userId1", "userId2"])
+    .index("by_user_1_status", ["userId1", "status"])
+    .index("by_user_2_status", ["userId2", "status"]),
   notifications: defineTable({
     userId: v.string(),
     type: v.union(
