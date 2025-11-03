@@ -79,3 +79,36 @@ export const getTotalVisitCountForUser = query({
     return visitCount.length;
   },
 });
+
+export const updateUserProfile = mutation({
+  args: {
+    bio: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (identity === null) {
+      throw new Error("Not authenticated");
+    }
+
+    const userId = identity.subject;
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .first();
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    // Validate bio length (max 500 characters)
+    if (args.bio && args.bio.length > 500) {
+      throw new Error("Bio must be 500 characters or less");
+    }
+
+    await ctx.db.patch(user._id, {
+      bio: args.bio,
+      updatedAt: Date.now(),
+    });
+  },
+});

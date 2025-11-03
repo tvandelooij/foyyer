@@ -162,3 +162,48 @@ export const listFriendsForUserId = query({
       .collect();
   },
 });
+
+// Denormalized query that fetches friends with their user details
+export const listFriendsWithDetailsForUser = query({
+  args: { userId: v.string() },
+  handler: async (ctx, args) => {
+    // Get all friendships for this user
+    const friendships = await ctx.db
+      .query("friendships")
+      .filter((q) =>
+        q.or(
+          q.eq(q.field("userId1"), args.userId),
+          q.eq(q.field("userId2"), args.userId),
+        ),
+      )
+      .filter((q) => q.eq(q.field("status"), "accepted"))
+      .collect();
+
+    // Extract friend user IDs
+    const friendUserIds = friendships.map((f) =>
+      f.userId1 === args.userId ? f.userId2 : f.userId1,
+    );
+
+    // Fetch user details for all friends in parallel
+    const friendsWithDetails = await Promise.all(
+      friendUserIds.map(async (friendUserId, index) => {
+        const user = await ctx.db
+          .query("users")
+          .withIndex("by_userId", (q) => q.eq("userId", friendUserId))
+          .first();
+
+        const friendship = friendships[index];
+
+        return {
+          userId: friendUserId,
+          nickname: user?.nickname || "Unknown",
+          pictureUrl: user?.pictureUrl,
+          friendsSince: friendship.createdAt,
+        };
+      }),
+    );
+
+    // Sort by friendship date (newest first)
+    return friendsWithDetails.sort((a, b) => b.friendsSince - a.friendsSince);
+  },
+});
