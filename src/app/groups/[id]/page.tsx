@@ -68,7 +68,7 @@ export default function Page() {
 
   return (
     <Authenticated>
-      <div className="mx-6 my-4">
+      <div className="mx-6 my-4 pb-20">
         {isDeleting ? (
           <p>Groep wordt verwijderd...</p>
         ) : group ? (
