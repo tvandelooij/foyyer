@@ -15,10 +15,8 @@ import {
   CalendarIcon,
   CalendarPlus,
   Check,
-  ChevronDown,
   ChevronsUpDown,
   Dot,
-  Heart,
   PenLine,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -65,6 +63,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Stars from "@/components/stars";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Production, Review } from "@/lib/types";
+import {
+  ProductionStatusDropdown,
+  deriveStatus,
+  ProductionStatus,
+} from "@/components/production-status-dropdown";
 
 export default function Page() {
   const user = useUser();
@@ -98,52 +101,91 @@ export default function Page() {
     type: "review",
   });
 
-  // State to control the visited popover
-  const [visitedPopoverOpen, setVisitedPopoverOpen] = React.useState(false);
+  // Derive current status from existing data
+  const currentStatus = deriveStatus(hasLiked, maybeReview);
 
-  const handleVisitedClick = async (visited: boolean) => {
-    setVisitedPopoverOpen(false); // Close popover after click
+  const handleStatusChange = useCallback(
+    async (newStatus: ProductionStatus) => {
+      const currentStatus = deriveStatus(hasLiked, maybeReview);
 
-    if (maybeReview?._id) {
-      await updateRating({ id: maybeReview._id, visited });
-
-      if (visited && !maybeFeedItem) {
-        await createFeedItem({
-          userId: user.user?.id as string,
-          type: "review",
-          data: { productionId: id, reviewId: maybeReview?._id },
-        });
-      } else if (!visited && maybeFeedItem) {
-        await deleteFeedItem({
-          id: maybeFeedItem[0]?._id,
-        });
+      // Handle "want_to_see" status (uses production_likes)
+      if (newStatus === "want_to_see") {
+        // If currently "seen", clear the visited flag
+        if (currentStatus === "seen" && maybeReview?._id) {
+          await updateRating({ id: maybeReview._id, visited: false });
+          if (maybeFeedItem?.[0]?._id) {
+            await deleteFeedItem({ id: maybeFeedItem[0]._id });
+          }
+        }
+        // Add to likes if not already liked
+        if (!hasLiked) {
+          await likeProduction({ productionId: id });
+        }
+        return;
       }
-      return;
-    }
 
-    const reviewId = await addReview({
-      productionId: id,
-      userId: user.user?.id as string,
-      visited,
-      rating: undefined,
-      review: undefined,
-    });
-    await createFeedItem({
-      userId: user.user?.id as string,
-      type: "review",
-      data: { productionId: id, reviewId },
-    });
-  };
+      // Handle "seen" status (uses productionReviews)
+      if (newStatus === "seen") {
+        // Remove from likes if liked (want_to_see -> seen transition)
+        if (hasLiked) {
+          await unlikeProduction({ productionId: id });
+        }
 
-  const handleLikeClick = useCallback(
-    async (productionId: Id<"productions">) => {
-      if (hasLiked) {
-        await unlikeProduction({ productionId });
-      } else {
-        await likeProduction({ productionId });
+        // Create or update review with visited=true
+        if (maybeReview?._id) {
+          await updateRating({ id: maybeReview._id, visited: true });
+          if (!maybeFeedItem) {
+            await createFeedItem({
+              userId: user.user?.id as string,
+              type: "review",
+              data: { productionId: id, reviewId: maybeReview._id },
+            });
+          }
+        } else {
+          const reviewId = await addReview({
+            productionId: id,
+            userId: user.user?.id as string,
+            visited: true,
+            rating: undefined,
+            review: undefined,
+          });
+          await createFeedItem({
+            userId: user.user?.id as string,
+            type: "review",
+            data: { productionId: id, reviewId },
+          });
+        }
+        return;
+      }
+
+      // Handle null status (remove)
+      if (newStatus === null) {
+        // Remove from likes
+        if (hasLiked) {
+          await unlikeProduction({ productionId: id });
+        }
+        // Clear visited status and remove feed item
+        if (maybeReview?._id) {
+          await updateRating({ id: maybeReview._id, visited: false });
+          if (maybeFeedItem?.[0]?._id) {
+            await deleteFeedItem({ id: maybeFeedItem[0]._id });
+          }
+        }
       }
     },
-    [hasLiked, likeProduction, unlikeProduction],
+    [
+      hasLiked,
+      maybeReview,
+      maybeFeedItem,
+      id,
+      user.user?.id,
+      likeProduction,
+      unlikeProduction,
+      updateRating,
+      addReview,
+      createFeedItem,
+      deleteFeedItem,
+    ],
   );
 
   const handleWriteReviewClick = useCallback(() => {
@@ -156,16 +198,6 @@ export default function Page() {
         <div className="flex flex-col gap-4 mx-6">
           <div className="flex flex-row justify-between items-center gap-2">
             <div className="text-3xl font-bold">{production?.title}</div>
-            <div>
-              <Heart
-                className={`text-orange-500 cursor-pointer ${hasLiked ? "fill-orange-500" : "fill-none"}`}
-                onClick={
-                  production?._id
-                    ? () => handleLikeClick(production._id)
-                    : undefined
-                }
-              />
-            </div>
           </div>
           <div>
             {production?.tags && production.tags.length > 0 && (
@@ -217,67 +249,36 @@ export default function Page() {
             </div>
           </div>
           {production && (
-            <div className="flex flex-col py-2 items-center gap-2 border-t-1">
-              <div className="flex flex-row rounded-sm border-red-950 border-2 border-b-4 border-r-4 mt-2">
-                <Button
-                  className={cn(
-                    "text-red-950 text-xs font-semibold rounded-xs border-r-2 border-red-950",
-                    hasLiked ? "bg-lime-200" : "bg-lime-100",
-                  )}
-                  onClick={
-                    production?._id
-                      ? () => handleLikeClick(production._id)
-                      : undefined
-                  }
-                  disabled={maybeReview?.visited}
-                >
-                  {maybeReview?.visited
-                    ? "Voorstelling bezocht"
-                    : "Wil ik zien"}
-                </Button>
-                <Popover
-                  open={visitedPopoverOpen}
-                  onOpenChange={setVisitedPopoverOpen}
-                >
-                  <PopoverTrigger className="bg-lime-100 px-2 rounded-xs">
-                    <ChevronDown className="text-red-950 h-4 w-4" />
-                  </PopoverTrigger>
-                  <PopoverContent
-                    className="w-full bg-lime-100 rounded-sm border-red-950 border-b-2 border-r-2 border-l-2 p-0 m-0 flex flex-row justify-end"
-                    align="end"
-                  >
-                    <Button
-                      className="bg-lime-100 rounded-sm text-xs text-red-950 font-semibold border-none shadow-none px-4 m-0"
-                      onClick={() =>
-                        handleVisitedClick(maybeReview?.visited ? false : true)
-                      }
-                    >
-                      {maybeReview?.visited
-                        ? "Wil ik zien"
-                        : "Voorstelling bezocht"}
-                    </Button>
-                  </PopoverContent>
-                </Popover>
+            <div className="flex flex-col py-2 items-center gap-3 border-t-1">
+              <div className="mt-2">
+                <ProductionStatusDropdown
+                  status={currentStatus}
+                  onStatusChange={handleStatusChange}
+                />
               </div>
 
-              <div className="text-sm text-gray-500">Jouw beoordeling</div>
-              <Rating
-                production={{
-                  _id: production!._id,
-                  avg_rating: production?.avg_rating ?? 0,
-                  rating_count: production?.rating_count ?? 0,
-                  review_count: production?.review_count ?? 0,
-                }}
-                maybeReview={
-                  maybeReview
-                    ? {
-                        _id: maybeReview._id,
-                        rating: maybeReview.rating ?? 0,
-                        visited: maybeReview.visited ?? false,
-                      }
-                    : undefined
-                }
-              />
+              {currentStatus === "seen" && (
+                <>
+                  <div className="text-sm text-gray-500">Jouw beoordeling</div>
+                  <Rating
+                    production={{
+                      _id: production!._id,
+                      avg_rating: production?.avg_rating ?? 0,
+                      rating_count: production?.rating_count ?? 0,
+                      review_count: production?.review_count ?? 0,
+                    }}
+                    maybeReview={
+                      maybeReview
+                        ? {
+                            _id: maybeReview._id,
+                            rating: maybeReview.rating ?? 0,
+                            visited: maybeReview.visited ?? false,
+                          }
+                        : undefined
+                    }
+                  />
+                </>
+              )}
             </div>
           )}
         </div>
