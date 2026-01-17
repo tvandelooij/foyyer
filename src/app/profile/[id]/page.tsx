@@ -86,7 +86,7 @@ export default function ProfilePage() {
   };
 
   // Calculate member since date
-  const memberSince = new Date(userProfile.updatedAt);
+  const memberSince = new Date(userProfile._creationTime);
   const monthYear = memberSince.toLocaleDateString("nl-NL", {
     month: "long",
     year: "numeric",

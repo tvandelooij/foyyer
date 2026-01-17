@@ -2,8 +2,10 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { useQuery } from "convex/react";
+import { useUser } from "@clerk/nextjs";
 import { api } from "../../../convex/_generated/api";
 import { Input } from "@/components/ui/input";
+import { Drama, User, Users } from "lucide-react";
 
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -16,12 +18,15 @@ interface MultiSearchResult {
   display: string;
   pictureUrl?: string;
   description?: string;
-  // ...other fields as needed
+  category?: string;
+  memberCount?: number;
+  mutualFriendCount?: number;
 }
 
 export default function MultiSearch() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { user } = useUser();
 
   // Initialize query from URL
   const initialQ = searchParams.get("q") || "";
@@ -61,7 +66,7 @@ export default function MultiSearch() {
   const rawResults =
     useQuery(
       api.search.default,
-      debouncedQuery ? { q: debouncedQuery } : "skip",
+      debouncedQuery ? { q: debouncedQuery, currentUserId: user?.id } : "skip",
     ) || [];
 
   const results: MultiSearchResult[] = rawResults.map((r: any) => ({
@@ -70,6 +75,9 @@ export default function MultiSearch() {
     display: r.display,
     pictureUrl: r.pictureUrl,
     description: r.description,
+    category: r.category,
+    memberCount: r.memberCount,
+    mutualFriendCount: r.mutualFriendCount,
   }));
 
   // Group results by type
@@ -108,13 +116,23 @@ export default function MultiSearch() {
                       className="hover:bg-gray-50 dark:bg-gray-900 dark:border-gray-700 border-b-2"
                     >
                       <Card className="border-none py-4">
-                        <CardHeader>
-                          <CardTitle className="text-xs">
-                            {prod.display}
-                          </CardTitle>
-                          <CardDescription className="text-xs">
-                            {prod.description?.split(" ? ").join(", ")}
-                          </CardDescription>
+                        <CardHeader className="flex flex-row items-start gap-3">
+                          <div className="flex-shrink-0 mt-1">
+                            <Drama className="h-5 w-5 text-red-950 dark:text-gray-200" />
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <CardTitle className="text-xs">
+                              {prod.display}
+                            </CardTitle>
+                            <CardDescription className="text-xs">
+                              {prod.description?.split(" ? ").join(", ")}
+                            </CardDescription>
+                            {prod.category && (
+                              <span className="text-xs text-gray-400">
+                                {prod.category}
+                              </span>
+                            )}
+                          </div>
                         </CardHeader>
                       </Card>
                     </Link>
@@ -135,13 +153,24 @@ export default function MultiSearch() {
                       className="hover:bg-gray-50 dark:bg-gray-900 dark:border-gray-700 border-b-2"
                     >
                       <Card className="border-none py-4">
-                        <CardHeader>
-                          <CardTitle className="text-xs">
-                            {group.display}
-                          </CardTitle>
-                          <CardDescription className="text-xs">
-                            {group.description}
-                          </CardDescription>
+                        <CardHeader className="flex flex-row items-start gap-3">
+                          <div className="flex-shrink-0 mt-1">
+                            <Users className="h-5 w-5 text-red-950 dark:text-gray-200" />
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <CardTitle className="text-xs">
+                              {group.display}
+                            </CardTitle>
+                            <CardDescription className="text-xs">
+                              {group.description}
+                            </CardDescription>
+                            {group.memberCount !== undefined && (
+                              <span className="text-xs text-gray-400">
+                                {group.memberCount}{" "}
+                                {group.memberCount === 1 ? "lid" : "leden"}
+                              </span>
+                            )}
+                          </div>
                         </CardHeader>
                       </Card>
                     </Link>
@@ -155,17 +184,31 @@ export default function MultiSearch() {
                   Gebruikers
                 </div>
                 <div className="flex flex-col gap-2">
-                  {grouped.users.map((user) => (
+                  {grouped.users.map((u) => (
                     <Link
-                      key={user.id}
-                      href={`/profile/${user.id}`}
+                      key={u.id}
+                      href={`/profile/${u.id}`}
                       className="hover:bg-gray-50 dark:bg-gray-900 dark:border-gray-700 border-b-2"
                     >
                       <Card className="border-none py-4 gap-0">
-                        <CardHeader>
-                          <CardTitle className="text-xs">
-                            {user.display}
-                          </CardTitle>
+                        <CardHeader className="flex flex-row items-start gap-3">
+                          <div className="flex-shrink-0 mt-1">
+                            <User className="h-5 w-5 text-red-950 dark:text-gray-200" />
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <CardTitle className="text-xs">
+                              {u.display}
+                            </CardTitle>
+                            {u.mutualFriendCount !== undefined &&
+                              u.mutualFriendCount > 0 && (
+                                <span className="text-xs text-gray-400">
+                                  {u.mutualFriendCount} gemeenschappelijke{" "}
+                                  {u.mutualFriendCount === 1
+                                    ? "vriend"
+                                    : "vrienden"}
+                                </span>
+                              )}
+                          </div>
                         </CardHeader>
                       </Card>
                     </Link>

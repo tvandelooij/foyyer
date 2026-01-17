@@ -134,7 +134,7 @@ def main():
 
     print("Writing data to JSONL...")
 
-    with open("data/productions-2014.jsonl", "w", encoding="utf-8") as f:
+    with open("data/productions-2026.jsonl", "w", encoding="utf-8") as f:
         for loc in data:
             f.write(json.dumps(loc.model_dump(), ensure_ascii=False) + "\n")
 

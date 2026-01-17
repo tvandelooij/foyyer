@@ -14,6 +14,8 @@ import { Authenticated } from "convex/react";
 
 import React, { useCallback } from "react";
 import { AgendaItemType } from "@/lib/types";
+import { CalendarX, ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 const MemoAgendaItem = React.memo(AgendaItem);
 
@@ -28,6 +30,21 @@ export default function Page() {
             Agenda
           </div>
           <div className="flex flex-col gap-2">
+            {agendaItems && agendaItems.length === 0 && (
+              <div className="flex flex-col gap-2 items-center justify-center px-4 text-center">
+                <CalendarX className="h-8 w-8 text-gray-300 dark:text-gray-600 mb-4" />
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-6">
+                  Voeg voorstellingen toe aan je agenda om ze hier te zien.
+                </p>
+                <Link
+                  href="/search"
+                  className="inline-flex items-center gap-2 bg-red-950 text-red-950 font-semibold dark:bg-gray-200 dark:text-gray-900 px-4 py-2 rounded-sm text-sm font-medium hover:opacity-90 transition-opacity"
+                >
+                  Ontdek voorstellingen
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
+            )}
             {agendaItems?.map((item) => (
               <MemoAgendaItem key={item._id} item={item} />
             ))}
