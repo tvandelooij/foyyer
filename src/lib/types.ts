@@ -45,6 +45,21 @@ export type InviteFriendProps = {
   groupId: string;
 };
 
+export type ReactionCounts = {
+  thumbs_up: number;
+  thumbs_down: number;
+  heart: number;
+  smile: number;
+  celebration: number;
+};
+
+export type ReactionType =
+  | "thumbs_up"
+  | "thumbs_down"
+  | "heart"
+  | "smile"
+  | "celebration";
+
 export type Review = {
   _id: Id<"productionReviews">;
   _creationTime: number;
@@ -54,6 +69,7 @@ export type Review = {
   rating: number | null;
   review: string | null;
   updatedAt: number;
+  reactionCounts?: ReactionCounts;
 };
 
 export type Production = {

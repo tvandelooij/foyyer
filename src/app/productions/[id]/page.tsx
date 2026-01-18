@@ -7,7 +7,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Id } from "../../../../convex/_generated/dataModel";
 
 import { format } from "date-fns";
-import React, { memo, useCallback, useEffect } from "react";
+import React, { memo, useCallback, useEffect, useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -18,6 +18,7 @@ import {
   ChevronsUpDown,
   Dot,
   PenLine,
+  SmilePlus,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -62,7 +63,7 @@ import Rating from "@/components/rating";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Stars from "@/components/stars";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { Production, Review } from "@/lib/types";
+import { Production, Review, ReactionType } from "@/lib/types";
 import {
   ProductionStatusDropdown,
   deriveStatus,
@@ -422,6 +423,91 @@ const MemoProductionCard = memo(function ProductionCard({
   );
 });
 
+const REACTION_EMOJIS: Record<ReactionType, string> = {
+  thumbs_up: "👍",
+  thumbs_down: "👎",
+  heart: "❤️",
+  smile: "😊",
+  celebration: "🎉",
+};
+
+const REACTION_ORDER: ReactionType[] = [
+  "thumbs_up",
+  "thumbs_down",
+  "heart",
+  "smile",
+  "celebration",
+];
+
+function ReactionDisplay({
+  reactionCounts,
+  userReactions,
+  onReactionClick,
+}: {
+  reactionCounts: Record<ReactionType, number>;
+  userReactions: ReactionType[] | undefined;
+  onReactionClick: (reactionType: ReactionType) => void;
+}) {
+  const [pickerOpen, setPickerOpen] = useState(false);
+
+  const visibleReactions = REACTION_ORDER.filter(
+    (type) => reactionCounts[type] > 0 || userReactions?.includes(type),
+  );
+
+  return (
+    <div className="flex flex-row gap-2 px-6 pb-4">
+      {visibleReactions.map((reactionType) => {
+        const count = reactionCounts[reactionType];
+        const isActive = userReactions?.includes(reactionType);
+        return (
+          <button
+            key={reactionType}
+            onClick={() => onReactionClick(reactionType)}
+            className={cn(
+              "flex items-center gap-1 px-2 py-1 rounded-full text-xs transition-colors",
+              isActive
+                ? "bg-orange-100 border border-orange-300"
+                : "bg-stone-100 hover:bg-stone-200 border border-transparent",
+            )}
+          >
+            <span>{REACTION_EMOJIS[reactionType]}</span>
+            {count > 0 && <span className="text-gray-600">{count}</span>}
+          </button>
+        );
+      })}
+      <Popover open={pickerOpen} onOpenChange={setPickerOpen}>
+        <PopoverTrigger asChild>
+          <button className="flex items-center gap-1 px-2 py-1 rounded-full text-xs transition-colors bg-stone-100 hover:bg-stone-200 border border-transparent">
+            <SmilePlus className="h-4 w-4 text-gray-500" />
+          </button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-2" align="start">
+          <div className="flex gap-1">
+            {REACTION_ORDER.map((reactionType) => {
+              const isActive = userReactions?.includes(reactionType);
+              return (
+                <button
+                  key={reactionType}
+                  onClick={() => {
+                    onReactionClick(reactionType);
+                    setPickerOpen(false);
+                  }}
+                  className={cn(
+                    "p-2 rounded-md text-lg transition-colors",
+                    isActive ? "bg-orange-100" : "hover:bg-stone-100",
+                  )}
+                >
+                  {REACTION_EMOJIS[reactionType]}
+                </button>
+              );
+            })}
+          </div>
+        </PopoverContent>
+      </Popover>
+    </div>
+  );
+}
+
 const MemoReviewCard = React.memo(function ReviewCard({
   review,
 }: {
@@ -429,9 +515,32 @@ const MemoReviewCard = React.memo(function ReviewCard({
 }) {
   const router = useRouter();
   const user = useQuery(api.users.getUserById, { id: review.userId });
+  const userReactions = useQuery(
+    api.review_reactions.getUserReactionsForReview,
+    {
+      reviewId: review._id,
+    },
+  );
+  const toggleReaction = useMutation(api.review_reactions.toggleReaction);
+
   const handleProfileClick = useCallback(() => {
     if (user?.userId) router.push(`/profile/${user.userId}`);
   }, [router, user?.userId]);
+
+  const handleReactionClick = useCallback(
+    async (reactionType: ReactionType) => {
+      await toggleReaction({ reviewId: review._id, reactionType });
+    },
+    [toggleReaction, review._id],
+  );
+
+  const reactionCounts = review.reactionCounts ?? {
+    thumbs_up: 0,
+    thumbs_down: 0,
+    heart: 0,
+    smile: 0,
+    celebration: 0,
+  };
 
   return (
     <Card className="border-none">
@@ -464,6 +573,11 @@ const MemoReviewCard = React.memo(function ReviewCard({
           <p className="text-xs text-gray-500">{review.review}</p>
         </CardContent>
       )}
+      <ReactionDisplay
+        reactionCounts={reactionCounts}
+        userReactions={userReactions}
+        onReactionClick={handleReactionClick}
+      />
     </Card>
   );
 });
