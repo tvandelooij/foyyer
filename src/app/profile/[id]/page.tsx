@@ -120,17 +120,7 @@ export default function ProfilePage() {
                 </div>
 
                 {/* Action Button */}
-                {isOwnProfile ? (
-                  // <Button
-                  //   className="text-xs rounded-sm font-semibold bg-stone-200 border-2 border-red-950 border-b-4 border-r-4 text-red-950"
-                  //   onClick={() => setEditBioOpen(true)}
-                  //   size="sm"
-                  // >
-                  //   <Edit className="h-4 w-4 mr-1" />
-                  //   Bewerk
-                  // </Button>
-                  <></>
-                ) : (
+                {!isOwnProfile && (
                   <>
                     {!friendship && (
                       <Button
