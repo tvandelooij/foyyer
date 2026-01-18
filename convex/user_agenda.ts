@@ -161,6 +161,26 @@ export const listAgendaItemsForUser = query({
   },
 });
 
+export const listPastAgendaItemsForUser = query({
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("userId is required to list past agenda items.");
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    return ctx.db
+      .query("userAgenda")
+      .withIndex("by_userId_date", (q) =>
+        q.eq("userId", identity.subject).lt("date", today.toISOString()),
+      )
+      .order("desc")
+      .collect();
+  },
+});
+
 export const deleteAgendaItem = mutation({
   args: { id: v.id("userAgenda") },
   handler: async (ctx, args) => {
