@@ -53,6 +53,13 @@ function Notifications() {
                 notification={notification}
               />
             );
+          } else if (notification.type === "like_review") {
+            return (
+              <ReviewReaction
+                key={notification._id}
+                notification={notification}
+              />
+            );
           } else {
             return null;
           }
@@ -238,6 +245,86 @@ function EventProposal({ notification }: { notification: any }) {
             <CircleArrowRight className="text-red-950" />
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+const REACTION_EMOJIS: Record<string, string> = {
+  thumbs_up: "👍",
+  thumbs_down: "👎",
+  heart: "❤️",
+  smile: "😊",
+  celebration: "🎉",
+};
+
+function ReviewReaction({ notification }: { notification: any }) {
+  const router = useRouter();
+  const senderId = notification.data?.senderId;
+  const productionId = notification.data?.productionId;
+  const reactionType = notification.data?.reactionType;
+
+  const sender = useQuery(api.users.getUserById, { id: senderId });
+  const production = useQuery(api.productions.getProductionById, {
+    id: productionId,
+  });
+  const markNotificationAsRead = useMutation(
+    api.notifications.markNotificationAsRead,
+  );
+
+  const handleProfileClick = () => {
+    router.push(`/profile/${sender?.userId}`);
+  };
+
+  const handleProductionClick = async () => {
+    await markNotificationAsRead({ notificationId: notification._id });
+    router.push(`/productions/${productionId}`);
+  };
+
+  if (!sender || !production) {
+    return null;
+  }
+
+  const reactionEmoji = reactionType
+    ? REACTION_EMOJIS[reactionType]
+    : undefined;
+
+  return (
+    <div className="flex items-center justify-between gap-4 p-4 border-b">
+      <div
+        className="relative w-[40px] h-[40px] rounded-full overflow-hidden cursor-pointer"
+        onClick={handleProfileClick}
+      >
+        <Image
+          src={sender?.pictureUrl || "/default-avatar.png"}
+          alt={sender?.nickname || "Gebruiker"}
+          fill
+          className="object-cover"
+          sizes="40px"
+        />
+      </div>
+      <div className="flex flex-col gap-1 flex-1">
+        <p className="text-xs text-gray-500">
+          <span
+            className="font-semibold cursor-pointer"
+            onClick={handleProfileClick}
+          >
+            {sender?.nickname}
+          </span>{" "}
+          heeft {reactionEmoji ?? "❤️"} gereageerd op je review voor{" "}
+          <span
+            className="font-semibold cursor-pointer"
+            onClick={handleProductionClick}
+          >
+            {production?.title}
+          </span>
+        </p>
+      </div>
+      <div
+        className="flex flex-row cursor-pointer"
+        onClick={handleProductionClick}
+      >
+        <CircleArrowRight className="text-red-950" />
       </div>
     </div>
   );

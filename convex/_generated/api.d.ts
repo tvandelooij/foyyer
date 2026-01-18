@@ -18,6 +18,7 @@ import type * as notifications from "../notifications.js";
 import type * as production_likes from "../production_likes.js";
 import type * as production_reviews from "../production_reviews.js";
 import type * as productions from "../productions.js";
+import type * as review_reactions from "../review_reactions.js";
 import type * as search from "../search.js";
 import type * as user_agenda from "../user_agenda.js";
 import type * as users from "../users.js";
@@ -48,6 +49,7 @@ declare const fullApi: ApiFromModules<{
   production_likes: typeof production_likes;
   production_reviews: typeof production_reviews;
   productions: typeof productions;
+  review_reactions: typeof review_reactions;
   search: typeof search;
   user_agenda: typeof user_agenda;
   users: typeof users;

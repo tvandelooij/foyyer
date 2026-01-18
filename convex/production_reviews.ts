@@ -135,6 +135,7 @@ export const getAllReviewsByUserWithDetails = query({
             rating: review.rating,
             review: review.review,
             _creationTime: review._creationTime,
+            reactionCounts: review.reactionCounts,
           },
           production: production
             ? {

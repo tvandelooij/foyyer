@@ -66,6 +66,15 @@ export default defineSchema({
         reviewId: v.optional(v.string()),
         groupId: v.optional(v.id("groups")),
         productionId: v.optional(v.id("productions")),
+        reactionType: v.optional(
+          v.union(
+            v.literal("thumbs_up"),
+            v.literal("thumbs_down"),
+            v.literal("heart"),
+            v.literal("smile"),
+            v.literal("celebration"),
+          ),
+        ),
       }),
     ), // additional data, e.g. reviewId, senderId
     read: v.boolean(),
@@ -166,11 +175,31 @@ export default defineSchema({
     rating: v.optional(v.number()),
     review: v.optional(v.string()),
     updatedAt: v.number(),
+    reactionCounts: v.optional(
+      v.object({
+        thumbs_up: v.number(),
+        thumbs_down: v.number(),
+        heart: v.number(),
+        smile: v.number(),
+        celebration: v.number(),
+      }),
+    ),
   })
     .index("by_production", ["productionId"])
     .index("by_user", ["userId"])
     .index("by_user_by_status", ["userId", "visited"])
     .index("by_production_user", ["productionId", "userId"]),
+  reviewReactions: defineTable({
+    reviewId: v.id("productionReviews"),
+    userId: v.string(),
+    reactionType: v.union(
+      v.literal("thumbs_up"),
+      v.literal("thumbs_down"),
+      v.literal("heart"),
+      v.literal("smile"),
+      v.literal("celebration"),
+    ),
+  }).index("by_review_user_type", ["reviewId", "userId", "reactionType"]),
   feed: defineTable({
     userId: v.string(),
     type: v.union(v.literal("review")),
