@@ -7,7 +7,7 @@ import { api } from "../../../../convex/_generated/api";
 import type { Id } from "../../../../convex/_generated/dataModel";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Ban, CircleCheck, CirclePlus } from "lucide-react";
+import { Ban, CircleCheck, CirclePlus, Mail } from "lucide-react";
 import { useUser } from "@clerk/nextjs";
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -16,6 +16,7 @@ import { FriendsTab } from "@/components/profile/friends-tab";
 import { GroupsTab } from "@/components/profile/groups-tab";
 import { ReviewsTab } from "@/components/profile/reviews-tab";
 import { EditBioDialog } from "@/components/profile/edit-bio-dialog";
+import { InviteUserDialog } from "@/components/profile/invite-user-dialog";
 
 export default function ProfilePage() {
   const user = useUser();
@@ -23,6 +24,7 @@ export default function ProfilePage() {
   const id = params.id as string;
   const userProfile = useQuery(api.users.getUserById, { id });
   const [editBioOpen, setEditBioOpen] = useState(false);
+  const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
 
   const addFriend = useMutation(api.friendships.createFriendship);
   const createNotification = useMutation(api.notifications.createNotification);
@@ -121,15 +123,14 @@ export default function ProfilePage() {
 
                 {/* Action Button */}
                 {isOwnProfile ? (
-                  // <Button
-                  //   className="text-xs rounded-sm font-semibold bg-stone-200 border-2 border-red-950 border-b-4 border-r-4 text-red-950"
-                  //   onClick={() => setEditBioOpen(true)}
-                  //   size="sm"
-                  // >
-                  //   <Edit className="h-4 w-4 mr-1" />
-                  //   Bewerk
-                  // </Button>
-                  <></>
+                  <Button
+                    className="text-xs rounded-sm font-semibold bg-orange-500 border-2 border-red-950 border-b-4 border-r-4"
+                    onClick={() => setInviteDialogOpen(true)}
+                    size="sm"
+                  >
+                    <Mail className="h-4 w-4 mr-1" />
+                    Uitnodigen
+                  </Button>
                 ) : (
                   <>
                     {!friendship && (
@@ -301,6 +302,12 @@ export default function ProfilePage() {
         open={editBioOpen}
         onOpenChange={setEditBioOpen}
         currentBio={userProfile.bio}
+      />
+
+      {/* Invite User Dialog */}
+      <InviteUserDialog
+        open={inviteDialogOpen}
+        onOpenChange={setInviteDialogOpen}
       />
     </Authenticated>
   );
