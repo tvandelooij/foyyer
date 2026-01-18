@@ -246,6 +246,19 @@ export const getItemsForUserPaginatedWithDetails = query({
           ctx.db.get(item.data.productionId),
         ]);
 
+        // Get user reactions if authenticated
+        const identity = await ctx.auth.getUserIdentity();
+        let userReactions: string[] = [];
+        if (identity && review) {
+          const reactions = await ctx.db
+            .query("reviewReactions")
+            .withIndex("by_review_user_type", (q) =>
+              q.eq("reviewId", review._id).eq("userId", identity.subject),
+            )
+            .collect();
+          userReactions = reactions.map((r) => r.reactionType);
+        }
+
         return {
           ...item,
           user: user
@@ -257,10 +270,19 @@ export const getItemsForUserPaginatedWithDetails = query({
             : null,
           review: review
             ? {
+                _id: review._id,
                 _creationTime: review._creationTime,
                 visited: review.visited,
                 rating: review.rating,
                 review: review.review,
+                reactionCounts: review.reactionCounts ?? {
+                  thumbs_up: 0,
+                  thumbs_down: 0,
+                  heart: 0,
+                  smile: 0,
+                  celebration: 0,
+                },
+                userReactions,
               }
             : null,
           production: production
